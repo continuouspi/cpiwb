@@ -1,6 +1,6 @@
 -- (C) Copyright Chris Banks 2011-2012
 
--- This file is part of The Continuous Pi-calculus Workbench (CPiWB). 
+-- This file is part of The Continuous Pi-calculus Workbench (CPiWB).
 
 --     CPiWB is free software: you can redistribute it and/or modify
 --     it under the terms of the GNU General Public License as published by
@@ -33,6 +33,8 @@ import qualified Control.Exception as X
 
 import Debug.Trace(trace)
 
+foreign export ccall loadCmd :: String -> Environment()
+foreign export ccall odesCmd :: String -> Environment()
 
 -- Some configurables:
 welcome = "\nWelcome to the Continuous Pi-calculus Workbench (CPiWB).\n"
@@ -48,7 +50,7 @@ type Formulae = [Formula]
 main :: IO ()
 main = do putStrLn welcome;
           evalStateT (runInputT defaultSettings loop) []
-              where 
+              where
                 loop :: Environment ()
                 loop = do input <- getInputLine prompt
                           case input of
@@ -148,8 +150,8 @@ commands = [("help",
 
 -- help Command
 helpCmd :: String -> Environment ()
-helpCmd x 
-    | not(null(param x)) 
+helpCmd x
+    | not(null(param x))
         = case (lookup (param x) commands) of
             Nothing -> say $ "Sorry no help on \""++x++"\"."
             Just r -> let (c,d) = cmdHelp r in
@@ -330,8 +332,8 @@ plotOnlyCmd x = do env <- getEnv;
                    let end = read(args!!3)
                    let err x = X.throw $ CpiException $
                                "Species \""++x++"\" is not in the Environment."
-                   let onlyss = map 
-                                (\x->maybe (err x) id (lookupSpecName env x)) 
+                   let onlyss = map
+                                (\x->maybe (err x) id (lookupSpecName env x))
                                 (drop 5 args)
                    case lookupProcName env (args!!1) of
                      Nothing   -> say $ "Process \""++(args!!1)
@@ -340,11 +342,11 @@ plotOnlyCmd x = do env <- getEnv;
                                      let dpdt = dPdt env mts proc
                                      let ts = (res,(start,end))
                                      let ts' = timePoints ts
-                                     let solns = solveODEoctave env proc 
+                                     let solns = solveODEoctave env proc
                                                                 mts dpdt ts
                                      let ss = speciesIn env dpdt
                                      lift$lift$
-                                         plotTimeSeriesFiltered ts' solns 
+                                         plotTimeSeriesFiltered ts' solns
                                                                 ss onlyss
 
 -- plot concentration derivatives command:
@@ -358,8 +360,8 @@ plotDerivsCmd x = do env <- getEnv;
                      let end = read(args!!3)
                      let err x = X.throw $ CpiException $
                                  "Species \""++x++"\" is not in the Environment."
-                     let onlyss = map 
-                                  (\x->maybe (err x) id (lookupSpecName env x)) 
+                     let onlyss = map
+                                  (\x->maybe (err x) id (lookupSpecName env x))
                                   (drop 5 args)
                      case lookupProcName env (args!!1) of
                        Nothing   -> say $ "Process \""++(args!!1)
@@ -368,7 +370,7 @@ plotDerivsCmd x = do env <- getEnv;
                                        let dpdt = dPdt env mts proc
                                        let ts = (res,(start,end))
                                        let ts' = timePoints ts
-                                       let solns = solveODEoctave env proc 
+                                       let solns = solveODEoctave env proc
                                                        mts dpdt ts
                                        let ds = derivs env dpdt ts solns
                                        let ss = speciesIn env dpdt
@@ -385,15 +387,15 @@ checkCmd x = do env <- getEnv
                   Nothing -> say $ "Process \""++(args!!1)
                              ++"\" is not in the Environment."
                   Just p  -> case parseFormula (unwords(drop 2 args)) of
-                               Left err -> say $ "Formula parse error:\n" 
+                               Left err -> say $ "Formula parse error:\n"
                                            ++ (show err)
                                Right f  -> let f' = reconcileSpecs env f
-                                           in say $ show $ 
-                                              modelCheck env 
-                                                         solveODE 
-                                                         Nothing 
-                                                         p 
-                                                         (500,(0,(simTime f'))) 
+                                           in say $ show $
+                                              modelCheck env
+                                                         solveODE
+                                                         Nothing
+                                                         p
+                                                         (500,(0,(simTime f')))
                                                          f'
 
 check2Cmd :: String -> Environment ()
@@ -403,14 +405,14 @@ check2Cmd x = do env <- getEnv
                    Nothing -> say $ "Process \""++(args!!1)
                               ++"\" is not in the Environment."
                    Just p  -> case parseFormula (unwords(drop 2 args)) of
-                                Left err -> say $ "Formula parse error:\n" 
+                                Left err -> say $ "Formula parse error:\n"
                                             ++ (show err)
                                 Right f  -> let f' = reconcileSpecs env f
                                             in say $ show $
-                                               modelCheckSig env 
-                                                            solveODEoctave 
-                                                            Nothing 
-                                                            p 
+                                               modelCheckSig env
+                                                            solveODEoctave
+                                                            Nothing
+                                                            p
                                                             (500,(0,(simTime f')))
                                                             f'
 -- MATLAB command - produce MATLAB script for ODEs.
@@ -442,10 +444,10 @@ evolveCmd x = do env <- getEnv
                    Just p -> let mts = processMTS env p
                                  p' = dPdt env mts p
                                  ts = (res,(start,end))
-                                 newP = (evolveProcess env p mts p' 
+                                 newP = (evolveProcess env p mts p'
                                                        ts solveODEoctave)
                              in do addEnv $ ProcessDef newPname newP
-                                   say $ newPname ++ " = " 
+                                   say $ newPname ++ " = "
                                            ++ (pretty newP)
 
 ----------------------
@@ -512,4 +514,3 @@ param cmdln = let ps = params cmdln in
               case ps of
                 []     -> []
                 (p:ps) -> p
-

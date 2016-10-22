@@ -1,0 +1,12 @@
+---------------------
+-- BIOMD0000000363
+-- Lee's Minimal Thrombin Activation, 2010
+-- cPi model created by Ross Rhodes
+---------------------
+
+species II() = tau<0.005>.M() + tau<0.0001>.P2();
+species IIa() = tau<0.0>.0;
+species M() = tau<0.01>.IIa();
+species P2() = tau<0.000025>.IIa();
+
+process Pi = [1.0] II() || [0.0] M() || [0.0] IIa() || [0.0] P2(): {};
