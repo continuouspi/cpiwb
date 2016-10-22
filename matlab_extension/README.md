@@ -16,7 +16,7 @@ The MEX command is now set to use GCC.
 To build the extension, run
 
 ```
-mex cpi_extension/odeConstruction.c -I'/usr/lib64/ghc-7.8.4/include/'
+mex cpi_extension/odeConstruction.c
 ```
 
 # Execution #

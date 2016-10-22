@@ -2,19 +2,20 @@
 #include "stdio.h"
 #include "unistd.h"
 
-#include "HsFFI.h"
-#ifdef __GLASGOW_HASKELL__
-#include "cpiwb_stub.h"
-#endif
+#include "FFI.h"
+#include "loadCmd_stub.h"
+#include "odesCmd_stub.h"
 
 /*
 source: http://uk.mathworks.com/help/matlab/matlab_external/standalone-example.html
+source: http://ghc.readthedocs.io/en/8.0.1/ffi-chap.html#using-the-ffi-with-ghc
+
 author: Ross Rhodes
 */
 
 int validate_input(int nrhs, const mxArray *prhs[])
 {
-  const char* fpath;
+  char* fpath;
 
   /* make sure exactly one input argument is provided */
   if (nrhs == 0) {
@@ -43,7 +44,10 @@ int validate_input(int nrhs, const mxArray *prhs[])
 }
 
 
-int generate_odes(){
+int generate_odes(int nrhs, const mxArray *prhs[]){
+  /* Store path to cpi file */
+  char* fpath = mxArrayToString(prhs[0]);
+
   return;
 }
 
@@ -61,12 +65,8 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
   valid = validate_input(nrhs, prhs);
 
   if (!valid){
-      return;
+    generate_odes(nrhs, prhs);
   }
-
-  hs_init(&nrhs, &prhs);
-  generate_odes();
-  hs_exit();
 
   return;
 }
