@@ -35,6 +35,8 @@ import qualified Control.Exception as X
 
 import Debug.Trace(trace)
 
+foreign export ccall loadCmd :: String -> Environment()
+foreign export ccall odesCmd :: String -> Environment()
 
 -- Some configurables:
 welcome = "\nWelcome to the Continuous Pi-calculus Workbench (CPiWB).\n"
