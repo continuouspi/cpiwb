@@ -1,4 +1,4 @@
--- (C) Copyright Chris Banks 2011-2012
+ -- (C) Copyright Chris Banks 2011-2012
 
 -- This file is part of The Continuous Pi-calculus Workbench (CPiWB).
 
@@ -33,10 +33,10 @@ import Graphics.Rendering.Chart.Renderable
 import qualified Data.List as L
 import qualified Control.Exception as X
 
-import Debug.Trace(trace)
+import Foreign.C.Types
+import Foreign.C.String
 
-foreign export ccall loadCmd :: String -> Environment()
-foreign export ccall odesCmd :: String -> Environment()
+import Debug.Trace(trace)
 
 -- Some configurables:
 welcome = "\nWelcome to the Continuous Pi-calculus Workbench (CPiWB).\n"
@@ -297,8 +297,7 @@ plotAllCmd x = do env <- getEnv;
                   let start = read(args!!2)
                   let end = read(args!!3)
                   case lookupProcName env (args!!1) of
-                    Nothing   -> say $ "Process \""++(args!!1)
-                                 ++"\" is not in the Environment."
+                    Nothing   -> say $ "Given process is not in the environment."
                     Just proc -> do let mts = processMTS env proc
                                     let dpdt = dPdt env mts proc
                                     let ts = (res,(start,end))
@@ -456,6 +455,17 @@ evolveCmd x = do env <- getEnv
                              in do addEnv $ ProcessDef newPname newP
                                    say $ newPname ++ " = "
                                            ++ (pretty newP)
+
+----------------------
+-- MATLAB extension
+----------------------
+constructODEs :: String         -- .cpi file origin
+              -> String         -- Parameters for Matlab command
+              -> Environment()
+              
+constructODEs x y = do loadCmd x
+                       matlabCmd y
+
 
 ----------------------
 -- Command help texts:
