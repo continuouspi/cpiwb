@@ -2,7 +2,7 @@
 #include "stdio.h"
 #include "unistd.h"
 
-#include "construct_ODEs_stub.h"
+#include "constructODEs_stub.h"
 
 /*
 source: http://uk.mathworks.com/help/matlab/matlab_external/standalone-example.html
@@ -11,7 +11,7 @@ source: http://ghc.readthedocs.io/en/8.0.1/ffi-chap.html#using-the-ffi-with-ghc
 author: Ross Rhodes
 */
 
-int validate_input(int nrhs, const mxArray *prhs[])
+int validateInput(int nrhs, const mxArray *prhs[])
 {
   char* fpath;
 
@@ -50,13 +50,14 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
   param prhs: Array of input arguments
   */
 
+  char* fpath;
   int valid;
 
-  valid = validate_input(nrhs, prhs);
+  valid = validateInput(nrhs, prhs);
 
   if (valid){
     fpath = mxArrayToString(prhs[0]);
-    construct_ODEs(fpath);
+    constructODEs("", "");
   }
 
   return;
