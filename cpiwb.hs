@@ -459,13 +459,24 @@ evolveCmd x = do env <- getEnv
 ----------------------
 -- MATLAB extension
 ----------------------
-constructODEs :: String         -- .cpi file origin
-              -> String         -- Parameters for Matlab command
-              -> Environment()
-              
-constructODEs x y = do loadCmd x
-                       matlabCmd y
+foreign export ccall constructODEs :: CString -> CString -> CString
 
+constructODEs x y = y
+
+--constructODEs x y = do loadCmd x
+--                       revMatlabCmd y
+
+--revMatlabCmd :: String -> String
+--revMatlabCmd x = do env <- evalStateT getEnv
+--                    let args = words x
+--                    let p = read(args!!1)
+--                    let start = read(args!!2)
+--                    let end = read(args!!3)
+--                    let res = read(args!!4)
+--                    let mts = processMTS env p
+--                    let p' = dPdt env mts p
+--                    let ts = (res,(start,end))
+--                    matlabScript env p mts p' ts
 
 ----------------------
 -- Command help texts:
