@@ -2,7 +2,8 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-extern HsWord foo(HsWord file, HsWord params);
+extern HsPtr constructODEs(HsPtr a1, HsPtr a2);
 #ifdef __cplusplus
 }
 #endif
+
