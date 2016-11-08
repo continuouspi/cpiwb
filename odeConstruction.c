@@ -12,6 +12,8 @@ int main(){
 }
 
 int callMatlab(char* fpath){
+  hs_init(1, fpath);
   constructODEs(fpath, fpath);
+  hs_exit();
   return 0;
 }
