@@ -55,7 +55,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
   valid = validateInput(nrhs, prhs);
 
   if (valid){
-    fpath = mxArrayToString(prhs[0]);
+    fpath = (char***) mxArrayToString(prhs[0]);
     char* result = callMatlab(fpath);
   }
 
