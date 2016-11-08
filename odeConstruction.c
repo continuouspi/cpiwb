@@ -11,14 +11,7 @@ int main(){
   return 0;
 }
 
-int callMatlab(char*** fpath){
-  int a = 1;
-  int *p;
-  p = &a;
-
-  hs_init(p, fpath);
+int callMatlab(char* fpath){
   constructODEs(fpath, fpath);
-  hs_exit();
-
   return 0;
 }

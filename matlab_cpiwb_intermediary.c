@@ -49,13 +49,13 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
   param prhs: Array of input arguments
   */
 
-  char*** fpath;
+  char* fpath;
   int valid;
 
   valid = validateInput(nrhs, prhs);
 
   if (valid){
-    fpath = (char***) mxArrayToString(prhs[0]);
+    fpath = mxArrayToString(prhs[0]);
     char* result = callMatlab(fpath);
   }
 
