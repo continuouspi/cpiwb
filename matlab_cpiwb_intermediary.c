@@ -49,7 +49,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
   param prhs: Array of input arguments
   */
 
-  char* fpath;
+  char*** fpath;
   int valid;
 
   valid = validateInput(nrhs, prhs);
