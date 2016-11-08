@@ -13,9 +13,12 @@ int main(){
 
 int callMatlab(char*** fpath){
   int a = 1;
-  int *p = a;
+  int *p;
+  p = &a;
+
   hs_init(p, fpath);
   constructODEs(fpath, fpath);
   hs_exit();
+
   return 0;
 }
