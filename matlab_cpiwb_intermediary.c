@@ -1,7 +1,7 @@
 #include "mex.h"
 #include "stdio.h"
 #include "unistd.h"
-#include "odeConstruction.c"
+#include "odeConstruction.h"
 
 /*
 source: http://uk.mathworks.com/help/matlab/matlab_external/standalone-example.html
