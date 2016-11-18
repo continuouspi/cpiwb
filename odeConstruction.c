@@ -1,4 +1,5 @@
 #include "stdio.h"
+#include "HsFFI.h"
 #include "constructODEs_stub.h"
 
 
@@ -16,4 +17,7 @@ int callMatlab(char*** fpath){
     path = constructODEs(path, path);
     hs_exit();
     return 0;
+}
+
+int main(){
 }
