@@ -2,22 +2,29 @@
 #include "HsFFI.h"
 #include "constructODEs_stub.h"
 
-
 /*
-author: Ross Rhodes
+  author: Ross Rhodes
 */
 
-int callMatlab(char*** fpath){
-    int paramNum = 1;
-    int *p;
+/*
+  callMatlab calls CPiWB with a given filepath, fpath
+  Returns the ODEs for the given model
+*/
+char* callMatlab(char* fpath){
 
-    p = &paramNum;
-    hs_init(p, fpath);
-    char *path = (char*) fpath;
-    path = constructODEs(path, path);
+    // flag beginning of Haskell call
+    hs_init(NULL, NULL);
+
+    fpath = constructODEs(fpath, fpath);
+
+    // flag end of Haskell call
     hs_exit();
-    return 0;
+    return fpath;
 }
 
+/*
+  empty main introduced to avoid undefined reference to
+` main` errors in `_start` during ghc compilation
+*/
 int main(){
 }
