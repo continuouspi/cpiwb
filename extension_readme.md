@@ -1,29 +1,17 @@
 # Setup #
-This extension is work in progress. To run the extension as it stands now, run Matlab and first make sure the MEX (Matlab EXecutable) command uses the GCC compiler. To do this, run
+The Matlab extension to CPiWB is work in progess, using GHC version 7.8.4.
 
+To compile `constructODEs.hs` in the event that changes are made, use GHC as follows:
 ```
-mex -setup
+ghc constructODEs.hs
 ```
+This will perform the compilation and update `constructODEs_stub.h` automatically.
 
-This should return `MEX configured to use 'gcc' for C language compilation'. If this is not the case, then run
-
+To compile `odeConstruction.c` in the event that changes are made, use **GHC** as follows:
 ```
-mex -setup gcc
+ghc -O2 -dynamic -shared -fPIC -o libOdeConstruction.so constructODEs.hs odeConstruction.c -lHSrts-ghc7.8.4
 ```
+This will update shared library `libOdeConstruction.so` for use in Matlab.
 
-The MEX command is now set to use GCC.
-
-To build the extension, run
-
-```
-mex cpi_extension/odeConstruction.c
-```
-
-# Execution #
-After building the extension to CPiWB on Matlab (see Setup), it may be executed by running
-
-```
-odeConstruction(<.cpi file>)
-```
-
-where `<.cpi_file>` is an existing Continuous Pi Calculus model saved with the .cpi extension.
+# Questions #
+Please forward any questions regarding this extension to Ross Rhodes (rrhodes).
