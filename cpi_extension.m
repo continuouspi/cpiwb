@@ -5,7 +5,7 @@ end
 
 filepath = 'test';
 process = 'Pi';
-result = calllib('libOdeConstruction', 'callMatlab', strcat(filepath, ',', process));
+result = calllib('libOdeConstruction', 'callCPiWB', strcat(filepath, ',', process));
 fprintf('%s\n', filepath);
 fprintf('%s\n', process);
 fprintf('%s\n', result);
