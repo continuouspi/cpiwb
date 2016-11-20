@@ -2,8 +2,11 @@ if not(libisloaded('libOdeConstruction'))
     hsffi_path = '/usr/lib64/ghc-7.8.4/include';
     loadlibrary('libOdeConstruction', 'odeConstruction.h', 'includepath', hsffi_path);
 end
-libfunctions libOdeConstruction;
-param = 'test';
-result = calllib('libOdeConstruction', 'callMatlab', param);
+
+filepath = 'test';
+process = 'Pi';
+result = calllib('libOdeConstruction', 'callMatlab', strcat(filepath, ',', process));
+fprintf('%s\n', filepath);
+fprintf('%s\n', process);
 fprintf('%s\n', result);
 unloadlibrary('libOdeConstruction');
