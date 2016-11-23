@@ -1,3 +1,6 @@
+% This Matlab script forms part of the Continuous Pi Workbench, CPiWB
+% Author: Ross Rhodes
+
 % Load the CPiWB shared library
 if not(libisloaded('libOdeConstruction'))
     hsffi_path = '/usr/lib64/ghc-7.8.4/include';
@@ -17,17 +20,17 @@ disp(['\n', cpi_defs]);
 % allow user to choose a process to model
 process_found = [];
 
-while(isempty(process_found)) 
+while(isempty(process_found))
     prompt = '\nPlease select a process from your chosen model.\nEnter ''quit'' to quit.\n> ';
     process = input(prompt, 's');
-    
+
     if (strcmp(process, '') == 1 || strcmp(process, 'quit') == 1 || strcmp(process, 'exit') == 1)
         return;
     end
-    
+
     process_def = ['process ', process];
     process_found = findstr(cpi_defs, process_def);
-    
+
     if (isempty(process_found))
         disp(['Error: Process ', process, ' not found. Please try again.']);
     end

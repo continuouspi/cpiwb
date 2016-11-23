@@ -1,16 +1,27 @@
 # Setup #
 The Matlab extension to CPiWB is work in progess, using GHC version 7.8.4.
 
-To compile `constructODEs.hs` in the event that changes are made, use GHC as follows:
-```
-ghc constructODEs.hs
-```
-This will perform the compilation and update `constructODEs_stub.h` automatically.
+Make sure Numeric Hackage dependencies are installed prior to compilation. Run the following commands:
 
-To compile `odeConstruction.c` in the event that changes are made, use **GHC** as follows:
 ```
-ghc -O2 -dynamic -shared -fPIC -o libOdeConstruction.so constructODEs.hs odeConstruction.c -lHSrts-ghc7.8.4
+cabal install hmatrix
+cabal install hmatrix-gsl
 ```
+
+Then compile `constructODEs.hs` as follows:
+
+```
+ghc constructODEs.hs -i../
+```
+
+This will update `constructODEs_stub.h` automatically.
+
+Now compile `odeConstruction.c` using **GHC**:
+
+```
+ghc -O2 -dynamic -shared -fPIC -o libOdeConstruction.so constructODEs.hs odeConstruction.c -lHSrts-ghc7.8.4 -i../
+```
+
 This will update shared library `libOdeConstruction.so` for use in Matlab.
 
 # Questions #
