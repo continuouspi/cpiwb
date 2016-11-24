@@ -17,6 +17,7 @@
 
 module CPi.Matlab
     (solveODEoctave,
+     matlabODE,
      matlabScript
     ) where
 
@@ -67,14 +68,14 @@ matlabExpr env vs (Var x)
       where
         ex x = X.throw $ CpiException
                ("Bug: failed var lookup in CPi.ODE.matlabExpr: " ++ show x)
-matlabExpr env vs (Plus x y) = matlabExpr env vs x ++ " .+ " ++ matlabExpr env vs y
+matlabExpr env vs (Plus x y) = matlabExpr env vs x ++ " + " ++ matlabExpr env vs y
 matlabExpr env vs (Times (Plus x y) (Plus x' y'))
-    = "(" ++ matlabExpr env vs (Plus x y) ++ ").*(" ++ matlabExpr env vs (Plus x' y') ++ ")"
+    = "(" ++ matlabExpr env vs (Plus x y) ++ ")*(" ++ matlabExpr env vs (Plus x' y') ++ ")"
 matlabExpr env vs (Times (Plus x y) z)
-    = "(" ++ matlabExpr env vs (Plus x y) ++ ").*" ++ matlabExpr env vs z
+    = "(" ++ matlabExpr env vs (Plus x y) ++ ")*" ++ matlabExpr env vs z
 matlabExpr env vs (Times x (Plus y z))
     = matlabExpr env vs x ++ ".*(" ++ matlabExpr env vs (Plus y z) ++ ")"
-matlabExpr env vs (Times x y) = matlabExpr env vs x ++ ".*" ++ matlabExpr env vs y
+matlabExpr env vs (Times x y) = matlabExpr env vs x ++ "*" ++ matlabExpr env vs y
 matlabExpr env vs (Num k) = show k
 
 matlabJac :: Env -> P' -> String
