@@ -14,8 +14,6 @@ import CPi.Semantics
 import Foreign.C.Types
 import Foreign.C.String
 
-import System.IO.Unsafe
-
 -- each case requires only one clause: Matlab covers validation
 constructODEs_hs :: String -> String -> String
 constructODEs_hs x y = case parseFile x of
