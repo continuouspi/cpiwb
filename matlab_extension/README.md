@@ -8,13 +8,13 @@ cabal install hmatrix
 cabal install hmatrix-gsl
 ```
 
-Then compile `constructODEs.hs` as follows:
+Then compile `constructODEs.hs`:
 
 ```
 ghc constructODEs.hs -i../
 ```
 
-This will update `constructODEs_stub.h` automatically.
+This will generate `constructODEs_stub.h` automatically.
 
 Now compile `odeConstruction.c` using **GHC**:
 
@@ -22,7 +22,7 @@ Now compile `odeConstruction.c` using **GHC**:
 ghc -O2 -dynamic -shared -fPIC -o libOdeConstruction.so constructODEs.hs odeConstruction.c -lHSrts-ghc7.8.4 -i../
 ```
 
-This will update shared library `libOdeConstruction.so` for use in Matlab.
+This will generate shared library `libOdeConstruction.so` for use in Matlab.
 
 # Questions #
 Please forward any questions regarding this extension to Ross Rhodes (rrhodes).
