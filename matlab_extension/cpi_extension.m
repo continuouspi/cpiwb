@@ -8,7 +8,7 @@ if not(libisloaded('libOdeConstruction'))
 end
 
 % Select an existing .cpi file
-[file_name, file_path, ~] = uigetfile;
+[file_name, file_path, ~] = uigetfile({'*.cpi', 'CPi Models (*.cpi)'}, 'Pick a file');
 
 if (file_name == 0)
     return;
@@ -39,39 +39,44 @@ end
 % call CPiWB to construct ODEs for the chosen process
 modelODEs = {};
 
-try
-    result = calllib('libOdeConstruction', 'callCPiWB', [cpi_defs, ',', process]);
-catch
-    disp('Error calling CPiWB. Please try again.');
-    return;
-end
+cpiwb_result = calllib('libOdeConstruction', 'callCPiWB', [cpi_defs, ',', process]);
 
-tokens = strsplit(result, '\n');
+tokens = strsplit(cpiwb_result, '\n');
 token_num = length(tokens);
+ode_num = 0;
 
 % retrieve the odes from the output script
 for i = 1:token_num
     chars_token = char(tokens(i));
-    ode_found = findstr(chars_token, 'xdot');
+    ode_found = findstr(chars_token, 'diff');
     if (ode_found == 1)
-        modelODEs{end + 1} = chars_token;
+        ode_num = ode_num + 1;
+        modelODEs{end + 1} = char(chars_token);
         ode_found = 0;
     end
 end
 
-% extract equations from their string representation
-ode_num = length(modelODEs);
-X = sym('x', [ode_num 1]);
+char_vars = {};
+sym_vars = sym([ode_num 1]);
 
+% retrieve the variable names
 for i = 1:ode_num
-    new_tokens = strsplit(char(modelODEs(i)), ' = ');
-    X(i) = char(new_tokens(2));
+    ode_tokens = strsplit(modelODEs{i}, {'diff(', ','});
+    char_vars{end + 1} = ode_tokens(2);
+    sym_vars(i) = sym(char_vars{i});
 end
 
-% simplify the equations
+sym_odes = sym([ode_num 1]);
+
 for i = 1:ode_num
-    X(i) = simplify(X(i));
+    sym_odes(i) = sym(modelODEs{i});
 end
+
+odes = transpose(sym_odes);
+vars = transpose(sym_vars);
+
+[M, F] = massMatrixForm(odes, vars);
+
 
 % retrieve the initial conditions from the output script
 init_conditions = [ode_num 1];
@@ -79,16 +84,15 @@ init_conditions = [ode_num 1];
 init_cond_tokens = strsplit(char(tokens(1)), {'[', ']', ';'});
 
 for i = 1:ode_num
-    init_conditions(i) = str2double(init_cond_tokens(i+1));
+    init_conditions(i) = str2num(init_cond_tokens{i + 1});
 end
 
-% solve the set of differential equations
-syms t x
-F = @(t,x) X;
-[t, x] = ode45(F, [0.0 100.0], [0.0 0.0 0.0 0.0]);
+inits = transpose(init_conditions);
 
-% plot the solution for the given time interval
-fplot(t, x);
+% simulate the model using the odes and initial conditions
+F = odeFunction(F, vars);
+
+ode15s(F, [0 100], inits);
 
 % free the library loaded at the start
 unloadlibrary('libOdeConstruction');

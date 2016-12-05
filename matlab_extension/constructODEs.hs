@@ -20,7 +20,7 @@ constructODEs_hs x y = case parseFile x of
                          Right env -> case lookupProcName env y of
                                       Just proc -> let mts = processMTS env proc
                                                        dpdt = dPdt env mts proc
-                                                   in matlabODE env proc dpdt (10,(0,100))
+                                                   in matlabODE env proc dpdt (0, (0,0))
 
 constructODEs :: CString -> CString -> IO CString
 constructODEs x y = do defs <- peekCString x
