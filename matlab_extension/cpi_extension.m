@@ -75,7 +75,7 @@ for i = 1:ode_num
     sym_vars(i) = sym(char_vars{i});
 end
 
-% solve the system of differential equations
+% prepare the odes to be solved
 sym_odes = sym([ode_num 1]);
 
 for i = 1:ode_num
@@ -98,9 +98,21 @@ end
 
 inits = transpose(init_conditions);
 
-% simulate the model using the odes and initial conditions
+% determine how long to simulate the model for
+prompt = '\nPlease enter the desired duration of the simulation, or enter ''quit'' to quit.\n> ';
+duration = input(prompt);
+
+if (strcmp(duration, '') == 1 || strcmp(duration, 'quit') == 1 || strcmp(duration, 'exit') == 1)
+    return;
+end
+
+% simulate the behaviour of the system
 F = odeFunction(F, vars);
 
-ode15s(F, [0 900], inits);
+figure
+ode15s(F, [0 duration], inits);
+title(file_name)
+ylabel('Species Concentration (units)');
+xlabel('time (units)');
 
 return;
