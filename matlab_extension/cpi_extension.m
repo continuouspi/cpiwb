@@ -1,12 +1,6 @@
 % This Matlab script forms part of the Continuous Pi Workbench, CPiWB
 % Author: Ross Rhodes
 
-% Load the CPiWB shared library
-if not(libisloaded('libOdeConstruction'))
-    hsffi_path = '/usr/lib64/ghc-7.8.4/include';
-    loadlibrary('libOdeConstruction', 'odeConstruction.h', 'includepath', hsffi_path);
-end
-
 % Select an existing .cpi file
 [file_name, file_path, ~] = uigetfile({'*.cpi', 'CPi Models (*.cpi)'}, 'Pick a file');
 
@@ -36,10 +30,25 @@ while(isempty(process_found))
     end
 end
 
+% Load the CPiWB shared library
+if not(libisloaded('libOdeConstruction'))
+    hsffi_path = '/usr/lib64/ghc-7.8.4/include';
+    loadlibrary('libOdeConstruction', 'odeConstruction.h', 'includepath', hsffi_path);
+end
+
 % call CPiWB to construct ODEs for the chosen process
 modelODEs = {};
 
-cpiwb_result = calllib('libOdeConstruction', 'callCPiWB', [cpi_defs, ',', process]);
+[cpiwb_result, ~] = calllib('libOdeConstruction', 'callCPiWB', cpi_defs, process);
+
+% free the library loaded at the start
+unloadlibrary('libOdeConstruction');
+
+% terminate if CPiWB encountered an error
+if (strcmp(cpiwb_result, 'parse error'))
+    disp('The CPi Workbench failed to parse your .cpi file. Please try again.');
+    return;
+end
 
 tokens = strsplit(cpiwb_result, '\n');
 token_num = length(tokens);
@@ -66,6 +75,7 @@ for i = 1:ode_num
     sym_vars(i) = sym(char_vars{i});
 end
 
+% solve the system of differential equations
 sym_odes = sym([ode_num 1]);
 
 for i = 1:ode_num
@@ -76,7 +86,6 @@ odes = transpose(sym_odes);
 vars = transpose(sym_vars);
 
 [M, F] = massMatrixForm(odes, vars);
-
 
 % retrieve the initial conditions from the output script
 init_conditions = [ode_num 1];
@@ -92,9 +101,6 @@ inits = transpose(init_conditions);
 % simulate the model using the odes and initial conditions
 F = odeFunction(F, vars);
 
-ode15s(F, [0 100], inits);
-
-% free the library loaded at the start
-unloadlibrary('libOdeConstruction');
+ode15s(F, [0 900], inits);
 
 return;

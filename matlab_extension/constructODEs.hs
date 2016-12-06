@@ -17,8 +17,9 @@ import Foreign.C.String
 -- each case requires only one clause: Matlab covers validation
 constructODEs_hs :: String -> String -> String
 constructODEs_hs x y = case parseFile x of
-                         Left err -> y
+                         Left err -> "parse error"
                          Right env -> case lookupProcName env y of
+                                      Nothing -> "procedure error"
                                       Just proc -> let mts = processMTS env proc
                                                        dpdt = dPdt env mts proc
                                                    in matlabODE env proc dpdt (0, (0,0))

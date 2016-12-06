@@ -11,20 +11,14 @@
   callMatlab calls CPiWB with a given filepath, fpath
   Returns the ODEs for the given model
 */
-char* callCPiWB(char* input){
-    char* fpath;
-    char* process;
+char* callCPiWB(char* defs, char* process){
     char* odes;
 
-    // determine the filepath and process
-    // input parameters separated in Matlab by a comma
-    fpath = strtok(input, ",");
-    process = strtok(NULL, ",");
-
     // flag beginning of Haskell call
+    // no parameters required given this is not called from command-line
     hs_init(NULL, NULL);
 
-    odes = constructODEs(fpath, process);
+    odes = constructODEs(defs, process);
 
     // flag end of Haskell call
     hs_exit();
