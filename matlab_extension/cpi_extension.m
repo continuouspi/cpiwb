@@ -81,7 +81,7 @@ while(not(job == 2))
         % retrieve the variable names
         for i = 1:ode_num
             ode_tokens = strsplit(modelODEs{i}, {'diff(', ','});
-            char_vars{end + 1} = ode_tokens(2);
+            char_vars{end + 1} = char(ode_tokens(2));
             sym_vars(i) = sym(char_vars{i});
         end
         
@@ -123,12 +123,22 @@ while(not(job == 2))
         model_name = strrep(filename_tokens(1),'_',' ');
 
         model_name = regexprep(model_name,'(\<[a-z])','${upper($1)}');
-
+        
+        legendString = cell(1, ode_num);
+        
+        % prepare info for figure legend
+        for i = 1:ode_num
+            legendString{i} = sprintf(char_vars{i});
+        end
+        
+        % display the simulation
         figure
         ode15s(F, [0 duration], inits);
         title(model_name);
         ylabel('Species Concentration (units)');
         xlabel('Time (units)');
+        legend('show');
+        legend(legendString);
     end
 end
 
