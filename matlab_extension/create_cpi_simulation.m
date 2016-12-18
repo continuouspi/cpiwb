@@ -6,7 +6,7 @@ process_found = [];
 
 while(isempty(process_found))
     % request, from the user, the process to simulate
-    prompt = '\nPlease select a process from your chosen model.\nEnter ''quit'' to quit.\n> ';
+    prompt = ['\nEnter a process name from this file for simulation.\nNote: This is case sensitive.\nEnter ''quit'' to quit.\n> '];
     process = input(prompt, 's');
 
     % if user requests to leave then return to main script
