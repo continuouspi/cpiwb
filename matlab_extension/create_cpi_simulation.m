@@ -1,17 +1,20 @@
+% this Matlab script collection extends the Continuous Pi Workbench, CPiWB
+% author: Ross Rhodes
 modelODEs = {};
 ode_num = 0;
 process_found = [];
 
-% ask user to select a process to simulate
-% tokenize the CPi file line for line and retrieve process def
 while(isempty(process_found))
+    % request, from the user, the process to simulate
     prompt = '\nPlease select a process from your chosen model.\nEnter ''quit'' to quit.\n> ';
     process = input(prompt, 's');
 
+    % if user requests to leave then return to main script
     if (strcmp(process, '') == 1 || strcmp(process, 'quit') == 1 || strcmp(process, 'exit') == 1)
         return;
     end
 
+    % find the process definition inside the CPi file
     process_name = ['process ', process];
 
     def_tokens = strsplit(cpi_defs, ';');
@@ -28,6 +31,7 @@ while(isempty(process_found))
         i = i + 1;
     end
 
+    % report an error if the process does not exist on file
     if (isempty(process_found))
         disp(['Error: Process ', process, ' not found. Please try again.']);
     end
@@ -42,7 +46,7 @@ end
 % call CPiWB to construct ODEs for the chosen process
 [cpiwb_result, ~] = calllib('libOdeConstruction', 'callCPiWB', cpi_defs, process);
 
-% free the library loaded at the start
+% free the shared library
 unloadlibrary('libOdeConstruction');
 
 % terminate if CPiWB encountered an error
@@ -70,22 +74,6 @@ end
 if (isempty(modelODEs))
     disp(['The Continuous Pi Workbench did not produce any differential equations for ', file_name]);
     return;
-end
-
-i = 1;
-
-while(i < def_token_num) 
-    def_token = char(def_tokens(i));
-    species_found = findstr(def_token, 'species ');
-    if (not(isempty(species_found)))
-        species_tokens = strsplit(def_token, {'species ', '('});
-        species_token = species_tokens(2);
-        species_in_process = findstr(process_def, char(species_token));
-        if (not(isempty(species_in_process)))
-            species{end + 1} = char(species_token);
-        end
-    end
-    i = i + 1;
 end
 
 char_vars = {};
@@ -132,12 +120,25 @@ end
 % simulate the behaviour of the system
 G = odeFunction(F, vars);
 
-filename_tokens = strsplit(file_name, '.cpi');
-model_name = strrep(filename_tokens(1),'_',' ');
+[t Y] = ode15s(G, [0.01 duration], inits);
 
-model_name = regexprep(model_name,'(\<[a-z])','${upper($1)}');
+% retrieve the species names to include in the simulation legend
+i = 1;
 
-% prepare variables for inclusion in legend
+while(i < def_token_num) 
+    def_token = char(def_tokens(i));
+    species_found = findstr(def_token, 'species ');
+    if (not(isempty(species_found)))
+        species_tokens = strsplit(def_token, {'species ', '('});
+        species_token = species_tokens(2);
+        species_in_process = findstr(process_def, char(species_token));
+        if (not(isempty(species_in_process)))
+            species{end + 1} = char(species_token);
+        end
+    end
+    i = i + 1;
+end
+
 species_num = length(species);
 legendString = cell(1, species_num);
 
@@ -147,9 +148,12 @@ for i = 1:species_num
     legendString{i} = sprintf(char(species{i}));
 end
 
-[t Y] = ode15s(G, [0.01 duration], inits);
-
 % display the simulation
+filename_tokens = strsplit(file_name, '.cpi');
+model_name = strrep(filename_tokens(1),'_',' ');
+
+model_name = regexprep(model_name,'(\<[a-z])','${upper($1)}');
+
 figure
 plot(t, Y(:, 1:species_num), '-o') 
 title(model_name);
