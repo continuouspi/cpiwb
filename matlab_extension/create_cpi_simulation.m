@@ -104,6 +104,8 @@ for i = 1:ode_num
     sym_odes(i) = sym(modelODEs{i});
 end
 
+sym_odes = simplify(sym_odes);
+
 odes = transpose(sym_odes);
 vars = transpose(sym_vars);
 
