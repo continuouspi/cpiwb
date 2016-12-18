@@ -112,11 +112,20 @@ vars = transpose(sym_vars);
 [M, F] = massMatrixForm(odes, vars);
 
 % determine how long to simulate the model for
-prompt = '\nPlease enter the desired duration of the simulation, or enter ''quit'' to quit.\n> ';
-duration = input(prompt);
+duration_input = [];
 
-if (strcmp(duration, '') == 1 || strcmp(duration, 'quit') == 1 || strcmp(duration, 'exit') == 1)
-    return;
+while(isempty(duration_input))
+    prompt = '\nPlease enter the desired duration of the simulation.\nEnter ''quit'' to quit.\n> ';
+    duration_input = input(prompt, 's');
+
+    if (strcmp(duration_input, '') == 1 || strcmp(duration_input, 'quit') == 1 || strcmp(duration_input, 'exit') == 1)
+        return;
+    elseif(not(isstrprop(duration_input, 'digit')))
+        disp('Please enter a numeric value to serve as the simulation time.');
+        duration_input = [];
+    else
+        duration = str2num(duration_input);
+    end
 end
 
 % simulate the behaviour of the system
@@ -156,7 +165,7 @@ model_name = strrep(filename_tokens(1),'_',' ');
 
 model_name = regexprep(model_name,'(\<[a-z])','${upper($1)}');
 
-figure
+figure('Name',char(model_name),'NumberTitle','on')
 plot(t, Y(:, 1:species_num), '-o') 
 title(model_name);
 ylabel('Species Concentration (units)');
