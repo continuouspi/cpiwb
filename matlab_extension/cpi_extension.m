@@ -1,51 +1,46 @@
 % this Matlab script collection extends the Continuous Pi Workbench, CPiWB
 % author: Ross Rhodes
-job = 0;
+job = [];
+clc;
+
+fprintf('Welcome to the Matlab extension for Continuous Pi Calculus.\nEnter ''help'' for help.');
 
 % run the script until the users requests to leave
-while(not(job == 3))
-    job_input = [];
+while(not(strcmp(job, 'quit')))
+    prompt = '\n> ';
+    job = input(prompt, 's');
     
-    % request a job from the user, given a list of numbered options
-    while(isempty(job_input))
-        prompt = '\nPlease enter a number to perform your desired task from the list below.\n1. Simulate a CPi model\n2. Edit an existing CPi model\n3. Quit\n\n> ';
-        job_input = input(prompt, 's');
-
-        if (strcmp(job_input, '') == 1 || strcmp(job_input, 'quit') == 1 || strcmp(job_input, 'exit') == 1)
-            return;
-        elseif (not(isstrprop(job_input, 'digit')))
-            disp(' ');
-            disp('Error: The input given was nonnumeric.');
-            job_input = [];
-        elseif (str2num(job_input) > 3)
-            disp(' ');
-            disp('Error: A nonexistent job has been requested.');
-            job_input = [];
-        end
-    end
-
-    job = str2num(job_input);
-    
-    if (not(job == 3))
+    if (strcmp(job, 'quit') == 1)
+        return;
+    elseif (strcmp(job, 'help') == 1)
+        fprintf('\nThe following commands are available to execute:\n1. create_model\n2. simulate_model\n3. edit_model\n4. quit');
+    elseif (strcmp(job, 'simulate_model') == 1 || strcmp(job, 'edit_model') == 1)
         % select an existing .cpi file
         [file_name, file_path, ~] = uigetfile({'*.cpi', 'CPi Models (*.cpi)'}, 'Select a .cpi file');
 
-        % if user selects cancel then terminate the script
-        if (not(file_name == 0))
-
-            % job one corresponds to creating a CPi simulation
-            if (job == 1)
-                % read the selected file and display its contents on the terminal
-                cpi_defs = fileread(strcat(file_path, '/', file_name));
-                disp(cpi_defs);
-
-                create_cpi_simulation;
-
-            % job two corresponds to editing a CPi file inside Matlab
-            elseif (job == 2)
-                edit([file_path, '/', file_name]);
-            end
+        if (not(file_name == 0) & (strcmp(job, 'simulate_model') == 1))
+            % read the selected CPi model and produce a simulation
+            cpi_defs = fileread(strcat(file_path, '/', file_name));
+            disp(cpi_defs);
+            create_cpi_simulation;
+        elseif (not(file_name == 0) & (strcmp(job, 'edit_model') == 1))
+            % edit an existing CPi model
+            edit([file_path, '/', file_name]);
         end
+    elseif (strcmp(job, 'create_model'))
+        % job two corresponds to creating a CPi model inside Matlab
+        i = 1;
+        
+        % guarantee a unique id for the untitled file
+        while(exist(['untitled', num2str(i), '.cpi'], 'file'))
+            i = i + 1;
+        end
+        
+        % create and open the new file for editing
+        file_name = ['untitled', num2str(i), '.cpi'];
+        hold on;
+        edit(file_name);
+        hold off;
     end
 end
 
