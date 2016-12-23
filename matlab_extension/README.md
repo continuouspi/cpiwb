@@ -1,5 +1,5 @@
 # Introduction #
-The Matlab extension to CPiWB is work in progess, using GHC version 7.8.4.
+The Matlab extension to CPiWB is work in progess. The product so far is compiled using GHC version 7.8.4 and runs on Matlab 2015a.
 
 # Updating the Shared Library #
 In the event that any changes are made to the following files:

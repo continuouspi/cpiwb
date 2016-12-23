@@ -29,18 +29,9 @@ while(not(strcmp(job, 'quit')))
         end
     elseif (strcmp(job, 'create_model'))
         % job two corresponds to creating a CPi model inside Matlab
-        i = 1;
-        
-        % guarantee a unique id for the untitled file
-        while(exist(['untitled', num2str(i), '.cpi'], 'file'))
-            i = i + 1;
-        end
-        
-        % create and open the new file for editing
-        file_name = ['untitled', num2str(i), '.cpi'];
-        hold on;
-        edit(file_name);
-        hold off;
+        edit();
+    else
+        fprintf('Invalid command entered. Please try again.');
     end
 end
 
