@@ -109,29 +109,56 @@ sym_odes = simplify(sym_odes);
 odes = transpose(sym_odes);
 vars = transpose(sym_vars);
 
-[M, F] = massMatrixForm(odes, vars);
+[~, ode_exprs] = massMatrixForm(odes, vars);
 
-% determine how long to simulate the model for
-duration_input = [];
+% determine the time frame for the simulation
+valid_time = 1;
 
-while(isempty(duration_input))
-    prompt = '\nPlease enter the desired duration of the simulation.\nEnter ''cancel'' to cancel the simulation.\n> ';
-    duration_input = input(prompt, 's');
+while(valid_time == 1)
+    % request a start time from the user
+    time_input = [];
+    while(isempty(time_input))
+        prompt = '\nPlease enter the start time for the simulation.\nEnter ''cancel'' to cancel the simulation.\n> ';
+        time_input = input(prompt, 's');
 
-    if (strcmp(duration_input, '') == 1 || strcmp(duration_input, 'cancel') == 1)
-        return;
-    elseif(not(isstrprop(duration_input, 'digit')))
-        disp('Error: Information entered is nonnumeric.');
-        duration_input = [];
+        if (strcmp(time_input, '') == 1 || strcmp(time_input, 'cancel') == 1)
+            return;
+        elseif(not(isstrprop(time_input, 'digit')))
+            disp('Error: Information entered is nonnumeric.');
+            time_input = [];
+        else
+             start_time = str2num(time_input);
+        end
+    end
+
+    % request an end time from the user
+    time_input = [];
+    while(isempty(time_input))
+        prompt = '\nPlease enter the end time for the simulation.\nEnter ''cancel'' to cancel the simulation.\n> ';
+        time_input = input(prompt, 's');
+
+        if (strcmp(time_input, '') == 1 || strcmp(time_input, 'cancel') == 1)
+            return;
+        elseif(not(isstrprop(time_input, 'digit')))
+            disp('Error: Information entered is nonnumeric.');
+            time_input = [];
+        else
+            end_time = str2num(time_input);
+        end
+    end
+    
+    % confirm the times provided are valid
+    if (start_time >= end_time)
+        fprintf('\nError: Start time exceeds end time.\n');
     else
-        duration = str2num(duration_input);
+        valid_time = 0;
     end
 end
 
 % simulate the behaviour of the system
-G = odeFunction(F, vars);
+ode_system = odeFunction(ode_exprs, vars);
 
-[t Y] = ode15s(G, [0.01 duration], inits);
+[t solutions] = ode15s(ode_system, [0 end_time], inits);
 
 % retrieve the species names to include in the simulation legend
 i = 1;
@@ -160,13 +187,26 @@ for i = 1:species_num
 end
 
 % display the simulation
+start_index = 0;
+end_index = length(t);
+
+i = 1;
+
+while (start_index == 0 & i <= end_index)
+    if (start_time <= t(i))
+        start_index = i;
+    else
+        i = i + 1;
+    end
+end
+
 filename_tokens = strsplit(file_name, '.cpi');
 model_name = strrep(filename_tokens(1),'_',' ');
 
 model_name = regexprep(model_name,'(\<[a-z])','${upper($1)}');
 
 figure('Name',char(model_name),'NumberTitle','on')
-plot(t, Y(:, 1:species_num), '-o') 
+plot(t(start_index:end_index), solutions(start_index:end_index, 1:species_num), '-o') 
 title(model_name);
 ylabel('Species Concentration (units)');
 xlabel('Time (units)');

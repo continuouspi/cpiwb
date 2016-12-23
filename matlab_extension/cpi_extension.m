@@ -31,7 +31,7 @@ while(not(strcmp(job, 'quit')))
         % job two corresponds to creating a CPi model inside Matlab
         edit();
     else
-        fprintf('Invalid command entered. Please try again.');
+        fprintf(['\nError: ', job, ' command not recognised. Please try again.\n']);
     end
 end
 
