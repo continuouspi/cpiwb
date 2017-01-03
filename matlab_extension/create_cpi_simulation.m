@@ -1,6 +1,13 @@
 % this Matlab script collection extends the Continuous Pi Workbench, CPiWB
 % author: Ross Rhodes
 
+function x = create_cpi_simulation(t, Y, start_time, file_name, process_def, def_tokens, def_token_num)
+
+% empty output to function
+x = 0;
+
+species = {};
+
 % retrieve the species names to include in the simulation legend
 i = 1;
 
@@ -54,4 +61,4 @@ xlabel('Time (units)');
 legend('show');
 legend(legendString, 'Location', 'EastOutside');
 
-return;
+end

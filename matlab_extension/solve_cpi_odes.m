@@ -1,5 +1,10 @@
 % this Matlab script collection extends the Continuous Pi Workbench, CPiWB
 % author: Ross Rhodes
+
+function [t, Y] = solve_cpi_odes(modelODEs, ode_num, init_tokens, end_time)
+
+t = [];
+Y = [];
 char_vars = {};
 sym_vars = sym([ode_num 1]);
 
@@ -13,7 +18,7 @@ end
 % retrieve the initial conditions from the output script
 init_conditions = [ode_num 1];
 
-init_cond_tokens = strsplit(char(tokens(1)), {'[', ']', ';'});
+init_cond_tokens = strsplit(init_tokens, {'[', ']', ';'});
 
 for i = 1:ode_num
     init_conditions(i) = str2num(init_cond_tokens{i + 1});
@@ -37,4 +42,4 @@ vars = transpose(sym_vars);
 ode_system = odeFunction(ode_exprs, vars);
 [t Y] = ode15s(ode_system, [0 end_time], inits);
 
-return;
+end

@@ -1,7 +1,12 @@
 % this Matlab script collection extends the Continuous Pi Workbench, CPiWB
 % author: Ross Rhodes
 
+function [process, process_def, def_tokens, def_token_num] = retrieve_process(cpi_defs)
+
+process = '';
 process_found = [];
+process_def = [];
+def_token_num = 0;
 
 while(isempty(process_found))
     % request, from the user, the process to model
@@ -10,6 +15,7 @@ while(isempty(process_found))
 
     % if user requests to leave then return to main script
     if (strcmp(process, '') == 1 || strcmp(process, 'cancel') == 1)
+        process = '';
         return;
     end
 
@@ -34,4 +40,6 @@ while(isempty(process_found))
     if (isempty(process_found))
         fprintf(['Error: Process ', process, ' not found. Please try again.']);
     end
+end
+
 end

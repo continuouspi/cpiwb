@@ -22,21 +22,42 @@ while(not(strcmp(job, 'quit')))
             % read the selected CPi model and produce a simulation
             cpi_defs = fileread(strcat(file_path, '/', file_name));
             disp(cpi_defs);
-            retrieve_process;
-            create_cpi_odes;
-            retrieve_simulation_times;
-            solve_cpi_odes;
-            create_cpi_simulation;
+            
+            [process, process_def, def_tokens, def_token_num] = retrieve_process(cpi_defs);
+            
+            if (strcmp(process, '') == 1)
+                continue;
+            end
+            
+            [modelODEs, ode_num, init_tokens] = create_cpi_odes(cpi_defs, process);
+            
+            if (ode_num == 0)
+                continue;
+            end
+            
+            [start_time, end_time] = retrieve_simulation_times();
+            
+            if (end_time == 0)
+                continue;
+            end
+            
+            [t, Y] = solve_cpi_odes(modelODEs, ode_num, init_tokens, end_time);
+                        
+            create_cpi_simulation(t, Y, start_time, file_name, process_def, def_tokens, def_token_num);
+            
             disp('Done.');
+            
         elseif (not(file_name == 0) & (strcmp(job, 'edit_model') == 1))
+            
             % open an existing CPi model with write permissions
             edit([file_path, '/', file_name])
+            
         end
     elseif (strcmp(job, 'create_model') == 1)
         % open a new script window for the user to create definitions
         edit();
     elseif (strcmp(job, 'estimate_model_parameters') == 1)
-        estimate_model_parameters;
+        estimate_model_parameters();
     else
         fprintf(['\nError: ', job, ' command not recognised. Please try again.\n']);
     end

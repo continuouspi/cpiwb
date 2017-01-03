@@ -1,17 +1,36 @@
 % this Matlab script collection extends the Continuous Pi Workbench, CPiWB
 % author: Ross Rhodes
 
+function x = estimate_model_parameters()
+
+% empty output
+x = 0;
+
 % select an existing .cpi file to serve as a comparison
 [example_file_name, example_file_path, ~] = uigetfile({'*.cpi', 'CPi Models (*.cpi)'}, 'Select an example .cpi file');
 
 cpi_defs = fileread(strcat(example_file_path, '/', example_file_name));
 disp(cpi_defs);
-retrieve_process;
-create_cpi_odes;
-retrieve_simulation_times;
-solve_cpi_odes;
-example_time = t;
-example_solutions = Y;
+
+[process, process_def, def_tokens, def_token_num] = retrieve_process(cpi_defs);
+
+if (strcmp(process, '') == 1)
+    return;
+end
+
+[modelODEs, ode_num, init_tokens] = create_cpi_odes(cpi_defs, process);
+
+if (ode_num == 0)
+    return;
+end
+
+[start_time, end_time] = retrieve_simulation_times();
+
+if (end_time == 0)
+    return;
+end
+
+[example_time, example_solutions] = solve_cpi_odes(modelODEs, ode_num, init_tokens, end_time);
 
 % select an existing .cpi file with parameters to estimate
 [experimental_file_name, experimental_file_path, ~] = uigetfile({'*.cpi', 'CPi Models (*.cpi)'}, 'Select an experimental .cpi file');
@@ -54,21 +73,31 @@ for i = 1:length(affinity_tokens)
 end
 
 % begin experimenting with parameter values
-retrieve_process;
-create_cpi_odes;
-solve_cpi_odes;
-experiment_time = t;
-experiment_solutions = Y;
+[process, process_def, def_tokens, def_token_num] = retrieve_process(cpi_defs);
+
+if (strcmp(process, '') == 1)
+    return;
+end
+
+[modelODEs, ode_num, init_tokens] = create_cpi_odes(cpi_defs, process);
+
+if (ode_num == 0)
+    return;
+end
+
+[experiment_time, experiment_solutions] = solve_cpi_odes(modelODEs, ode_num, init_tokens, end_time);
 
 % take sum of pairwise differences in example and experimental solutions
 min_determiner = abs(sum(example_solutions(:)) - sum(experiment_solutions(:)));
 curr_determiner = 0;
+optimal_time = experiment_time;
 optimal_solutions = experiment_solutions;
 
 outer_diff = 0;
-step = 10;
+step = 1;
 
-while (outer_diff <= 10)
+disp('Running experiments ... they may take a while.');
+while (outer_diff <= 2)
     for k = 1:num_params
         inner_diff = step;
         
@@ -86,14 +115,20 @@ while (outer_diff <= 10)
                 cpi_defs = strrep(cpi_defs, old_action_token, new_action_token);
                 cpi_defs = cpi_defs{:};
                 
-                create_cpi_odes;
-                solve_cpi_odes;
+                [modelODEs, ode_num, init_tokens] = create_cpi_odes(cpi_defs, process);
+
+                if (ode_num == 0)
+                    return;
+                end
+
+                [experiment_time, experiment_solutions] = solve_cpi_odes(modelODEs, ode_num, init_tokens, end_time);
                 
                 curr_determiner = abs(sum(example_solutions(:)) - sum(experiment_solutions(:)));
                 
                 if (min_determiner - curr_determiner > 0)
                     min_determiner = curr_determiner;
-                    optimal_solutions = Y;
+                    optimal_time = experiment_time;
+                    optimal_solutions = experiment_solutions;
                 end
                 
                 cpi_defs = strrep(cpi_defs, new_action_token, old_action_token);
@@ -105,14 +140,20 @@ while (outer_diff <= 10)
                     cpi_defs = strrep(cpi_defs, old_action_token, new_action_token);
                     cpi_defs = cpi_defs{:};
 
-                    create_cpi_odes;
-                    solve_cpi_odes;
+                    [modelODEs, ode_num, init_tokens] = create_cpi_odes(cpi_defs, process);
+
+                    if (ode_num == 0)
+                        return;
+                    end
+
+                    [experiment_time, experiment_solutions] = solve_cpi_odes(modelODEs, ode_num, init_tokens, end_time);
 
                     curr_determiner = abs(sum(example_solutions(:)) - sum(experiment_solutions(:)));
 
                     if (min_determiner - curr_determiner > 0)
                         min_determiner = curr_determiner;
-                        optimal_solutions = Y;
+                        optimal_time = experiment_time;
+                        optimal_solutions = experiment_solutions;
                     end
 
                     cpi_defs = strrep(cpi_defs, new_action_token, old_action_token);
@@ -134,14 +175,20 @@ while (outer_diff <= 10)
                     cpi_defs = strrep(cpi_defs, old_action_token, new_action_token);
                     cpi_defs = cpi_defs{:};
 
-                    create_cpi_odes;
-                    solve_cpi_odes;
+                    [modelODEs, ode_num, init_tokens] = create_cpi_odes(cpi_defs, process);
+
+                    if (ode_num == 0)
+                        return;
+                    end
+
+                    [experiment_time, experiment_solutions] = solve_cpi_odes(modelODEs, ode_num, init_tokens, end_time);
 
                     curr_determiner = abs(sum(example_solutions(:)) - sum(experiment_solutions(:)));
 
                     if (min_determiner - curr_determiner > 0)
                         min_determiner = curr_determiner;
-                        optimal_solutions = Y;
+                        optimal_time = experiment_time;
+                        optimal_solutions = experiment_solutions;
                     end
 
                     cpi_defs = strrep(cpi_defs, new_action_token, old_action_token);
@@ -153,14 +200,20 @@ while (outer_diff <= 10)
                         cpi_defs = strrep(cpi_defs, old_action_token, new_action_token);
                         cpi_defs = cpi_defs{:};
 
-                        create_cpi_odes;
-                        solve_cpi_odes;
+                        [modelODEs, ode_num, init_tokens] = create_cpi_odes(cpi_defs, process);
+
+                        if (ode_num == 0)
+                            return;
+                        end
+
+                        [experiment_time, experiment_solutions] = solve_cpi_odes(modelODEs, ode_num, init_tokens, end_time);
 
                         curr_determiner = abs(sum(example_solutions(:)) - sum(experiment_solutions(:)));
 
                         if (min_determiner - curr_determiner > 0)
                             min_determiner = curr_determiner;
-                            optimal_solutions = Y;
+                            optimal_time = experiment_time;
+                            optimal_solutions = experiment_solutions;
                         end
 
                         cpi_defs = strrep(cpi_defs, new_action_token, old_action_token);
@@ -177,7 +230,6 @@ while (outer_diff <= 10)
 end
 
 % plot the resulting simulation
-Y = optimal_solutions;
-create_cpi_simulation;
+create_cpi_simulation(optimal_time, optimal_solutions, start_time, experimental_file_name, process_def, def_tokens, def_token_num);
 
-return;
+end

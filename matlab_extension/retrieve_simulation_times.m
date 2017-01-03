@@ -1,6 +1,11 @@
 % this Matlab script collection extends the Continuous Pi Workbench, CPiWB
 % author: Ross Rhodes
 
+function [start_time, end_time] = retrieve_simulation_times();
+
+start_time = 0;
+end_time = 0;
+
 % determine the time frame for the simulation
 valid_time = 1;
 
@@ -12,6 +17,7 @@ while(valid_time == 1)
         time_input = input(prompt, 's');
 
         if (strcmp(time_input, '') == 1 || strcmp(time_input, 'cancel') == 1)
+            end_time = 0;
             return;
         elseif(not(isstrprop(time_input, 'digit')))
             disp('Error: Information entered is nonnumeric.');
@@ -28,6 +34,7 @@ while(valid_time == 1)
         time_input = input(prompt, 's');
 
         if (strcmp(time_input, '') == 1 || strcmp(time_input, 'cancel') == 1)
+            end_time = 0;
             return;
         elseif(not(isstrprop(time_input, 'digit')))
             disp('Error: Information entered is nonnumeric.');
@@ -43,4 +50,6 @@ while(valid_time == 1)
     else
         valid_time = 0;
     end
+end
+
 end
