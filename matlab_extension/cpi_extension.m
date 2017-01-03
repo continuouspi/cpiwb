@@ -13,7 +13,7 @@ while(not(strcmp(job, 'quit')))
     if (strcmp(job, 'quit') == 1)
         return;
     elseif (strcmp(job, 'help') == 1)
-        fprintf('\nThe following commands are available to execute:\n1. create_model\n2. simulate_model\n3. edit_model\n4. quit');
+        fprintf('\nThe following commands are available to execute:\n1. create_model\n2. simulate_model\n3. edit_model\n4. estimate_model_parameters\n5. quit');
     elseif (strcmp(job, 'simulate_model') == 1 || strcmp(job, 'edit_model') == 1)
         % select an existing .cpi file
         [file_name, file_path, ~] = uigetfile({'*.cpi', 'CPi Models (*.cpi)'}, 'Select a .cpi file');
@@ -22,14 +22,21 @@ while(not(strcmp(job, 'quit')))
             % read the selected CPi model and produce a simulation
             cpi_defs = fileread(strcat(file_path, '/', file_name));
             disp(cpi_defs);
+            retrieve_process;
+            create_cpi_odes;
+            retrieve_simulation_times;
+            solve_cpi_odes;
             create_cpi_simulation;
+            disp('Done.');
         elseif (not(file_name == 0) & (strcmp(job, 'edit_model') == 1))
-            % edit an existing CPi model
-            edit([file_path, '/', file_name]);
+            % open an existing CPi model with write permissions
+            edit([file_path, '/', file_name])
         end
-    elseif (strcmp(job, 'create_model'))
-        % job two corresponds to creating a CPi model inside Matlab
+    elseif (strcmp(job, 'create_model') == 1)
+        % open a new script window for the user to create definitions
         edit();
+    elseif (strcmp(job, 'estimate_model_parameters') == 1)
+        estimate_model_parameters;
     else
         fprintf(['\nError: ', job, ' command not recognised. Please try again.\n']);
     end
