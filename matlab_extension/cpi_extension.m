@@ -3,7 +3,7 @@
 job = [];
 clc;
 
-fprintf('Welcome to the Matlab extension for Continuous Pi Calculus.\nEnter ''help'' for help.');
+fprintf('Welcome to the Continuous Pi Calculus Matlab Extension, CPiME.\nEnter ''help'' for help.');
 
 % run the script until the users requests to leave
 while(not(strcmp(job, 'quit')))
