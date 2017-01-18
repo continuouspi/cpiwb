@@ -56,7 +56,7 @@ while(not(strcmp(job, 'quit')))
     elseif (strcmp(job, 'create_model') == 1)
         % open a new script window for the user to create definitions
         edit();
-    elseif (strcmp(job, 'estimate_model_parameters') == 1)
+    elseif (strcmp(job, 'compare_cpi_model_s') == 1)
         estimate_model_parameters();
     else
         fprintf(['\nError: ', job, ' command not recognised. Please try again.\n']);
