@@ -6,13 +6,13 @@ function x = estimate_model_parameters()
 % empty output
 x = 0;
 
-% select an existing .cpi file to serve as a comparison
+% select an existing .cpi file to serve as an accepted model
 [example_file_name, example_file_path, ~] = uigetfile({'*.cpi', 'CPi Models (*.cpi)'}, 'Select an example .cpi file');
 
 cpi_defs = fileread(strcat(example_file_path, '/', example_file_name));
 disp(cpi_defs);
 
-[process, process_def, def_tokens, def_token_num] = retrieve_process(cpi_defs);
+[process, example_process_def, example_tokens, example_token_num] = retrieve_process(cpi_defs);
 
 if (strcmp(process, '') == 1)
     return;
@@ -32,32 +32,13 @@ end
 
 [example_time, example_solutions] = solve_cpi_odes(modelODEs, example_ode_num, init_tokens, end_time);
 
-% select an existing .cpi file with parameters to estimate
+% select an existing .cpi file to experiment on
 [experimental_file_name, experimental_file_path, ~] = uigetfile({'*.cpi', 'CPi Models (*.cpi)'}, 'Select an experimental .cpi file');
 
 cpi_defs = fileread(strcat(experimental_file_path, '/', experimental_file_name));
-
-% identify the parameters
-param_indices = [strfind(cpi_defs, 'tau') strfind(cpi_defs, '@')];
-
-num_params = length(param_indices);
-
 disp(cpi_defs);
-disp([num2str(num_params), ' parameters identified.']);
 
-% retrieve the parameters
-params = [num_params];
-
-for i = 1:num_params
-    if (length(cpi_defs) >= param_indices(i) + 10)
-        digits = regexp(cpi_defs(param_indices(i):param_indices(i) + 10), '(\d+(\.\d+)*)', 'match');
-    else
-        digits = regexp(cpi_defs(param_indices(i):length(cpi_defs)), '(\d+(\.\d+)*)', 'match');
-    end
-    params(i) = str2double(digits{1});
-end
-
-% begin experimenting with parameter values
+% solve the experimental model as given to start with
 [process, process_def, def_tokens, def_token_num] = retrieve_process(cpi_defs);
 
 if (strcmp(process, '') == 1)
@@ -71,167 +52,139 @@ if (ode_num == 0)
 end
 
 [experiment_time, experiment_solutions] = solve_cpi_odes(modelODEs, ode_num, init_tokens, end_time);
+optimal_solutions = experiment_solutions;
+
+% identify the parameters in the experimental model
+str_params = regexp(modelODEs, '[^x-](\d+(\.\d+)*)', 'match');
+str_params = unique([str_params{:}]);
+
+params = str2double(str_params);
+num_params = length(params);
+
+disp([num2str(num_params), ' parameters identified in the system of ODEs.']);
 
 % take sum of pairwise differences in example and experimental solutions
 min_ode_num = min(ode_num, example_ode_num);
-min_determiner = sumabs(example_solutions(1:min_ode_num) - experiment_solutions(1:min_ode_num));
-curr_determiner = 0;
-optimal_time = experiment_time;
-optimal_solutions = experiment_solutions;
-optimal_defs = cpi_defs;
+min_time = min(size(example_solutions(:,1:min_ode_num),1), size(experiment_solutions(:,1:min_ode_num), 1));
 
-outer_diff = 0;
-step = 0.1;
-
-disp('Running experiments ... they may take a while.');
-while (outer_diff <= 1)
-    for k = 1:num_params
-        inner_diff = 0.1;
-        
-        % increment parameter k by the set outer difference
-        if (length(cpi_defs) >= param_indices(k) + 10)
-            outer_old_action_token = cpi_defs(param_indices(k):param_indices(k) + 10);
-        else
-            outer_old_action_token = cpi_defs(param_indices(k):length(cpi_defs));
-        end
-        outer_new_action_token = strrep(outer_old_action_token, num2str(params(k)), num2str(params(k) * (1 + outer_diff)));
-        cpi_defs = strrep(cpi_defs, outer_old_action_token, outer_new_action_token);
-        
-        for j = 1:num_params
-            if (not(k == j))
-                % increment parameter j by the set inner difference
-                if (length(cpi_defs) >= param_indices(j) + 10)
-                    old_action_token = cpi_defs(param_indices(j):param_indices(j) + 10);
-                else
-                    old_action_token = cpi_defs(param_indices(j):length(cpi_defs));
-                end
-                new_action_token = strrep(old_action_token, num2str(params(j)), num2str(params(j) * (1 + inner_diff)));
-                cpi_defs = strrep(cpi_defs, old_action_token, new_action_token);
-                
-                [modelODEs, ode_num, init_tokens] = create_cpi_odes(cpi_defs, process);
-
-                if (ode_num == 0)
-                    return;
-                end
-
-                [experiment_time, experiment_solutions] = solve_cpi_odes(modelODEs, ode_num, init_tokens, end_time);
-                
-                min_ode_num = min(ode_num, example_ode_num);
-
-                curr_determiner = sumabs(example_solutions(1:min_ode_num) - experiment_solutions(1:min_ode_num));
-
-                if (min_determiner - curr_determiner > 0)
-                    min_determiner = curr_determiner;
-                    optimal_time = experiment_time;
-                    optimal_solutions = experiment_solutions;
-                    optimal_defs = cpi_defs;
-                end
-
-                cpi_defs = strrep(cpi_defs, new_action_token, old_action_token);
-                
-                % decrement parameter j by the set inner difference
-                new_action_token = strrep(old_action_token, num2str(params(j)), num2str(params(j) * (1 - inner_diff)));
-                cpi_defs = strrep(cpi_defs, old_action_token, new_action_token);
-                
-                [modelODEs, ode_num, init_tokens] = create_cpi_odes(cpi_defs, process);
-
-                if (ode_num == 0)
-                    return;
-                end
-
-                [experiment_time, experiment_solutions] = solve_cpi_odes(modelODEs, ode_num, init_tokens, end_time);
-
-                min_ode_num = min(ode_num, example_ode_num);
-
-                curr_determiner = sumabs(example_solutions(1:min_ode_num) - experiment_solutions(1:min_ode_num));
-
-                if (min_determiner - curr_determiner > 0)
-                    min_determiner = curr_determiner;
-                    optimal_time = experiment_time;
-                    optimal_solutions = experiment_solutions;
-                    optimal_defs = cpi_defs;
-                end
-
-                cpi_defs = strrep(cpi_defs, new_action_token, old_action_token);
-            end
-        end
-
-        cpi_defs = strrep(cpi_defs, outer_new_action_token, outer_old_action_token);
-                
-        % decrement parameter i by the set outer difference
-        outer_new_action_token = strrep(outer_old_action_token, num2str(params(k)), num2str(params(k) * (1 - outer_diff)));
-        cpi_defs = strrep(cpi_defs, outer_old_action_token, outer_new_action_token);
-
-        for j = 1:num_params
-            if (not(k == j))
-                % increment parameter j by the set inner difference
-                if (length(cpi_defs) >= param_indices(j) + 10)
-                    old_action_token = cpi_defs(param_indices(j):param_indices(j) + 10);
-                else
-                    old_action_token = cpi_defs(param_indices(j):length(cpi_defs));
-                end
-                new_action_token = strrep(old_action_token, num2str(params(j)), num2str(params(j) * (1 + inner_diff)));
-                cpi_defs = strrep(cpi_defs, old_action_token, new_action_token);
-
-                [modelODEs, ode_num, init_tokens] = create_cpi_odes(cpi_defs, process);
-
-                if (ode_num == 0)
-                    return;
-                end
-
-                [experiment_time, experiment_solutions] = solve_cpi_odes(modelODEs, ode_num, init_tokens, end_time);
-
-                min_ode_num = min(ode_num, example_ode_num);
-
-                curr_determiner = sumabs(example_solutions(1:min_ode_num) - experiment_solutions(1:min_ode_num));
-
-                if (min_determiner - curr_determiner > 0)
-                    min_determiner = curr_determiner;
-                    optimal_time = experiment_time;
-                    optimal_solutions = experiment_solutions;
-                    optimal_defs = cpi_defs;
-                end
-
-                cpi_defs = strrep(cpi_defs, new_action_token, old_action_token);
-
-                % decrement parameter j by the set inner difference
-                new_action_token = strrep(old_action_token, num2str(params(j)), num2str(params(j) * (1 - inner_diff)));
-                cpi_defs = strrep(cpi_defs, old_action_token, new_action_token)
-
-                [modelODEs, ode_num, init_tokens] = create_cpi_odes(cpi_defs, process);
-
-                if (ode_num == 0)
-                    return;
-                end
-
-                [experiment_time, experiment_solutions] = solve_cpi_odes(modelODEs, ode_num, init_tokens, end_time);
-
-                min_ode_num = min(ode_num, example_ode_num);
-
-                curr_determiner = sumabs(example_solutions(1:min_ode_num) - experiment_solutions(1:min_ode_num))
-
-                if (min_determiner - curr_determiner > 0)
-                    min_determiner = curr_determiner;
-                    optimal_time = experiment_time;
-                    optimal_solutions = experiment_solutions;
-                    optimal_defs = cpi_defs;
-                end
-
-                cpi_defs = strrep(cpi_defs, new_action_token, old_action_token);
-            end  
-        end
-        
-        cpi_defs = strrep(cpi_defs, outer_new_action_token, outer_old_action_token);
-
-        inner_diff = inner_diff + step;
-    end
-    
-    outer_diff = outer_diff + step;
+% account for different number of points in experimental solutions
+if (min_time == size(example_solutions(:,1:min_ode_num), 1))
+    time_points = round(linspace(1, size(experiment_solutions(:,1:min_ode_num), 1), min_time));
+    min_determiner = sumabs(bsxfun(@minus, example_solutions(:,1:min_ode_num), experiment_solutions(time_points,1:min_ode_num)));
+else
+    time_points = round(linspace(1, size(example_solutions(:,1:min_ode_num), 1), min_time));
+    min_determiner = sumabs(bsxfun(@minus, example_solutions(time_points,1:min_ode_num), experiment_solutions(:,1:min_ode_num)));
 end
 
-disp(optimal_defs);
+% determine which parameters contribute significantly to model
+altered_params = {};
+sig_params = {};
+extremity_scalar = 100;
 
-% plot the resulting simulation
-create_cpi_simulation(optimal_time, optimal_solutions, start_time, experimental_file_name, process_def, def_tokens, def_token_num);
+for i = 1:num_params
+    % double the magnitude of one parameter per iteration and solve
+    for l = 1:length(modelODEs)
+        % num2str removes decimal in integer numbers. Make sure to keep it
+        if (isempty(findstr('.', num2str(params(i)))))
+            modelODEs{l} = strrep(modelODEs{l}, sprintf('%.1f', params(i)), sprintf('%.1f', 2 * params(i)));
+        else
+            modelODEs{l} = strrep(modelODEs{l}, num2str(params(i)), num2str(2 * params(i)));
+        end
+    end
+        
+    [experiment_time, experiment_solutions] = solve_cpi_odes(modelODEs, ode_num, init_tokens, end_time);
+    
+    for l = 1:length(modelODEs)
+        if (isempty(findstr('.', num2str(params(i)))))
+            modelODEs{l} = strrep(modelODEs{l}, sprintf('%.1f', 2 * params(i)), sprintf('%.1f', params(i)));
+        else
+            modelODEs{l} = strrep(modelODEs{l}, num2str(2 * params(i)), num2str(params(i)));
+        end
+    end
+
+    % determine if the parameter change has a significant impact
+    min_ode_num = min(ode_num, example_ode_num);
+    min_time = min(size(example_solutions(:,1:min_ode_num),1), size(experiment_solutions(:,1:min_ode_num), 1));
+    
+    if (min_time == size(example_solutions(:,1:min_ode_num), 1))
+        time_points = round(linspace(1, size(experiment_solutions(:,1:min_ode_num), 1), min_time));
+        curr_determiner = sumabs(bsxfun(@minus, example_solutions(:,1:min_ode_num), experiment_solutions(time_points,1:min_ode_num)));
+    else
+        time_points = round(linspace(1, size(example_solutions(:,1:min_ode_num), 1), min_time));
+        curr_determiner = sumabs(bsxfun(@minus, example_solutions(time_points,1:min_ode_num), experiment_solutions(:,1:min_ode_num)));
+    end
+    
+    % use 5 as a threshold value for now. Not final
+    if (abs(min_determiner - curr_determiner) > 5)
+        altered_params{end + 1} = linspace(0, extremity_scalar * params(i), 10);
+        sig_params{end + 1} = params(i);
+    end
+end
+
+% determine the number of significant parameters in the model
+num_params = length(altered_params);
+
+if (not(num_params))
+    disp('No parameters of significance to the model were found.');
+    return;
+end
+
+% construct all possible parameter value combinations
+combs = cell(1,num_params);
+[combs{end:-1:1}] = ndgrid(altered_params{end:-1:1});
+
+combs = cat(num_params + 1, combs{:});
+combs = reshape(combs, [], num_params);
+
+combs = [sig_params{:}; combs];
+
+num_experiments = size(combs, 1);
+
+% begin experiments
+disp(['Performing ', num2str(num_experiments - 1), ' experiments with ', num2str(num_params), ' parameters. This may take a while.']);
+
+for k = 3:num_experiments
+    for j = 1:num_params
+        for l = 1:length(modelODEs)
+            if (isempty(findstr('.', num2str(combs(k-1,j)))) && isempty(findstr('.', num2str(combs(k-1,j)))))
+                modelODEs{l} = strrep(modelODEs{l}, sprintf('%.1f', combs(k-1,j)), sprintf('%.1f', combs(k,j)));
+            elseif (isempty(findstr('.', num2str(combs(k-1,j)))))
+                modelODEs{l} = strrep(modelODEs{l}, sprintf('%.1f', combs(k-1,j)), num2str(combs(k,j)));
+            elseif (isempty(findstr('.', num2str(combs(k-1,j)))))
+                modelODEs{l} = strrep(modelODEs{l}, num2str(combs(k-1,j)), sprintf('%.1f', combs(k,j)));
+            else
+                modelODEs{l} = strrep(modelODEs{l}, num2str(combs(k-1,j)), num2str(combs(k,j)));
+            end
+        end
+    end
+
+    [experiment_time, experiment_solutions] = solve_cpi_odes(modelODEs, ode_num, init_tokens, end_time);
+
+    min_ode_num = min(ode_num, example_ode_num);
+
+    % to be fixed
+    min_time = min(size(example_solutions(:,1:min_ode_num),1), size(experiment_solutions(:,1:min_ode_num), 1));
+    
+    if (min_time == size(example_solutions(:,1:min_ode_num), 1))
+        time_points = round(linspace(1, size(experiment_solutions(:,1:min_ode_num), 1), min_time));
+        curr_determiner = sumabs(bsxfun(@minus, example_solutions(:,1:min_ode_num), experiment_solutions(time_points,1:min_ode_num)));
+    else
+        time_points = round(linspace(1, size(example_solutions(:,1:min_ode_num), 1), min_time));
+        curr_determiner = sumabs(bsxfun(@minus, example_solutions(time_points,1:min_ode_num), experiment_solutions(:,1:min_ode_num)));
+    end
+
+    if ((min_determiner - curr_determiner) > 0)
+        min_determiner = curr_determiner;
+        optimal_solutions = experiment_solutions;
+    end
+   
+    if (mod(k-1, 100) == 0)
+        disp([num2str(k - 1), ' of ', num2str(num_experiments - 1), ' experiments completed.']);
+    end
+end
+
+% plot the resulting simulation against the example model
+create_cpi_simulation(example_time, example_solutions, start_time, example_file_name, example_process_def, example_tokens, example_token_num);
+create_cpi_simulation(experiment_time, optimal_solutions, start_time, experimental_file_name, process_def, def_tokens, def_token_num);
 
 end
