@@ -70,16 +70,17 @@ min_time = min(size(example_solutions(:,1:min_ode_num),1), size(experiment_solut
 % account for different number of points in experimental solutions
 if (min_time == size(example_solutions(:,1:min_ode_num), 1))
     time_points = round(linspace(1, size(experiment_solutions(:,1:min_ode_num), 1), min_time));
-    min_determiner = sumabs(bsxfun(@minus, example_solutions(:,1:min_ode_num), experiment_solutions(time_points,1:min_ode_num)));
+    min_determiner = pdist(example_solutions(:,1:min_ode_num), experiment_solutions(time_points,1:min_ode_num));
 else
     time_points = round(linspace(1, size(example_solutions(:,1:min_ode_num), 1), min_time));
-    min_determiner = sumabs(bsxfun(@minus, example_solutions(time_points,1:min_ode_num), experiment_solutions(:,1:min_ode_num)));
+    min_determiner = pdist(example_solutions(time_points,1:min_ode_num), experiment_solutions(:,1:min_ode_num));
 end
 
 % determine which parameters contribute significantly to model
 altered_params = {};
 sig_params = {};
-extremity_scalar = 100;
+min_dist = 1;
+extremity_scalar = 2;
 
 for i = 1:num_params
     % double the magnitude of one parameter per iteration and solve
@@ -108,15 +109,15 @@ for i = 1:num_params
     
     if (min_time == size(example_solutions(:,1:min_ode_num), 1))
         time_points = round(linspace(1, size(experiment_solutions(:,1:min_ode_num), 1), min_time));
-        curr_determiner = sumabs(bsxfun(@minus, example_solutions(:,1:min_ode_num), experiment_solutions(time_points,1:min_ode_num)));
+        curr_determiner = pdist(example_solutions(:,1:min_ode_num), experiment_solutions(time_points,1:min_ode_num));
     else
         time_points = round(linspace(1, size(example_solutions(:,1:min_ode_num), 1), min_time));
-        curr_determiner = sumabs(bsxfun(@minus, example_solutions(time_points,1:min_ode_num), experiment_solutions(:,1:min_ode_num)));
+        curr_determiner = pdist(example_solutions(time_points,1:min_ode_num), experiment_solutions(:,1:min_ode_num));
     end
     
     % use 5 as a threshold value for now. Not final
-    if (abs(min_determiner - curr_determiner) > 5)
-        altered_params{end + 1} = linspace(0, extremity_scalar * params(i), 10);
+    if (abs(pdist(min_determiner, curr_determiner)) >= min_dist)
+        altered_params{end + 1} = linspace(0, extremity_scalar * params(i), 5);
         sig_params{end + 1} = params(i);
     end
 end
@@ -167,14 +168,15 @@ for k = 3:num_experiments
     
     if (min_time == size(example_solutions(:,1:min_ode_num), 1))
         time_points = round(linspace(1, size(experiment_solutions(:,1:min_ode_num), 1), min_time));
-        curr_determiner = sumabs(bsxfun(@minus, example_solutions(:,1:min_ode_num), experiment_solutions(time_points,1:min_ode_num)));
+        curr_determiner = pdist(@minus, example_solutions(:,1:min_ode_num), experiment_solutions(time_points,1:min_ode_num));
     else
         time_points = round(linspace(1, size(example_solutions(:,1:min_ode_num), 1), min_time));
-        curr_determiner = sumabs(bsxfun(@minus, example_solutions(time_points,1:min_ode_num), experiment_solutions(:,1:min_ode_num)));
+        curr_determiner = pdist(@minus, example_solutions(time_points,1:min_ode_num), experiment_solutions(:,1:min_ode_num));
     end
 
-    if ((min_determiner - curr_determiner) > 0)
+    if (abs(pdist(min_determiner - curr_determiner)) >= min_dist)
         min_determiner = curr_determiner;
+        optimal_time = experiment_time;
         optimal_solutions = experiment_solutions;
     end
    
@@ -185,6 +187,6 @@ end
 
 % plot the resulting simulation against the example model
 create_cpi_simulation(example_time, example_solutions, start_time, example_file_name, example_process_def, example_tokens, example_token_num);
-create_cpi_simulation(experiment_time, optimal_solutions, start_time, experimental_file_name, process_def, def_tokens, def_token_num);
+create_cpi_simulation(optimal_time, optimal_solutions, start_time, experimental_file_name, process_def, def_tokens, def_token_num);
 
 end
