@@ -11,33 +11,43 @@ while(not(strcmp(job, 'quit')))
     job = input(prompt, 's');
     
     if (strcmp(job, 'quit') == 1)
+        
         return;
+        
     elseif (strcmp(job, 'help') == 1)
         
-        fprintf('\nThe following commands are available to execute:\n1. create_model\n2. simulate_model\n3. edit_model\n4. compare_processes\n5. quit');
+        fprintf('\nThe following commands are available to execute:\n1. create_model\n2. simulate_model\n3. edit_model\n4. compare_models\n5. quit\n\nEnter ''help <command>'' for further details on a specific command.');
+   
+    elseif (strcmp(job(1:5), 'help ') == 1)
+        
+        input_length = length(job);
+        command_docs(job(6:input_length));
+        
+    elseif (strcmp(job, 'simulate_model') == 1)
     
-    elseif (strcmp(job, 'simulate_model') == 1 || strcmp(job, 'edit_model') == 1)
-    
-        if (strcmp(job, 'simulate_model') == 1)
-            simulate_single_model();
-        elseif (strcmp(job, 'edit_model') == 1)
+        simulate_single_model();
+        
+    elseif (strcmp(job, 'edit_model') == 1)
+        
         % select an existing .cpi file
         [file_name, file_path, ~] = uigetfile({'*.cpi', 'CPi Models (*.cpi)'}, 'Select a .cpi file');
         
         % open an existing CPi model with write permissions
         edit([file_path, '/', file_name])
-        end
         
     elseif (strcmp(job, 'create_model') == 1)
+        
         % open a new script window for the user to create definitions
         edit();
     
-    elseif (strcmp(job, 'compare_processes') == 1)
+    elseif (strcmp(job, 'compare_models') == 1)
     
         compare_cpi_models();
     
-    else
+    elseif (not(strcmp(job, '')))
+        
         fprintf(['\nError: ', job, ' command not recognised. Please try again.\n']);
+        
     end
 end
 
