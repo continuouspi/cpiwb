@@ -6,27 +6,28 @@ function [process, process_def, def_tokens, def_token_num] = retrieve_process(cp
 process = '';
 process_found = [];
 process_def = [];
+def_tokens = [];
 def_token_num = 0;
 
 while(isempty(process_found))
     % request, from the user, the process to model
-    prompt = ['\nEnter a process name from this file for simulation.\nNote: This is case sensitive.\nEnter ''cancel'' to cancel the simulation.\n> '];
+    prompt = ['\nEnter a process name from this file for simulation.\nNote: This is case sensitive.\nEnter ''cancel'' to cancel.\nCPiME:> '];
     process = input(prompt, 's');
 
     % if user requests to leave then return to main script
     if (strcmp(process, '') == 1 || strcmp(process, 'cancel') == 1)
-        process = '';
         return;
     end
-
-    % find the process definition inside the CPi file
+    
     process_name = ['process ', process];
-
+    
+    % tokenize the CPi file
     def_tokens = strsplit(cpi_defs, ';');
     def_token_num = length(def_tokens);
     species = {};
     i = 1;
 
+    % find the requested process in the file tokens
     while((i <= def_token_num) & (isempty(process_found))) 
         def_token = char(def_tokens(i));
         process_found = findstr(def_token, process_name);
@@ -38,7 +39,7 @@ while(isempty(process_found))
 
     % report an error if the process does not exist on file
     if (isempty(process_found))
-        fprintf(['Error: Process ', process, ' not found. Please try again.']);
+        fprintf(['\nError: Process ', process, ' not found. Please try again.']);
     end
 end
 

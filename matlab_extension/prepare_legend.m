@@ -1,8 +1,6 @@
-function [legendString, species_num, start_index, end_index] = prepare_legend(t, start_time, process_def, def_tokens, def_token_num) 
+function [legendString, species_num] = prepare_legend(process_def, def_tokens, def_token_num) 
 
 species = {};
-start_index = 0;
-end_index = 0;
 
 % retrieve the species names to include in the simulation legend
 i = 1;
@@ -21,6 +19,7 @@ while(i < def_token_num)
     i = i + 1;
 end
 
+% organise the species names alphabetically from a to z
 species_num = length(species);
 legendString = cell(1, species_num);
 
@@ -28,18 +27,4 @@ species = sort(species);
 
 for i = 1:species_num
     legendString{i} = sprintf(char(species{i}));
-end
-
-% simulate the behaviour of the system
-start_index = 0;
-end_index = length(t);
-
-i = 1;
-
-while (start_index == 0 & i <= end_index)
-    if (start_time <= t(i))
-        start_index = i;
-    else
-        i = i + 1;
-    end
 end

@@ -3,7 +3,9 @@
 
 function x = compare_cpi_models()
 
+% dummy variable - void function
 x = 0;
+
 num_input = [];
 Y = {};
 t = {};
@@ -15,21 +17,22 @@ def_token_num = {};
 species_num = 0;
 species = {};
 process = {};
+new_process = {};
 
 while(isempty(num_input))
-    prompt = 'How many processes do you wish to compare? Enter ''cancel'' to cancel.\n> ';
+    prompt = '\nHow many processes do you wish to compare?\nEnter ''cancel'' to cancel.\n> ';
     num_input = input(prompt, 's');
 
     if (strcmp(num_input, '') == 1 || strcmp(num_input, 'cancel') == 1)
         return;
     elseif(not(isstrprop(num_input, 'digit')))
-        disp('Error: Information entered is nonnumeric.');
+        fprintf('\nError: Information entered is nonnumeric.');
     else
          num_models = str2num(num_input);
          
          % set the maximum nunber of models allowed to four
          if (num_models > 4)
-             disp('Error: No more than four processes may be compared.');
+             fprintf('\nError: No more than four processes may be modelled simultaneously.');
              num_models = [];
          end
     end
@@ -65,17 +68,17 @@ else
             file_found = 0;
             
             while (j <= 1:length(file_name) & file_found == 0)
-                if (file_name{j} == new_file)
+                if (strcmp(file_name{j}, new_file) == 1)
                     prompt = 'The selected model has already been chosen. Do you wish to proceed? Y/N\n> ';
                     confirmation = [];
                    
                     while (isempty(confirmation))
-                        confirmation = input(prompt, 's');
+                        confirmation = strtrim(input(prompt, 's'));
 
                         if (confirmation == 'N')
                             new_file = {};
                         elseif (not(confirmation == 'Y'))
-                            disp('Error: Invalid input provided. Please enter Y for yes, or N for no.');
+                            fprintf('\nError: Invalid input provided. Please enter Y for yes, or N for no.');
                             confirmation = [];
                         end
                     end
@@ -90,12 +93,29 @@ else
 
         % read the selected CPi model and produce a simulation
         cpi_defs = fileread(strcat(file_path, '/', file_name{i}));
-        disp(cpi_defs);
+        fprintf(['\n', cpi_defs]);
 
-        [process{i}, process_def{end + 1}, def_tokens{end + 1}, def_token_num{end + 1}] = retrieve_process(cpi_defs);
+        [new_process, process_def{end + 1}, def_tokens{end + 1}, def_token_num{end + 1}] = retrieve_process(cpi_defs);
 
-        if (strcmp(process{i}, '') == 1)
+        if (strcmp(new_process, '') == 1)
             continue;
+        else
+            j = 1;
+            duplicate = 0;
+            
+            while(j< length(process) & duplicate == 0)
+                if (strcmp(new_process, process{j}) == 1 & strcmp(new_file, file_name{j}) == 1)
+                    fprintf(['\nError: Process ', new_process, ' is already selected for modelling.']);
+                    duplicate = 1;
+                end
+                j = j + 1;
+            end
+            
+            if (duplicate == 1)
+                continue;
+            end
+            
+            process{end + 1} = new_process;
         end
 
         [modelODEs, ode_num, init_tokens] = create_cpi_odes(cpi_defs, process{i});
@@ -110,7 +130,22 @@ else
     figure('Name','Model Comparison','NumberTitle','on');
 
     for i = 1:num_models
-        [legendStrings, species_num, start_index, end_index] = prepare_legend(t{i}, start_time, process_def{i}, def_tokens{i}, def_token_num{i});
+        [legendStrings, species_num] = prepare_legend(process_def{i}, def_tokens{i}, def_token_num{i});
+        
+        % ODE solvers start with time 0. Find index for the user's start time
+        start_index = -1;
+        end_index = length(t{i});
+
+        j = 1;
+
+        while (start_index == -1 & j < end_index)
+            if (t{i}(j) <= start_time & start_time <= t{i}(j + 1))
+                start_index = j;
+            end
+            
+            j = j + 1;
+        end
+        
         plot(t{i}(start_index:end_index), Y{i}(start_index:end_index, 1:species_num), '-o');
 
         filename_tokens = strsplit(file_name{i}, '.cpi');
