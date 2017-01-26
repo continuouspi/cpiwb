@@ -13,7 +13,7 @@ while(valid_time == 1)
     % request a start time from the user
     time_input = [];
     while(isempty(time_input))
-        prompt = '\nPlease enter the start time for the simulation.\nEnter ''cancel'' to cancel.\nCPiME:> ';
+        prompt = '\nPlease enter the start time.\nEnter ''cancel'' to cancel.\nCPiME:> ';
         time_input = strtrim(input(prompt, 's'));
 
         if (strcmp(time_input, '') == 1 || strcmp(time_input, 'cancel') == 1)
@@ -33,7 +33,7 @@ while(valid_time == 1)
     % request an end time from the user
     time_input = [];
     while(isempty(time_input))
-        prompt = '\nPlease enter the end time for the simulation.\nEnter ''cancel'' to cancel.\nCPiME:> ';
+        prompt = '\nPlease enter the end time.\nEnter ''cancel'' to cancel.\nCPiME:> ';
         time_input = strtrim(input(prompt, 's'));
 
         if (strcmp(time_input, '') == 1 || strcmp(time_input, 'cancel') == 1)

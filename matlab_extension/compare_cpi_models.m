@@ -41,7 +41,7 @@ end
 if (num_models == 0)
     return;
 elseif (num_models == 1)
-    simulate_single_model;
+    simulate_single_model();
 else
 
     % determine the time frame to model for comparison
@@ -69,16 +69,16 @@ else
             
             while (j <= 1:length(file_name) & file_found == 0)
                 if (strcmp(file_name{j}, new_file) == 1)
-                    prompt = 'The selected model has already been chosen. Do you wish to proceed? Y/N\n> ';
+                    prompt = 'The selected model has already been chosen. Do you wish to proceed? (Y/n)\n> ';
                     confirmation = [];
                    
                     while (isempty(confirmation))
                         confirmation = strtrim(input(prompt, 's'));
 
-                        if (confirmation == 'N')
+                        if (confirmation == 'n')
                             new_file = {};
                         elseif (not(confirmation == 'Y'))
-                            fprintf('\nError: Invalid input provided. Please enter Y for yes, or N for no.');
+                            fprintf('\nError: Invalid input provided. Please enter ''Y'' for yes, or ''n'' for no.');
                             confirmation = [];
                         end
                     end

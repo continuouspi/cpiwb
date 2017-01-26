@@ -44,6 +44,6 @@ end
 % simulate the solution set for the specified time period
 create_cpi_simulation(t, Y, start_time, file_name, process_def, def_tokens, def_token_num);
 
-fprintf('\nDone.');
+fprint('\nDone.');
 
 end

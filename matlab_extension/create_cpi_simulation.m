@@ -16,7 +16,7 @@ end_index = length(t);
 i = 1;
 
 while (start_index == -1 & i < end_index)
-    if (start_time <= t(i + 1) & t(i) <= start_time)
+    if (start_time <= t(i) & t(i) <= start_time)
         start_index = i;
     end
     

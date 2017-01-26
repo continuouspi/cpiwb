@@ -11,7 +11,7 @@ def_token_num = 0;
 
 while(isempty(process_found))
     % request, from the user, the process to model
-    prompt = ['\nEnter a process name from this file for simulation.\nNote: This is case sensitive.\nEnter ''cancel'' to cancel.\nCPiME:> '];
+    prompt = ['\nEnter a process name from this file.\nNote: This is case sensitive.\nEnter ''cancel'' to cancel.\nCPiME:> '];
     process = input(prompt, 's');
 
     % if user requests to leave then return to main script

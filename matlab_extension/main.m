@@ -7,7 +7,7 @@ clc;
 
 fprintf('Welcome to the Continuous Pi Calculus Matlab Extension, CPiME.\nEnter ''help'' for help.');
 
-commands = {'edit_model'; 'simulate_model'; 'help'; 'compare_models'; 'quit'};
+commands = {'edit_model'; 'view_odes'; 'run_parameter_experiment'; 'simulate_model'; 'help'; 'compare_models'; 'quit'};
 
 assistant = 0;
 
@@ -28,7 +28,7 @@ while(not(strcmp(job, 'quit')))
         
     elseif (strcmp(job, 'help') == 1)
         
-        fprintf('\nThe following commands are available to execute:\n1. edit_model\n2. simulate_model\n3. compare_models\n4. quit\n\nEnter ''help <command>'' for further details on a specific command.');
+        fprintf('\nThe following commands are available to execute:\n1. edit_model\n2. view_odes\n3. simulate_model\n4. compare_models\n5. run_parameter_experiment\n6. quit\n\nEnter ''help <command>'' for further details on a specific command.');
    
     elseif (length(job) > 4 & strcmp(job(1:5), 'help ') == 1)
         
@@ -36,6 +36,10 @@ while(not(strcmp(job, 'quit')))
         % trim the redundant help from start of user input
         input_length = length(job);
         command_docs(job(6:input_length));
+        
+    elseif (strcmp(job, 'view_odes') == 1)
+        
+        view_odes();
         
     elseif (strcmp(job, 'simulate_model') == 1)
     
@@ -52,6 +56,10 @@ while(not(strcmp(job, 'quit')))
     elseif (strcmp(job, 'compare_models') == 1)
     
         compare_cpi_models();
+        
+    elseif (strcmp(job, 'run_parameter_experiment') == 1)
+        
+        parameter_experiment();
     
     elseif (not(strcmp(job, '')))
         

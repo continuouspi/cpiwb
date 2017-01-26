@@ -44,6 +44,7 @@ vars = transpose(sym_vars);
 
 % solve the system of ODEs
 ode_system = odeFunction(ode_exprs, vars);
+
 [t Y] = ode15s(ode_system, [0 end_time], init_conditions);
 
 end
