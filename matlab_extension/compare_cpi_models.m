@@ -47,8 +47,10 @@ else
     if (end_time == 0)
         return;
     end
+    
+    i = 1;
 
-    for i = 1:num_models
+    while i <= num_models
 
         % select an existing .cpi file
         [new_file, file_path, ~] = uigetfile({'*.cpi', 'CPi Models (*.cpi)'}, ['Select .cpi file number ', num2str(i)]);
@@ -65,7 +67,7 @@ else
 
         % confirm the new process is not a duplicate from previous choices
         if (strcmp(new_process, '') == 1)
-            continue;
+            return;
         else
             j = 1;
             duplicate = 0;
@@ -90,20 +92,24 @@ else
         [modelODEs, ode_num, init_tokens] = create_cpi_odes(cpi_defs, process{i});
 
         if (ode_num == 0)
-            continue;
+            return;
         end
 
         [t{end + 1}, Y{end + 1}] = solve_cpi_odes(modelODEs, ode_num, init_tokens, end_time);
+        
+        i = i + 1;
     end
 
     % determine whether to simulate on a single or multiple plots
-    prompt = '\nDo you wish to simulate the behaviour of all processes on a single plot, or do you wish to see each process on a separate plot?\nEnter ''single'' for a single plot or ''separate'' for separate plots.\n> ';
+    prompt = '\nDo you wish to simulate the behaviour of all processes on a single plot, or do you wish to see each process on a separate plot?\nEnter ''single'' for a single plot, ''separate'' for separate plots, or ''cancel'' to cancel.\n> ';
     plot_type = [];
 
     while (isempty(plot_type))
         plot_type = strtrim(input(prompt, 's'));
 
-        if (not(strcmp(plot_type, 'single') == 1) & not(strcmp(plot_type,'separate') == 1))
+        if (strcmp(plot_type, 'cancel') == 1)
+            return;
+        elseif (not(strcmp(plot_type, 'single') == 1) & not(strcmp(plot_type,'separate') == 1))
             fprintf('\nError: Invalid input provided. Please enter ''single'' for a single plot, or ''separate'' for separate plots.');
             plot_type = [];
         end
