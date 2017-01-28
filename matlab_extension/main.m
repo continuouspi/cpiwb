@@ -1,6 +1,6 @@
 % this Matlab script collection extends the Continuous Pi Workbench, CPiWB
 % author: Ross Rhodes
-job = [];
+job = '';
 
 % clear the Matlab terminal for CPiME
 clc;
@@ -63,42 +63,47 @@ while(not(strcmp(job, 'quit')))
     
     elseif (not(strcmp(job, '')))
         
-        fprintf(['\nError: ', job, ' command not recognised. Please try again.\n']);
-        
-        continue;
+        fprintf(['\nError: ', job, ' command not recognised.']);
         
         i = 1;
         num_commands = length(commands);
-        similar_command = 0;
+        best_match = 'help';
+        best_coef = 10000000000;
         confirmation = [];
         
-        while (similar_command == 0 & i <= num_commands)
+        % determine which existing command best matches the user's input
+        while (i <= num_commands)
             max_len = max(length(commands{i}), length(job));
             
             if (max_len == length(commands{i}))
-                diff = max_len - length(job);
-                job = pad(job, diff);
+                trimmed_command = commands{i}(1:length(job));
+                trimmed_job = job;
             else
-                diff = max_len - length(commands{i});
-                commands{i} = pad(job, diff);
+                trimmed_command = commands{i};
+                trimmed_job = job(1:length(commands{i}));
             end
             
-            if (abs(corrcoef(commands{i}, job)) > 0)
-                prompt = (['\nDid you mean ', commands{i}, '? (Y/N)']);
-                
-                while (isempty(confirmation))
-                    confirmation = strtrim(input(prompt, 's'));
-
-                    if (confirmation == 'Y')
-                        assistant = 1;
-                        job = commands{i};
-                    elseif (not(confirmation == 'N'))
-                        fprintf('\nError: Invalid input provided. Please enter Y for yes, or N for no.');
-                        confirmation = [];
-                    end
-                end
+            if (abs(sum(double(trimmed_command) - double(trimmed_job))) < best_coef)
+                best_coef = abs(sum(double(trimmed_command) - double(trimmed_job)));
+                best_match = commands{i};
             end
+            
             i = i + 1;
+        end
+        
+        % suggest a command the user likely wanted to execute
+        prompt = (['\nDid you mean ', best_match, '? (Y/n)\n> ']);
+
+        while (isempty(confirmation))
+            confirmation = strtrim(input(prompt, 's'));
+
+            if (confirmation == 'Y')
+                assistant = 1;
+                job = commands{i};
+            elseif (not(confirmation == 'n'))
+                fprintf('\nError: Invalid input provided. Please enter ''Y'' for yes, or ''n'' for no.');
+                confirmation = [];
+            end
         end
     end
 end
