@@ -1,7 +1,7 @@
 % this Matlab script collection extends the Continuous Pi Workbench, CPiWB
 % author: Ross Rhodes
 
-function x = create_cpi_simulation(t, Y, start_time, file_name, process_def, def_tokens, def_token_num)
+function x = create_cpi_simulation(t, Y, start_time, file_name, process_def, def_tokens, def_token_num, process, species)
 
 % void function - dummy variable
 x = 0;
@@ -31,7 +31,7 @@ model_name = regexprep(model_name,'(\<[a-z])','${upper($1)}');
 % plot the simulation, and construct a figure around it
 figure('Name',char(model_name),'NumberTitle','on');
 plot(t(start_index:end_index), Y(start_index:end_index, 1:species_num), '-o');
-title(model_name);
+title([model_name, ' Process ', process]);
 ylabel('Species Concentration (units)');
 xlabel('Time (units)');
 legend('show');

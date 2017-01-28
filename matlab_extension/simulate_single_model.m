@@ -42,8 +42,8 @@ end
 [t, Y] = solve_cpi_odes(modelODEs, ode_num, init_tokens, end_time);
 
 % simulate the solution set for the specified time period
-create_cpi_simulation(t, Y, start_time, file_name, process_def, def_tokens, def_token_num);
+create_cpi_simulation(t, Y, start_time, file_name, process_def, def_tokens, def_token_num, process);
 
-fprint('\nDone.');
+fprintf('\nDone.');
 
 end
