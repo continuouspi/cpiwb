@@ -10,7 +10,14 @@ x = 0;
 figure('Name','Model Comparison','NumberTitle','on');
 
 for i = 1:num_models
-    subplot(2, 2, i);
+    % introduce a new window to hold space for either 2 or 4 plots
+    % in the case that 3 plots are produced, there will be an empty space
+    if num_models > 2
+        subplot(2, 2, i);
+    else
+        subplot(1, 2, i);
+    end
+    
     [legendString, species_num] = prepare_legend(process_def{i}, def_tokens{i}, def_token_num{i});
 
     % ODE solvers start with time 0. Find index for the user's start time
@@ -33,7 +40,7 @@ for i = 1:num_models
     model_name = strrep(filename_tokens(1),'_',' ');
     model_name = regexprep(model_name,'(\<[a-z])','${upper($1)}');
 
-    title([model_name, ' Process ', process{i}]);
+    title([model_name, process{i}]);
     ylabel('Species Concentration (units)');
     xlabel('Time (units)');
     legend('show');

@@ -9,16 +9,14 @@ x = 0;
 num_input = [];
 Y = {};
 t = {};
-start_time = 0;
 file_name = {};
 process_def = {};
 def_tokens = {};
 def_token_num = {};
-species_num = 0;
-species = {};
 process = {};
 new_process = {};
 
+% determine the number of processes to be modelled. Maximum 4
 while(isempty(num_input))
     prompt = '\nHow many processes do you wish to compare?\nEnter ''cancel'' to cancel.\n> ';
     num_input = input(prompt, 's');
@@ -30,7 +28,6 @@ while(isempty(num_input))
     else
          num_models = str2num(num_input);
          
-         % set the maximum nunber of models allowed to four
          if (num_models > 4)
              fprintf('\nError: No more than four processes may be modelled simultaneously.');
              num_models = [];
@@ -38,12 +35,12 @@ while(isempty(num_input))
     end
 end
 
+% if only one process is to be modelled, follow simulate_model command
 if (num_models == 0)
     return;
 elseif (num_models == 1)
     simulate_single_model();
 else
-
     % determine the time frame to model for comparison
     [start_time, end_time] = retrieve_simulation_times();
 
@@ -53,50 +50,20 @@ else
 
     for i = 1:num_models
 
-        new_file = {};
+        % select an existing .cpi file
+        [new_file, file_path, ~] = uigetfile({'*.cpi', 'CPi Models (*.cpi)'}, ['Select .cpi file number ', num2str(i)]);
 
-        while(isempty(new_file))
-            % select an existing .cpi file
-            [new_file, file_path, ~] = uigetfile({'*.cpi', 'CPi Models (*.cpi)'}, ['Select .cpi file number ', num2str(i)]);
-
-            if (new_file == 0)
-                return;
-            end
-
-            % confirm the chosen model is not already in our list
-            j = 1;
-            file_found = 0;
-            
-            while (j <= 1:length(file_name) & file_found == 0)
-                if (strcmp(file_name{j}, new_file) == 1)
-                    prompt = 'The selected model has already been chosen. Do you wish to proceed? (Y/n)\n> ';
-                    confirmation = [];
-                   
-                    while (isempty(confirmation))
-                        confirmation = strtrim(input(prompt, 's'));
-
-                        if (confirmation == 'n')
-                            new_file = {};
-                        elseif (not(confirmation == 'Y'))
-                            fprintf('\nError: Invalid input provided. Please enter ''Y'' for yes, or ''n'' for no.');
-                            confirmation = [];
-                        end
-                    end
-                    
-                    file_found = 1;
-                end
-                j = j + 1;
-            end
+        if (new_file == 0)
+            return;
         end
 
-        file_name{i} = new_file;
-
         % read the selected CPi model and produce a simulation
-        cpi_defs = fileread(strcat(file_path, '/', file_name{i}));
+        cpi_defs = fileread(strcat(file_path, '/', new_file));
         fprintf(['\n', cpi_defs]);
 
         [new_process, process_def{end + 1}, def_tokens{end + 1}, def_token_num{end + 1}] = retrieve_process(cpi_defs);
 
+        % confirm the new process is not a duplicate from previous choices
         if (strcmp(new_process, '') == 1)
             continue;
         else
@@ -116,8 +83,10 @@ else
             end
             
             process{end + 1} = new_process;
+            file_name{end + 1} = new_file;
         end
 
+        % construct and solve the system of ODEs for the selected process
         [modelODEs, ode_num, init_tokens] = create_cpi_odes(cpi_defs, process{i});
 
         if (ode_num == 0)
@@ -127,47 +96,23 @@ else
         [t{end + 1}, Y{end + 1}] = solve_cpi_odes(modelODEs, ode_num, init_tokens, end_time);
     end
 
-    figure('Name','Model Comparison','NumberTitle','on');
+    % determine whether to simulate on a single or multiple plots
+    prompt = '\nDo you wish to simulate the behaviour of all processes on a single plot, or do you wish to see each process on a separate plot?\nEnter ''single'' for a single plot or ''separate'' for separate plots.\n> ';
+    plot_type = [];
 
-    for i = 1:num_models
-        [legendStrings, species_num] = prepare_legend(process_def{i}, def_tokens{i}, def_token_num{i});
-        
-        % ODE solvers start with time 0. Find index for the user's start time
-        start_index = -1;
-        end_index = length(t{i});
+    while (isempty(plot_type))
+        plot_type = strtrim(input(prompt, 's'));
 
-        j = 1;
-
-        while (start_index == -1 & j < end_index)
-            if (t{i}(j) <= start_time & start_time <= t{i}(j + 1))
-                start_index = j;
-            end
-            
-            j = j + 1;
-        end
-        
-        plot(t{i}(start_index:end_index), Y{i}(start_index:end_index, 1:species_num), '-o');
-
-        filename_tokens = strsplit(file_name{i}, '.cpi');
-        model_name = strrep(filename_tokens(1),'_',' ');
-
-        model_name = regexprep(model_name,'(\<[a-z])','${upper($1)}');
-
-        for j = 1:length(legendStrings)
-            species{end + 1} = [legendStrings{j}, ', process ' process{i}, ', model ', model_name{:}];
-        end
-
-        if (i == 1)
-            hold on
+        if (not(strcmp(plot_type, 'single') == 1) & not(strcmp(plot_type,'separate') == 1))
+            fprintf('\nError: Invalid input provided. Please enter ''single'' for a single plot, or ''separate'' for separate plots.');
+            plot_type = [];
         end
     end
 
-    title('CPi Models');
-    ylabel('Species Concentration (units)');
-    xlabel('Time (units)');
-    legend('show');
-    legend(species, 'Location', 'EastOutside');
-
-    disp('Done.');
+    if (strcmp(plot_type, 'single') == 1)
+        single_plot_comparison(process_def, def_tokens, def_token_num, t, Y, file_name, num_models, start_time, process);
+    else 
+        separate_plot_comparison(process_def, def_tokens, def_token_num, t, Y, file_name, num_models, start_time, process);
+    end
 end
 end

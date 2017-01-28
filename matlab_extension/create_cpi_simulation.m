@@ -16,7 +16,7 @@ end_index = length(t);
 i = 1;
 
 while (start_index == -1 & i < end_index)
-    if (start_time <= t(i) & t(i) <= start_time)
+    if (start_time <= t(i + 1) & t(i) <= start_time)
         start_index = i;
     end
     
@@ -31,7 +31,7 @@ model_name = regexprep(model_name,'(\<[a-z])','${upper($1)}');
 % plot the simulation, and construct a figure around it
 figure('Name',char(model_name),'NumberTitle','on');
 plot(t(start_index:end_index), Y(start_index:end_index, 1:species_num), '-o');
-title([model_name, ' Process ', process]);
+title([model_name, process]);
 ylabel('Species Concentration (units)');
 xlabel('Time (units)');
 legend('show');
