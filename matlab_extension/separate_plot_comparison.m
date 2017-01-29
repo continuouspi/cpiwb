@@ -39,8 +39,9 @@ for i = 1:num_models
     filename_tokens = strsplit(file_name{i}, '.cpi');
     model_name = strrep(filename_tokens(1),'_',' ');
     model_name = regexprep(model_name,'(\<[a-z])','${upper($1)}');
+    plot_title = [model_name, ['Process ', process{i}]];
 
-    title([model_name, process{i}]);
+    title(plot_title);
     ylabel('Species Concentration (units)');
     xlabel('Time (units)');
     legend('show');

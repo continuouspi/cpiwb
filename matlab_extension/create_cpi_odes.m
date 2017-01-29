@@ -7,6 +7,8 @@ init_tokens = [];
 modelODEs = {};
 ode_num = 0;
 
+fprintf('\nConstructing the ODEs ... ');
+
 % load the CPiWB shared library
 if not(libisloaded('libOdeConstruction'))
     hsffi_path = '/usr/lib64/ghc-7.8.4/include';
@@ -18,6 +20,8 @@ end
 
 % free the shared library
 unloadlibrary('libOdeConstruction');
+
+fprintf('Done.');
 
 % terminate if CPiWB encountered an error
 if (strcmp(cpiwb_result, 'parse error'))

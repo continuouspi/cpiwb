@@ -18,7 +18,7 @@ new_process = {};
 
 % determine the number of processes to be modelled. Maximum 4
 while(isempty(num_input))
-    prompt = '\nHow many processes do you wish to compare?\nEnter ''cancel'' to cancel.\n> ';
+    prompt = '\nHow many processes do you wish to compare?\nEnter ''cancel'' to cancel.\nCPiME:> ';
     num_input = input(prompt, 's');
 
     if (strcmp(num_input, '') == 1 || strcmp(num_input, 'cancel') == 1)
@@ -61,7 +61,7 @@ else
 
         % read the selected CPi model and produce a simulation
         cpi_defs = fileread(strcat(file_path, '/', new_file));
-        fprintf(['\n', cpi_defs]);
+        fprintf(['\n', strtrim(cpi_defs)]);
 
         [new_process, process_def{end + 1}, def_tokens{end + 1}, def_token_num{end + 1}] = retrieve_process(cpi_defs);
 
@@ -101,7 +101,7 @@ else
     end
 
     % determine whether to simulate on a single or multiple plots
-    prompt = '\nDo you wish to simulate the behaviour of all processes on a single plot, or do you wish to see each process on a separate plot?\nEnter ''single'' for a single plot, ''separate'' for separate plots, or ''cancel'' to cancel.\n> ';
+    prompt = '\n\nDo you wish to simulate the behaviour of all processes on a single plot, or do you wish to see each process on a separate plot?\nEnter ''single'' for a single plot, ''separate'' for separate plots, or ''cancel'' to cancel.\nCPiME:> ';
     plot_type = [];
 
     while (isempty(plot_type))

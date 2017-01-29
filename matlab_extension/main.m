@@ -1,15 +1,15 @@
 % this Matlab script collection extends the Continuous Pi Workbench, CPiWB
 % author: Ross Rhodes
-job = '';
 
 % clear the Matlab terminal for CPiME
 clc;
 
 fprintf('Welcome to the Continuous Pi Calculus Matlab Extension, CPiME.\nEnter ''help'' for help.');
 
-commands = {'edit_model'; 'view_odes'; 'run_parameter_experiment'; 'simulate_model'; 'help'; 'compare_models'; 'quit'};
+commands = {'edit_model'; 'view_odes'; 'run_parameter_experiment'; 'simulate_process'; 'help'; 'compare_processes'; 'quit'};
 
 assistant = 0;
+job = [];
 
 % run the script until the user requests to leave
 % trim initial and trailing whitespace from user input
@@ -28,7 +28,7 @@ while(not(strcmp(job, 'quit')))
         
     elseif (strcmp(job, 'help') == 1)
         
-        fprintf('\nThe following commands are available to execute:\n1. edit_model\n2. view_odes\n3. simulate_model\n4. compare_models\n5. run_parameter_experiment\n6. quit\n\nEnter ''help <command>'' for further details on a specific command.');
+        fprintf('\nThe following commands are available to execute:\n1. edit_model\n2. view_odes\n3. simulate_process\n4. compare_processes\n5. run_parameter_experiment\n6. quit\n\nEnter ''help <command>'' for further details on a specific command.');
    
     elseif (length(job) > 4 & strcmp(job(1:5), 'help ') == 1)
         
@@ -41,7 +41,7 @@ while(not(strcmp(job, 'quit')))
         
         view_odes();
         
-    elseif (strcmp(job, 'simulate_model') == 1)
+    elseif (strcmp(job, 'simulate_process') == 1)
     
         simulate_single_model();
         
@@ -53,7 +53,7 @@ while(not(strcmp(job, 'quit')))
         % open the chosen file inside Matlab
         edit([file_path, '/', file_name]);
     
-    elseif (strcmp(job, 'compare_models') == 1)
+    elseif (strcmp(job, 'compare_processes') == 1)
     
         compare_cpi_models();
         
@@ -68,11 +68,12 @@ while(not(strcmp(job, 'quit')))
         i = 1;
         num_commands = length(commands);
         best_match = 'help';
-        best_coef = 10000000000;
+        highest_match_count = 0;
         confirmation = [];
         
         % determine which existing command best matches the user's input
         while (i <= num_commands)
+            char_matches = 0;
             max_len = max(length(commands{i}), length(job));
             
             if (max_len == length(commands{i}))
@@ -83,8 +84,17 @@ while(not(strcmp(job, 'quit')))
                 trimmed_job = job(1:length(commands{i}));
             end
             
-            if (abs(sum(double(trimmed_command) - double(trimmed_job))) < best_coef)
-                best_coef = abs(sum(double(trimmed_command) - double(trimmed_job)));
+            numeric_job = double(trimmed_job);
+            numeric_command = double(trimmed_command);
+            
+            for j = 1:length(numeric_job)
+                if (numeric_job(j) == numeric_command(j))
+                    char_matches = char_matches + 1;
+                end
+            end
+            
+            if (highest_match_count < char_matches)
+                highest_match_count = char_matches;
                 best_match = commands{i};
             end
             
@@ -92,17 +102,20 @@ while(not(strcmp(job, 'quit')))
         end
         
         % suggest a command the user likely wanted to execute
-        prompt = (['\nDid you mean ', best_match, '? (Y/n)\n> ']);
+        if (highest_match_count > (length(best_match) - 4))
 
-        while (isempty(confirmation))
-            confirmation = strtrim(input(prompt, 's'));
+            prompt = (['\nDid you mean ''', best_match, '''? (Y/n)\nCPiME:> ']);
 
-            if (confirmation == 'Y')
-                assistant = 1;
-                job = commands{i};
-            elseif (not(confirmation == 'n'))
-                fprintf('\nError: Invalid input provided. Please enter ''Y'' for yes, or ''n'' for no.');
-                confirmation = [];
+            while (isempty(confirmation))
+                confirmation = strtrim(input(prompt, 's'));
+
+                if (confirmation == 'Y')
+                    assistant = 1;
+                    job = best_match;
+                elseif (not(confirmation == 'n'))
+                    fprintf('\nError: Invalid input provided. Please enter ''Y'' for yes, or ''n'' for no.');
+                    confirmation = [];
+                end
             end
         end
     end

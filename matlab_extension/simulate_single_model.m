@@ -15,7 +15,7 @@ end
 
 % read the selected CPi model and display on the console
 cpi_defs = fileread(strcat(file_path, '/', file_name));
-fprintf(['\n', cpi_defs]);
+fprintf(['\n', strtrim(cpi_defs)]);
 
 % determine which process the user wishes to model from file
 [process, process_def, def_tokens, def_token_num] = retrieve_process(cpi_defs);
@@ -43,7 +43,5 @@ end
 
 % simulate the solution set for the specified time period
 create_cpi_simulation(t, Y, start_time, file_name, process_def, def_tokens, def_token_num, process);
-
-fprintf('\nDone.');
 
 end
