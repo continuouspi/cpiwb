@@ -39,7 +39,7 @@ while(isempty(process_found))
 
     % report an error if the process does not exist on file
     if (isempty(process_found))
-        fprintf(['\nError: Process ', process, ' not found. Please try again.']);
+        fprintf(['\n\nError: Process ', process, ' not found. Please try again.']);
     end
 end
 

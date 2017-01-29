@@ -28,7 +28,7 @@ while(not(strcmp(job, 'quit')))
         
     elseif (strcmp(job, 'help') == 1)
         
-        fprintf('\nThe following commands are available to execute:\n1. edit_model\n2. view_odes\n3. simulate_process\n4. compare_processes\n5. run_parameter_experiment\n6. quit\n\nEnter ''help <command>'' for further details on a specific command.');
+        fprintf('\n\nThe following commands are available to execute:\n1. edit_model\n2. view_odes\n3. simulate_process\n4. compare_processes\n5. quit\n\nEnter ''help <command>'' for further details on a specific command.');
    
     elseif (length(job) > 4 & strcmp(job(1:5), 'help ') == 1)
         
@@ -63,7 +63,7 @@ while(not(strcmp(job, 'quit')))
     
     elseif (not(strcmp(job, '')))
         
-        fprintf(['\nError: ', job, ' command not recognised.']);
+        fprintf(['\n\nError: ', job, ' command not recognised.']);
         
         i = 1;
         num_commands = length(commands);
@@ -104,7 +104,7 @@ while(not(strcmp(job, 'quit')))
         % suggest a command the user likely wanted to execute
         if (highest_match_count > (length(best_match) - 4))
 
-            prompt = (['\nDid you mean ''', best_match, '''? (Y/n)\nCPiME:> ']);
+            prompt = (['\n\nDid you mean ''', best_match, '''? (Y/n)\nCPiME:> ']);
 
             while (isempty(confirmation))
                 confirmation = strtrim(input(prompt, 's'));
@@ -113,7 +113,7 @@ while(not(strcmp(job, 'quit')))
                     assistant = 1;
                     job = best_match;
                 elseif (not(confirmation == 'n'))
-                    fprintf('\nError: Invalid input provided. Please enter ''Y'' for yes, or ''n'' for no.');
+                    fprintf('\n\nError: Invalid input provided. Please enter ''Y'' for yes, or ''n'' for no.');
                     confirmation = [];
                 end
             end
