@@ -16,7 +16,7 @@ import Foreign.C.String
 
 import Control.Exception
 
--- each case requires only one clause: Matlab covers validation
+-- parse CPi files, search for process by name, and construct ODEs
 constructODEs_hs :: String -> String -> String
 constructODEs_hs x y = case parseFile x of
                          Left err -> "parse error"
@@ -26,10 +26,11 @@ constructODEs_hs x y = case parseFile x of
                                                        dpdt = dPdt env mts proc
                                                    in matlabODE env proc dpdt (0, (0,0))
 
+-- handle CPi exceptions and perform CString <-> String type conversion
 constructODEs :: CString -> CString -> IO CString
-constructODEs x y = do defs <- peekCString x
+constructODEs x y = do file <- peekCString x
                        process <- peekCString y
-                       result <- try (newCString(constructODEs_hs defs process)) :: IO (Either SomeException CString)
+                       result <- try (newCString(constructODEs_hs file process)) :: IO (Either SomeException CString)
                        case result of
                           Left ex -> newCString("CPiWB exception")
                           Right val -> do odes <- peekCString val
