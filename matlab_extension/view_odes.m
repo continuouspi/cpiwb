@@ -15,7 +15,7 @@ end
 
 % read the selected CPi model and display on the console
 cpi_defs = fileread(strcat(file_path, '/', file_name));
-fprintf(['\n', cpi_defs]);
+fprintf(['\n\n', cpi_defs]);
 
 % determine which process the user wishes to model from file
 [process, process_def, def_tokens, def_token_num] = retrieve_process(cpi_defs);
@@ -25,17 +25,19 @@ if (strcmp(process, '') == 1 || strcmp(process, 'cancel') == 1)
 end
 
 % call CPiWB to construct the system of ODEs for the process
-[modelODEs, ode_num, init_tokens] = create_cpi_odes(cpi_defs, process);
+[modelODEs, ode_num, ~] = create_cpi_odes(cpi_defs, process);
 
 if (ode_num == 0)
     return;
 end
 
+fprintf('\n');
+
 for i = 1:length(modelODEs)
     fprintf(['\n', modelODEs{i}]);
 end
 
-prompt = '\nDo you wish to save this system of ODEs? (Y/n)\n> ';
+prompt = '\n\nDo you wish to save this system of ODEs? (Y/n)\nCPiME:> ';
 confirmation = [];
 
 while (isempty(confirmation))
@@ -43,7 +45,7 @@ while (isempty(confirmation))
 
     if (confirmation == 'Y')
         % save the constructed ODEs to a text file
-        index = 1;
+        index = 2;
         valid_name = 0;
 
         file_name_tokens = strsplit(file_name, '.');
@@ -71,7 +73,7 @@ while (isempty(confirmation))
         fprintf(['\nDone. Saved in ''', new_file_name, '''.']);
         
     elseif (not(confirmation == 'n'))
-        fprintf('\nError: Invalid input provided. Please enter ''Y'' for yes, or ''n'' for no.');
+        fprintf('\n\nError: Invalid input provided. Please enter ''Y'' for yes, or ''n'' for no.');
         confirmation = [];
     end
 end

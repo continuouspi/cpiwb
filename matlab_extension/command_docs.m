@@ -8,7 +8,7 @@ x = 0;
 
 if (strcmp(job, 'quit') == 1)
 
-    fprint('\nTerminates your current session with CPiME.');
+    fprintf('\nTerminates your current session with CPiME.');
     
 elseif (strcmp(job, 'view_odes') == 1)
     
