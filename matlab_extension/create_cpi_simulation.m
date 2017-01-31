@@ -29,13 +29,37 @@ model_name = strrep(filename_tokens(1),'_',' ');
 model_name = regexprep(model_name,'(\<[a-z])','${upper($1)}');
 plot_title = [model_name, ['Process ', process]];
 
+plt = {};
+
 % plot the simulation, and construct a figure around it
-figure('Name',char(model_name),'NumberTitle','on');
-plot(t(start_index:end_index), Y(start_index:end_index, 1:species_num), '-o');
+fgr = figure('Name',char(model_name),'NumberTitle','on');
+
+for i = 1:species_num
+    plt{end + 1} = plot(t(start_index:end_index), Y(start_index:end_index, i), 'buttonDownFcn', {@plotCallback, i}, 'LineStyle', '-', 'LineWidth', 1.75);
+    
+    if (i == 1)
+        hold on;
+    end
+end
+
+hold off;
+
 title(plot_title);
 ylabel('Species Concentration (units)');
 xlabel('Time (units)');
-legend('show');
 legend(legendString, 'Location', 'EastOutside');
+end
+
+function plotCallback(hObject, ~, ~)
+
+% set the transparency of the selected plot
+% undocumented fourth color index sets transparency of lines
+if (strcmp(hObject.LineStyle, '-'))
+   hObject.Color = [hObject.Color 0.2]; 
+   hObject.LineStyle = ':';
+else
+   hObject.Color = [hObject.Color 1.0]; 
+   hObject.LineStyle = '-';
+end
 
 end

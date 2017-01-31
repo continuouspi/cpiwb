@@ -52,6 +52,6 @@ title(plot_title);
 ylabel('Species Concentration (units)');
 xlabel('Time (units)');
 legend('show');
-legend(species, 'Location', 'EastOutside');
+legend(num_models, species, 'Location', 'EastOutside');
 
 end

@@ -18,7 +18,7 @@ new_process = {};
 
 % determine the number of processes to be modelled. Maximum 4
 while(isempty(num_input))
-    prompt = '\nHow many processes do you wish to compare?\nEnter ''cancel'' to cancel.\nCPiME:> ';
+    prompt = '\n\nHow many processes do you wish to compare?\nEnter ''cancel'' to cancel.\nCPiME:> ';
     num_input = input(prompt, 's');
 
     if (strcmp(num_input, '') == 1 || strcmp(num_input, 'cancel') == 1)
@@ -92,7 +92,7 @@ else
         [modelODEs, ode_num, init_tokens] = create_cpi_odes(cpi_defs, process{i});
 
         if (ode_num == 0)
-            return;
+            continue;
         end
 
         [t{end + 1}, Y{end + 1}] = solve_cpi_odes(modelODEs, ode_num, init_tokens, end_time);

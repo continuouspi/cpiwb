@@ -16,6 +16,7 @@ while(isempty(process_found))
 
     % if user requests to leave then return to main script
     if (strcmp(process, '') == 1 || strcmp(process, 'cancel') == 1)
+        process = '';
         return;
     end
     
@@ -39,7 +40,7 @@ while(isempty(process_found))
 
     % report an error if the process does not exist on file
     if (isempty(process_found))
-        fprintf(['\n\nError: Process ', process, ' not found. Please try again.']);
+        fprintf(['\nError: Process ', process, ' not found. Please try again.']);
     end
 end
 
