@@ -32,7 +32,7 @@ if (strcmp(cpiwb_result, 'parse error'))
     fprintf('\n\nThe CPi Workbench failed to parse your .cpi file. Please try again.');
     ode_num = 0;
     return;
-elseif (strcmp(cpiwb_result, 'process error'))
+elseif (strcmp(cpiwb_result, 'process not found'))
     fprintf(['\n\nThe CPi Workbench failed to to find process ', process, '. Please try again.']);
     ode_num = 0;
     return;
