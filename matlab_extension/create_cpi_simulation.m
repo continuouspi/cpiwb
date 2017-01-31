@@ -49,17 +49,3 @@ ylabel('Species Concentration (units)');
 xlabel('Time (units)');
 legend(legendString, 'Location', 'EastOutside');
 end
-
-function plotCallback(hObject, ~, ~)
-
-% set the transparency of the selected plot
-% undocumented fourth color index sets transparency of lines
-if (strcmp(hObject.LineStyle, '-'))
-   hObject.Color = [hObject.Color 0.2]; 
-   hObject.LineStyle = ':';
-else
-   hObject.Color = [hObject.Color 1.0]; 
-   hObject.LineStyle = '-';
-end
-
-end

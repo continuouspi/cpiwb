@@ -5,6 +5,7 @@ function x = separate_plot_comparison(process_def, def_tokens, def_token_num, t,
 
 % dummy variable for void function
 x = 0;
+plt = {};
 
 % plot the simulation, and construct a figure around it
 figure('Name','Model Comparison','NumberTitle','on');
@@ -34,7 +35,13 @@ for i = 1:num_models
         j = j + 1;
     end
 
-    plot(t{i}(start_index:end_index), Y{i}(start_index:end_index, 1:species_num), '-o');
+    for k = 1:species_num
+        plt{end + 1} = plot(t{i}(start_index:end_index), Y{i}(start_index:end_index, k), 'buttonDownFcn', {@plotCallback, k}, 'LineStyle', '-', 'LineWidth', 1.75);
+
+        if (k == 1)
+            hold on;
+        end
+    end
 
     filename_tokens = strsplit(file_name{i}, '.cpi');
     model_name = strrep(filename_tokens(1),'_',' ');

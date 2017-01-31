@@ -5,6 +5,7 @@ function x = single_plot_comparison(process_def, def_tokens, def_token_num, t, Y
 
 species = {};
 models = {};
+plt = {};
 
 figure('Name','Model Comparison','NumberTitle','on');
 
@@ -25,7 +26,13 @@ for i = 1:num_models
         j = j + 1;
     end
 
-    plot(t{i}(start_index:end_index), Y{i}(start_index:end_index, 1:species_num), '-o');
+    for k = 1:species_num
+    plt{end + 1} = plot(t{i}(start_index:end_index), Y{i}(start_index:end_index, k), 'buttonDownFcn', {@plotCallback, k}, 'LineStyle', '-', 'LineWidth', 1.75);
+    
+    if (i == 1)
+        hold on;
+    end
+end
 
     filename_tokens = strsplit(file_name{i}, '.cpi');
     curr_model = strrep(filename_tokens(1),'_',' ');
@@ -45,8 +52,6 @@ plot_title = 'CPi Models: ';
 for i = 1:(num_models - 2)
     plot_title = strjoin([plot_title models{i} ', '], '');
 end
-
-plot_title = strjoin([plot_title models{end - 1} ' and ' models{end}], '');
 
 title(plot_title);
 ylabel('Species Concentration (units)');
