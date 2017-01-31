@@ -19,7 +19,7 @@ constructODEs_hs :: String -> String -> String
 constructODEs_hs x y = case parseFile x of
                          Left err -> "parse error"
                          Right env -> case lookupProcName env y of
-                                      Nothing -> "procedure error"
+                                      Nothing -> "process not found"
                                       Just proc -> let mts = processMTS env proc
                                                        dpdt = dPdt env mts proc
                                                    in matlabODE env proc dpdt (0, (0,0))
