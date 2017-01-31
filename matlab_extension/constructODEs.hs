@@ -14,6 +14,8 @@ import CPi.Semantics
 import Foreign.C.Types
 import Foreign.C.String
 
+import Control.Exception
+
 -- each case requires only one clause: Matlab covers validation
 constructODEs_hs :: String -> String -> String
 constructODEs_hs x y = case parseFile x of
@@ -27,6 +29,10 @@ constructODEs_hs x y = case parseFile x of
 constructODEs :: CString -> CString -> IO CString
 constructODEs x y = do defs <- peekCString x
                        process <- peekCString y
-                       newCString (constructODEs_hs defs process)
+                       result <- try (newCString(constructODEs_hs defs process)) :: IO (Either SomeException CString)
+                       case result of
+                          Left ex -> newCString("CPiWB exception")
+                          Right val -> do odes <- peekCString val
+                                          newCString(odes)
 
 foreign export ccall constructODEs :: CString -> CString -> IO CString
