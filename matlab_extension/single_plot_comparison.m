@@ -53,6 +53,8 @@ for i = 1:(num_models - 2)
     plot_title = strjoin([plot_title models{i} ', '], '');
 end
 
+plot_title = strjoin([plot_title models{num_models - 1} ' and ' models{num_models}], '');
+
 title(plot_title);
 ylabel('Species Concentration (units)');
 xlabel('Time (units)');

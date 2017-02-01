@@ -32,7 +32,7 @@ constructODEs x y = do file <- peekCString x
                        process <- peekCString y
                        result <- try (newCString(constructODEs_hs file process)) :: IO (Either SomeException CString)
                        case result of
-                          Left ex -> newCString("CPiWB exception")
+                          Left ex -> newCString("CPiWB exception: '" ++ show(ex) ++ "'")
                           Right val -> do odes <- peekCString val
                                           newCString(odes)
 

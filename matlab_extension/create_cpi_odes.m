@@ -36,8 +36,8 @@ elseif (strcmp(cpiwb_result, 'process not found'))
     fprintf(['\n\nThe CPi Workbench failed to to find process ', process, '. Please try again.']);
     ode_num = 0;
     return;
-elseif (strcmp(cpiwb_result, 'CPiWB exception'))
-    fprintf(['\n\nCPi Workbench exception. Please check your model contains valid code and try again.']);
+elseif (length(cpiwb_result) > 14 & strcmp(cpiwb_result(1:15), 'CPiWB exception'))
+    fprintf(['\n\n', cpiwb_result]);
     ode_num = 0;
     return;
 end
