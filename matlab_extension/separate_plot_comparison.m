@@ -24,7 +24,7 @@ legendStringSet = unique(legendStringArray);
 [separated_species, chosen_species] = find_common_species(legendStringSet, legendStrings, num_models);
 
 % plot the simulation, and construct a figure around it
-figure('Name','Model Comparison','NumberTitle','on');
+fig = figure('Name','Model Comparison','NumberTitle','on');
 
 for i = 1:num_models
     % introduce a new window to hold space for either 2 or 4 plots
@@ -80,6 +80,13 @@ for i = 1:num_models
     model_name = regexprep(model_name,'(\<[a-z])','${upper($1)}');
     plot_title = [model_name, ['Process ', process{i}]];
 
+    % adjust the figure window size to accomodate multiple plots
+    fig.Position(3) = 1.5 * fig.Position(3);
+    
+    if (num_models > 2)
+        fig.Position(4) = 1.5 * fig.Position(4);
+    end
+    
     title(plot_title);
     ylabel('Species Concentration (units)');
     xlabel('Time (units)');

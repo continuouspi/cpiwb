@@ -63,7 +63,7 @@ else
         cpi_defs = fileread(strcat(file_path, '/', new_file));
         fprintf(['\n', strtrim(cpi_defs)]);
 
-        [new_process, process_def{end + 1}, def_tokens{end + 1}, def_token_num{end + 1}] = retrieve_process(cpi_defs);
+        [new_process, new_process_def, new_def_tokens, new_def_token_num] = retrieve_process(cpi_defs);
 
         % confirm the new process is not a duplicate from previous choices
         if (strcmp(new_process, '') == 1)
@@ -72,7 +72,7 @@ else
             j = 1;
             duplicate = 0;
             
-            while(j< length(process) & duplicate == 0)
+            while(j <= length(process) & duplicate == 0)
                 if (strcmp(new_process, process{j}) == 1 & strcmp(new_file, file_name{j}) == 1)
                     fprintf(['\nError: Process ', new_process, ' is already selected for modelling.']);
                     duplicate = 1;
@@ -86,6 +86,9 @@ else
             
             process{end + 1} = new_process;
             file_name{end + 1} = new_file;
+            process_def{end + 1} = new_process_def;
+            def_token_num{end + 1} = new_def_token_num;
+            def_tokens{end + 1} = new_def_tokens;
         end
 
         % construct and solve the system of ODEs for the selected process
