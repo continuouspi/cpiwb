@@ -121,5 +121,5 @@ while(not(strcmp(job, 'quit')))
     end
 end
 
-clc;
+clear all;
 return;

@@ -7,7 +7,7 @@ function plotCallback(hObject, ~, ~)
 % fourth color index sets transparency of lines
 if (strcmp(hObject.LineStyle, '-'))
    hObject.Color = [hObject.Color 0.2]; 
-   hObject.LineStyle = ':';
+   hObject.LineStyle = '--';
 else
    hObject.Color = [hObject.Color 1.0]; 
    hObject.LineStyle = '-';
