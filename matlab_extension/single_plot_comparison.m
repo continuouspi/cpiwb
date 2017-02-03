@@ -56,7 +56,7 @@ for i = 1:num_models
             j = 1;
 
             while (not(flag) & j <= length(separated_species))
-                if (strcmp(legendStrings{i}{k}, separated_species{j}))
+                if (strcmp(lower(legendStrings{i}{k}), lower(separated_species{j})))
                     flag = 1;
                 end
                 j = j + 1;

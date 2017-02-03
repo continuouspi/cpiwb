@@ -8,11 +8,11 @@ for j = 1:length(legendStringSet)
     speciesCount = 0;
     
     for k = 1:num_models
-        speciesCount = speciesCount + sum(strcmp(legendStrings{k}, legendStringSet(j)));
+        speciesCount = speciesCount + sum(strcmp(lower(legendStrings{k}), lower(legendStringSet(j))));
     end
    
     if (speciesCount == num_models)
-        commonSpecies{end + 1} = legendStringSet{j};
+        commonSpecies{end + 1} = lower(legendStringSet{j});
     end
 end
 
@@ -21,9 +21,12 @@ if (not(isempty(commonSpecies)))
     fprintf(['\n', num2str(length(commonSpecies)), ' common species were found across all selected processes.\nChoose which ones to highlight in simulations, each separated by a space character:']);
 
     fprintf('\n');
+    
+    commonSpeciesSet = unique(commonSpecies);
 
-    for i = 1:length(commonSpecies)
-        fprintf(['\n', num2str(i), '. ', commonSpecies{i}]);
+    for i = 1:length(commonSpeciesSet)
+        commonSpeciesSet(i) = regexprep(commonSpeciesSet(i),'(\<[a-z])','${upper($1)}');
+        fprintf(['\n', num2str(i), '. ', commonSpeciesSet{i}]);
     end
 
     fprintf(['\n\nAlternatively enter ''all'' for all lines to be fully visible, or enter ''cancel'' to cancel.']);
@@ -45,8 +48,8 @@ if (not(isempty(commonSpecies)))
         for j = 1:length(separated_species)
             flag = 0;
 
-            for i = 1:length(commonSpecies)
-                flag = flag + sum(strcmp(commonSpecies{i}, strtrim(separated_species{j})));
+            for i = 1:length(commonSpeciesSet)
+                flag = flag + sum(strcmp(commonSpeciesSet{i}, strtrim(separated_species{j})));
             end
 
             if (not(flag))
