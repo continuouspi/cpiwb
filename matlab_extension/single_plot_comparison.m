@@ -1,7 +1,7 @@
 % this Matlab script collection extends the Continuous Pi Workbench, CPiWB
 % author: Ross Rhodes
 
-function x = single_plot_comparison(process_def, def_tokens, def_token_num, t, Y, file_name, num_models, start_time, process)
+function x = single_plot_comparison(process_def, def_tokens, def_token_num, t, Y, file_name, num_processes, start_time, process)
 
 species = {};
 species_num = {};
@@ -13,7 +13,7 @@ separated_species = {};
 
 legendStringSet = [];
 
-for i = 1:num_models
+for i = 1:num_processes
     [legendStrings{end + 1}, species_num{end + 1}] = prepare_legend(process_def{i}, def_tokens{i}, def_token_num{i});
     legendStringSet = [legendStringSet unique(legendStrings{i})];
 end
@@ -21,11 +21,11 @@ end
 % identify common species between processes
 legendStringSet = unique(legendStringSet);
 
-[separated_species, chosen_species] = find_common_species(legendStringSet, legendStrings, num_models);
+[separated_species, chosen_species] = find_common_species(legendStringSet, legendStrings, num_processes);
 
 figure('Name','Model Comparison','NumberTitle','on');
 
-for i = 1:num_models
+for i = 1:num_processes
     % ODE solvers start with time 0. Find index for the user's start time
     start_index = -1;
     end_index = length(t{i});
@@ -83,15 +83,15 @@ end
 
 plot_title = 'CPi Models: ';
 
-for i = 1:(num_models - 2)
+for i = 1:(num_processes - 2)
     plot_title = strjoin([plot_title models{i} ', '], '');
 end
 
-plot_title = strjoin([plot_title models{num_models - 1} ' and ' models{num_models}], '');
+plot_title = strjoin([plot_title models{num_processes - 1} ' and ' models{num_processes}], '');
 title(plot_title);
 ylabel('Species Concentration (units)');
 xlabel('Time (units)');
 legend('show');
-legend(num_models, species, 'Location', 'EastOutside');
+legend(num_processes, species, 'Location', 'EastOutside');
 
 end

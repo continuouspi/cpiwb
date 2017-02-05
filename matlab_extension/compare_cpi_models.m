@@ -26,19 +26,19 @@ while(isempty(num_input))
     elseif(not(isstrprop(num_input, 'digit')))
         fprintf('\nError: Information entered is nonnumeric.');
     else
-         num_models = str2num(num_input);
+         num_processes = str2num(num_input);
          
-         if (num_models > 4)
+         if (num_processes > 4)
              fprintf('\nError: No more than four processes may be modelled simultaneously.');
-             num_models = [];
+             num_input = [];
          end
     end
 end
 
 % if only one process is to be modelled, follow simulate_model command
-if (num_models == 0)
+if (num_processes == 0)
     return;
-elseif (num_models == 1)
+elseif (num_processes == 1)
     simulate_single_model();
 else
     % determine the time frame to model for comparison
@@ -48,12 +48,12 @@ else
         return;
     end
     
-    i = 1;
+    i = 0;
 
-    while i <= num_models
+    while i < num_processes
 
         % select an existing .cpi file
-        [new_file, file_path, ~] = uigetfile({'*.cpi', 'CPi Models (*.cpi)'}, ['Select .cpi file number ', num2str(i)]);
+        [new_file, file_path, ~] = uigetfile({'*.cpi', 'CPi Models (*.cpi)'}, 'Select a .cpi file');
 
         if (new_file == 0)
             return;
@@ -63,46 +63,58 @@ else
         cpi_defs = fileread(strcat(file_path, '/', new_file));
         fprintf(['\n', strtrim(cpi_defs)]);
 
-        [new_process, new_process_def, new_def_tokens, new_def_token_num] = retrieve_process(cpi_defs);
+        [new_processes, new_process_def, new_def_token, new_def_token_num] = retrieve_multiple_processes(cpi_defs, i, num_processes);
 
-        % confirm the new process is not a duplicate from previous choices
-        if (strcmp(new_process, '') == 1)
+        if (not(length(new_processes)))
             return;
-        else
+        end
+        
+        for m = 1:length(new_processes)
+            % confirm the new process is not a duplicate from previous choices            
             j = 1;
             duplicate = 0;
-            
+
             while(j <= length(process) & duplicate == 0)
-                if (strcmp(new_process, process{j}) == 1 & strcmp(new_file, file_name{j}) == 1)
-                    fprintf(['\nError: Process ', new_process, ' is already selected for modelling.']);
+                if (strcmp(new_processes{m}, process{j}) == 1 & strcmp(new_file, file_name{j}) == 1)
+                    fprintf(['\nError: Process ', new_processes{m}, ' is already selected for modelling.']);
                     duplicate = 1;
                 end
                 j = j + 1;
             end
-            
+
             if (duplicate == 1)
                 continue;
             end
+        end
+
+        if (not(duplicate))
             
-            process{end + 1} = new_process;
-            file_name{end + 1} = new_file;
-            process_def{end + 1} = new_process_def;
-            def_token_num{end + 1} = new_def_token_num;
-            def_tokens{end + 1} = new_def_tokens;
+            ode_num = 1;
+            m = 1;
+            
+            for m = 1:length(new_processes)
+                
+                % construct and solve the system of ODEs for the selected process
+                [modelODEs, ode_num, init_tokens] = create_cpi_odes(cpi_defs, new_processes{m});
+
+                if (not(ode_num == 0))
+                    process{end + 1} = new_processes{m};
+                    file_name{end + 1} = new_file;
+                    process_def{end + 1} = new_process_def;
+                    def_token_num{end + 1} = new_def_token_num;
+                    def_tokens{end + 1} = new_def_token;
+
+                    [t{end + 1}, Y{end + 1}] = solve_cpi_odes(modelODEs, ode_num, init_tokens, end_time);
+                end
+                
+                m = m + 1;
+            end
         end
-
-        % construct and solve the system of ODEs for the selected process
-        [modelODEs, ode_num, init_tokens] = create_cpi_odes(cpi_defs, process{i});
-
-        if (ode_num == 0)
-            continue;
-        end
-
-        [t{end + 1}, Y{end + 1}] = solve_cpi_odes(modelODEs, ode_num, init_tokens, end_time);
         
-        i = i + 1;
+        i = length(process)
+        
     end
-
+    
     % determine whether to simulate on a single or multiple plots
     prompt = '\n\nDo you wish to simulate the behaviour of all processes on a single plot, or do you wish to see each process on a separate plot?\nEnter ''single'' for a single plot, ''separate'' for separate plots, or ''cancel'' to cancel.\nCPiME:> ';
     plot_type = [];
@@ -119,9 +131,9 @@ else
     end
 
     if (strcmp(plot_type, 'single') == 1)
-        single_plot_comparison(process_def, def_tokens, def_token_num, t, Y, file_name, num_models, start_time, process);
+        single_plot_comparison(process_def, def_tokens, def_token_num, t, Y, file_name, num_processes, start_time, process);
     else 
-        separate_plot_comparison(process_def, def_tokens, def_token_num, t, Y, file_name, num_models, start_time, process);
+        separate_plot_comparison(process_def, def_tokens, def_token_num, t, Y, file_name, num_processes, start_time, process);
     end
 end
 end

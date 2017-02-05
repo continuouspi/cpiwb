@@ -1,9 +1,7 @@
 % this Matlab script collection extends the Continuous Pi Workbench, CPiWB
 % author: Ross Rhodes
 
-% clear the Matlab terminal for CPiME
 clc;
-
 fprintf('Welcome to the Continuous Pi Calculus Matlab Extension, CPiME.\nEnter ''help'' for help.');
 
 commands = {'edit_model'; 'view_odes'; 'run_parameter_experiment'; 'simulate_process'; 'help'; 'compare_processes'; 'quit'};
@@ -63,7 +61,7 @@ while(not(strcmp(job, 'quit')))
     
     elseif (not(strcmp(job, '')))
         
-        fprintf(['\n\nError: ', job, ' command not recognised.']);
+        fprintf(['\nError: ', job, ' command not recognised.']);
         
         i = 1;
         num_commands = length(commands);
@@ -113,7 +111,7 @@ while(not(strcmp(job, 'quit')))
                     assistant = 1;
                     job = best_match;
                 elseif (not(confirmation == 'n'))
-                    fprintf('\n\nError: Invalid input provided. Please enter ''Y'' for yes, or ''n'' for no.');
+                    fprintf('\nError: Invalid input provided. Please enter ''Y'' for yes, or ''n'' for no.');
                     confirmation = [];
                 end
             end
@@ -121,5 +119,4 @@ while(not(strcmp(job, 'quit')))
     end
 end
 
-clear all;
 return;

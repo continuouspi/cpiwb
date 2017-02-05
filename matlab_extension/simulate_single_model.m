@@ -18,7 +18,7 @@ cpi_defs = fileread(strcat(file_path, '/', file_name));
 fprintf(['\n', strtrim(cpi_defs)]);
 
 % determine which process the user wishes to model from file
-[process, process_def, def_tokens, def_token_num] = retrieve_process(cpi_defs);
+[process, process_def, def_tokens, def_token_num] = retrieve_single_process(cpi_defs);
 
 if (strcmp(process, '') == 1 || strcmp(process, 'cancel') == 1)
     return;
