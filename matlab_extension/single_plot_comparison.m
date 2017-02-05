@@ -35,7 +35,7 @@ for i = 1:num_processes
     models{end + 1} = regexprep(curr_model,'(\<[a-z])','${upper($1)}');
     
     for j = 1:length(legendStrings{i})
-        species{end + 1} = strjoin([legendStrings{i}{j} ' (' process{i} ', ' models{i} ')'], '');
+        species{end + 1} = strjoin({legendStrings{i}{j}, ' (', process{i}, ', ', models{i}{1}, ')'}, '');
     end
 
     j = 1;
@@ -67,7 +67,7 @@ for i = 1:num_processes
             plt{end + 1} = plot(t{i}(start_index:end_index), Y{i}(start_index:end_index, k), 'buttonDownFcn', {@plotCallback, k}, 'LineStyle', '-', 'LineWidth', 1.75);
         else
             plt{end + 1} = plot(t{i}(start_index:end_index), Y{i}(start_index:end_index, k), 'buttonDownFcn', {@plotCallback, k}, 'LineStyle', '--', 'LineWidth', 1.75);
-            plt{end}.Color = [plt{end}.Color 0.2]; 
+            plt{i}.Color = [plt{i}.Color 0.2]; 
         end
             
         if (k == 1)
@@ -91,7 +91,6 @@ plot_title = strjoin([plot_title models{num_processes - 1} ' and ' models{num_pr
 title(plot_title);
 ylabel('Species Concentration (units)');
 xlabel('Time (units)');
-legend('show');
 legend(num_processes, species, 'Location', 'EastOutside');
 
 end

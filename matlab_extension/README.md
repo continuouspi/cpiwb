@@ -1,13 +1,15 @@
 # Introduction #
-The Matlab extension to CPiWB is work in progess. The product so far is compiled using GHC version 7.8.4 and runs on Matlab 2015a.
+The Matlab extension to CPiWB is work in progess. The extension runs on Matlab 2015a and compiled using GHC version 7.8.4.
 
-# Updating the Shared Library #
+Please forward any questions regarding this extension to Ross Rhodes (rrhodes).
+
+# Updating Files #
 In the event that any changes are made to the following files:
 
 * constructODEs.hs
 * odeConstruction.c
 
-It will be necessary to update the shared library `libOdeConstruction.so`.
+It will be necessary to manually update the library `libOdeConstruction.so`.
 
 First, make sure Numeric Hackage dependencies are installed. Run the following commands:
 
@@ -22,10 +24,6 @@ Then compile using **GHC**:
 ghc -O2 -dynamic -shared -fPIC -o libOdeConstruction.so constructODEs.hs odeConstruction.c -lHSrts-ghc7.8.4 -i../
 ```
 
-This will generate `constructODEs_stub.h` automatically and update `libOdeConstruction.so`.
+This will automatically update `constructODEs_stub.h` in addition to `libOdeConstruction.so`, if necessary.
 
-# Additional Notes #
-If any changes are made to `callCPiWB`'s signature in `odeConstruction.c`, it will be necessary to update `odeConstruction.h` in addition to updating the shared library.
-
-# Questions #
-Please forward any questions regarding this extension to Ross Rhodes (rrhodes).
+If any changes are made to `callCPiWB`'s signature in `odeConstruction.c`, it will also be necessary to update `odeConstruction.h` in addition to `libOdeConstruction.so`.

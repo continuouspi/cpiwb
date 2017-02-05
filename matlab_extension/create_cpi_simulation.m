@@ -32,7 +32,7 @@ plot_title = [model_name, ['Process ', process]];
 plt = {};
 
 % plot the simulation, and construct a figure around it
-fgr = figure('Name',char(model_name),'NumberTitle','on');
+figure('Name',char(model_name),'NumberTitle','on');
 
 for i = 1:species_num
     plt{end + 1} = plot(t(start_index:end_index), Y(start_index:end_index, i), 'buttonDownFcn', {@plotCallback, i}, 'LineStyle', '-', 'LineWidth', 1.75);
@@ -48,4 +48,5 @@ title(plot_title);
 ylabel('Species Concentration (units)');
 xlabel('Time (units)');
 legend(legendString, 'Location', 'EastOutside');
+
 end
