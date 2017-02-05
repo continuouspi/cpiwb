@@ -49,6 +49,19 @@ fprintf('\nSolving the system of ODEs ... ');
 
 [t Y] = ode15s(ode_system, [0 end_time], init_conditions);
 
+% confirm Y holds valid concentration values
+num_neg_values = sum(sum([Y(:, 1:length(init_conditions)) < 0]));
+
+% if this fails, attempt alternative solver
+if (num_neg_values)
+    fprintf('\nDefault solver failed. Applying auxiliary solver to the system.');
+    
+    % produces warnings about matrices close to singularity. Ignore
+    warning('off','all');
+    [t Y] = ode23s(ode_system, [0 end_time], init_conditions);
+    warning('on', 'all');
+end
+
 fprintf('Done.');
 
 end

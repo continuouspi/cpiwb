@@ -105,13 +105,17 @@ else
                     def_tokens{end + 1} = new_def_token;
 
                     [t{end + 1}, Y{end + 1}] = solve_cpi_odes(modelODEs, ode_num, init_tokens, end_time);
+                    
+                    if (isempty(t))
+                        continue;
+                    end
                 end
                 
                 m = m + 1;
             end
         end
         
-        i = length(process)
+        i = length(process);
         
     end
     
