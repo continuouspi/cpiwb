@@ -1,20 +1,7 @@
-function [separated_species, chosen_species] = find_common_species(legendStringSet, legendStrings, num_models)
+function [separated_species, chosen_species] = find_common_species(commonSpecies)
 
 separated_species = {};
 chosen_species = {};
-commonSpecies = {};
-
-for j = 1:length(legendStringSet)
-    speciesCount = 0;
-    
-    for k = 1:num_models
-        speciesCount = speciesCount + sum(strcmp(lower(legendStrings{k}), lower(legendStringSet(j))));
-    end
-   
-    if (speciesCount == num_models)
-        commonSpecies{end + 1} = lower(legendStringSet{j});
-    end
-end
 
 if (not(isempty(commonSpecies)))
     % allow user to select one species from the common species list

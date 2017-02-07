@@ -14,7 +14,6 @@ process_def = {};
 def_tokens = {};
 def_token_num = {};
 process = {};
-new_process = {};
 
 % determine the number of processes to be modelled. Maximum 4
 while(isempty(num_input))

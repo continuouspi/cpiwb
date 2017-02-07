@@ -26,9 +26,9 @@ elseif (strcmp(job, 'compare_processes') == 1)
 
     fprintf('\nSimulate at most four CPi processes on a single plot.');
     
-elseif (strcmp(job, 'run_parameter_experiment') == 1)
+elseif (strcmp(job, 'parameter_experiment') == 1)
     
-    fprintf('\nRun a series of simulations for varying values of one parameter in a CPi model.');
+    fprintf('\nRun a series of simulations for varying values of parameters in a CPi model.');
   
 elseif (not(strcmp(job, 'help')) == 1)
     

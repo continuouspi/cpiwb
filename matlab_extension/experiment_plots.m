@@ -1,7 +1,7 @@
 % this Matlab script collection extends the Continuous Pi Workbench, CPiWB
 % author: Ross Rhodes
 
-function x = separate_plot_comparison(process_def, def_tokens, def_token_num, t, Y, file_name, num_models, start_time, process)
+function x = experiment_plots(process_def, def_tokens, def_token_num, t, Y, file_name, num_experiments, start_time, process)
 
 % dummy variable for void function
 x = 0;
@@ -11,43 +11,19 @@ chosen_species = {};
 separated_species = {};
 species_num = {};
 
-legendStringArray = [];
+[legendString, species_num] = prepare_legend(process_def, def_tokens, def_token_num);
 
-for i = 1:num_models
-    [legendStrings{end + 1}, species_num{end + 1}] = prepare_legend(process_def{i}, def_tokens{i}, def_token_num{i});
-    legendStringArray = [legendStringArray unique(legendStrings{i})];
-end
-
-% identify common species between processes
-legendStringSet = unique(legendStringArray);
-
-commonSpecies = {};
-
-for j = 1:length(legendStringSet)
-    speciesCount = 0;
-    
-    for k = 1:num_models
-        speciesCount = speciesCount + sum(strcmp(lower(legendStrings{k}), lower(legendStringSet(j))));
-    end
-   
-    if (speciesCount == num_models)
-        commonSpecies{end + 1} = lower(legendStringSet{j});
-    end
-end
-
-[separated_species, chosen_species] = find_common_species(commonSpecies);
+[separated_species, chosen_species] = find_common_species(legendString);
 
 % plot the simulation, and construct a figure around it
-fig = figure('Name','Model Comparison','NumberTitle','on');
+fig = figure('Name','Model Experimentation','NumberTitle','on');
 
-for i = 1:num_models
+divisor = fix(num_experiments/4);
+
+for i = 1:num_experiments
     % introduce a new window to hold space for either 2 or 4 plots
     % in the case that 3 plots are produced, there will be an empty space
-    if num_models > 2
-        subplot(2, 2, i);
-    else
-        subplot(1, 2, i);
-    end
+    subplot(max(divisor, 1), 4, i);
 
     % ODE solvers start with time 0. Find index for the user's start time
     start_index = -1;
@@ -63,14 +39,14 @@ for i = 1:num_models
         j = j + 1;
     end
 
-    for k = 1:species_num{i}
+    for k = 1:species_num
         if (not(strcmp(chosen_species, 'all')))
             flag = 0;
             
             j = 1;
 
             while (not(flag) & j <= length(separated_species))
-                if (strcmp(lower(legendStrings{i}{k}), lower(separated_species{j})))
+                if (strcmp(lower(legendString{k}), lower(separated_species{j})))
                     flag = 1;
                 end
                 j = j + 1;
@@ -96,16 +72,11 @@ for i = 1:num_models
 
     % adjust the figure window size to accomodate multiple plots
     fig.Position(3) = 1.5 * fig.Position(3);
-    
-    if (num_models > 2)
-        fig.Position(4) = 1.5 * fig.Position(4);
-    end
+    fig.Position(4) = 1.5 * fig.Position(4);
     
     title(plot_title);
     ylabel('Species Concentration (units)');
     xlabel('Time (units)');
-    legend('show');
-    legend(legendStrings{i}, 'Location', 'EastOutside');
 end
 
 end

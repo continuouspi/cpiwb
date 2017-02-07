@@ -39,7 +39,7 @@ while(isempty(process_found))
     def_tokens = strsplit(cpi_defs, ';');
     def_token_num = length(def_tokens);
     
-    for m = 1:length(processes)
+    for m = 1:num_processes
         process_name = ['process ', processes{m}];
         
         species = {};
@@ -57,8 +57,9 @@ while(isempty(process_found))
 
         % report an error if the process does not exist on file
         if (isempty(process_found))
-            fprintf(['\nError: Process ', process, ' not found. Please try again.']);
-            continue;
+            fprintf(['\nError: Process ', processes{m}, ' not found. Please try again.']);
+            processes = {};
+            return;
         end
     end
 end

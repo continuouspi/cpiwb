@@ -4,7 +4,7 @@
 clc;
 fprintf('Welcome to the Continuous Pi Calculus Matlab Extension, CPiME.\nEnter ''help'' for help.');
 
-commands = {'edit_model'; 'view_odes'; 'run_parameter_experiment'; 'simulate_process'; 'help'; 'compare_processes'; 'quit'};
+commands = {'edit_model'; 'view_odes'; 'parameter_experiment'; 'simulate_process'; 'help'; 'compare_processes'; 'quit'};
 
 assistant = 0;
 job = [];
@@ -55,7 +55,7 @@ while(not(strcmp(job, 'quit')))
     
         compare_cpi_models();
         
-    elseif (strcmp(job, 'run_parameter_experiment') == 1)
+    elseif (strcmp(job, 'parameter_experiment') == 1)
         
         parameter_experiment();
     

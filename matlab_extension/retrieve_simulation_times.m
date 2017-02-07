@@ -1,7 +1,7 @@
 % this Matlab script collection extends the Continuous Pi Workbench, CPiWB
 % author: Ross Rhodes
 
-function [start_time, end_time] = retrieve_simulation_times();
+function [start_time, end_time] = retrieve_simulation_times()
 
 start_time = 0;
 end_time = 0;
