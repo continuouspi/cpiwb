@@ -26,16 +26,16 @@ commonSpecies = {};
 for j = 1:length(legendStringSet)
     speciesCount = 0;
     
-    for k = 1:num_models
+    for k = 1:num_processes
         speciesCount = speciesCount + sum(strcmp(lower(legendStrings{k}), lower(legendStringSet(j))));
     end
    
-    if (speciesCount == num_models)
+    if (speciesCount == num_processes)
         commonSpecies{end + 1} = lower(legendStringSet{j});
     end
 end
 
-[separated_species, chosen_species] = find_common_species(legendStringSet, legendStrings, num_processes);
+[separated_species, chosen_species] = find_common_species(commonSpecies);
 
 figure('Name','Model Comparison','NumberTitle','on');
 
