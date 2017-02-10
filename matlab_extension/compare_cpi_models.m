@@ -99,7 +99,7 @@ else
                 if (not(ode_num == 0))
                     process{end + 1} = new_processes{m};
                     file_name{end + 1} = new_file;
-                    process_def{end + 1} = new_process_def;
+                    process_def{end + 1} = new_process_def{m};
                     def_token_num{end + 1} = new_def_token_num;
                     def_tokens{end + 1} = new_def_token;
 
