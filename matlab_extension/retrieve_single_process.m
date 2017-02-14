@@ -17,8 +17,8 @@ i = 1;
 i = 1;
 while(i <= def_token_num)
     def_token = char(def_tokens(i));
-    process_found = findstr(def_token, 'process')
-    comment_line = findstr(def_token, '--')
+    process_found = findstr(def_token, 'process');
+    comment_line = findstr(def_token, '--');
     if (process_found & isempty(comment_line))
         process_tokens = strsplit(def_token, ' ');
         process_options{end + 1} = process_tokens{2};

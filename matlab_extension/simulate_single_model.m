@@ -25,11 +25,14 @@ if (strcmp(process, '') == 1 || strcmp(process, 'cancel') == 1)
 end
 
 % call CPiWB to construct the system of ODEs for the process
+fprintf('\n\nConstructing the ODEs ... ');
 [modelODEs, ode_num, init_tokens] = create_cpi_odes(cpi_defs, process);
 
 if (ode_num == 0)
     return;
 end
+
+fprintf('Done.');
 
 % determine the start and end times of the simulation
 [start_time, end_time] = retrieve_simulation_times();
@@ -39,11 +42,14 @@ if (end_time == 0)
 end
 
 % solve the system of ODEs for the given time period
+fprintf('\nSolving the system with default solver ... ');
 [t, Y] = solve_cpi_odes(modelODEs, ode_num, init_tokens, end_time);
 
 if (isempty(t))
     return;
 end
+
+fprintf('Done.');
 
 % simulate the solution set for the specified time period
 create_cpi_simulation(t, Y, start_time, file_name, process_def, def_tokens, def_token_num, process);

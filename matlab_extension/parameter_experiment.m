@@ -11,11 +11,6 @@ min_values = {};
 max_values = {};
 experiment_nums = {};
 experimental_values = {};
-process = {};
-process_def = {};
-def_tokens = {};
-def_token_num = {};
-file_name = {};
 confirmation = [];
 t = {};
 Y = {};
@@ -105,21 +100,21 @@ for k = 2:(num_experiments + 1)
             
             % num2str removes decimal components in integer values
             % make sure to retain these components for easier substitution
-            if (isempty(findstr('.', num2str(combs(k-1,j)))) && isempty(findstr('.', num2str(combs(k-1,j)))))
+            if (isempty(findstr('.', num2str(combs(k-1,j)))) && isempty(findstr('.', num2str(combs(k,j)))))
                 
-                def_tokens{l} = strrep(chosen_def_tokens{l}, sprintf('%.1f', combs(k-1,j)), sprintf('%.1f', combs(k,j)));
-                
-            elseif (isempty(findstr('.', num2str(combs(k-1,j)))))
-                
-                def_tokens{l} = strrep(chosen_def_tokens{l}, sprintf('%.1f', combs(k-1,j)), num2str(combs(k,j)));
+                chosen_def_tokens{l} = strrep(chosen_def_tokens{l}, sprintf('%.1f', combs(k-1,j)), sprintf('%.1f', combs(k,j)));
                 
             elseif (isempty(findstr('.', num2str(combs(k-1,j)))))
                 
-                def_tokens{l} = strrep(chosen_def_tokens{l}, num2str(combs(k-1,j)), sprintf('%.1f', combs(k,j)));
+                chosen_def_tokens{l} = strrep(chosen_def_tokens{l}, sprintf('%.1f', combs(k-1,j)), num2str(combs(k,j)));
+                
+            elseif (isempty(findstr('.', num2str(combs(k,j)))))
+                
+                chosen_def_tokens{l} = strrep(chosen_def_tokens{l}, num2str(combs(k-1,j)), sprintf('%.1f', combs(k,j)));
                 
             else
                 
-                def_tokens{l} = strrep(chosen_def_tokens{l}, num2str(combs(k-1,j)), num2str(combs(k,j)));
+                chosen_def_tokens{l} = strrep(chosen_def_tokens{l}, num2str(combs(k-1,j)), num2str(combs(k,j)));
                 
             end
         end
@@ -132,16 +127,9 @@ for k = 2:(num_experiments + 1)
     [modelODEs, ode_num, init_tokens] = create_cpi_odes(cpi_defs, chosen_process);
     
     [t{end + 1}, Y{end + 1}] = solve_cpi_odes(modelODEs, ode_num, init_tokens, end_time);
-    process{end + 1} = [chosen_process, ' ', num2str(k-1)];
-
-    file_name{end + 1} = [chosen_file_name, '_experiment_', num2str(k-1)];
-   
-    if (mod(k-1, 100) == 0)
-        fprintf(['\n\n', num2str(k - 1), ' of ', num2str(num_experiments), ' experiments completed.']);
-    end
 end
 
 % plot the results
-experiment_plots(chosen_process_def, chosen_def_tokens, chosen_def_token_num, t, Y, file_name, num_experiments, start_time, process);
+experiment_plots(chosen_process_def, chosen_def_tokens, chosen_def_token_num, t, Y, chosen_file_name, num_experiments, start_time, chosen_process);
 
 end

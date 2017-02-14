@@ -45,13 +45,8 @@ vars = transpose(sym_vars);
 % solve the system of ODEs
 ode_system = odeFunction(ode_exprs, vars);
 
-fprintf('\nSolving the system with default solver ... ');
-
 warning('off','all');
 [t Y] = ode23s(ode_system, [0 end_time], init_conditions);
 warning('on', 'all');
-
-
-fprintf('Done.');
 
 end

@@ -8,8 +8,6 @@ species_num = {};
 models = {};
 plt = {};
 legendStrings = {};
-chosen_species = {};
-separated_species = {};
 
 legendStringSet = [];
 

@@ -8,8 +8,6 @@ modelODEs = {};
 ode_num = 0;
 cpiwb_result = [];
 
-fprintf('\nConstructing the ODEs ... ');
-
 % load the CPiWB shared library
 if not(libisloaded('libOdeConstruction'))
     hsffi_path = '/usr/lib64/ghc-7.8.4/include';
@@ -41,8 +39,6 @@ elseif (length(cpiwb_result) > 14 & strcmp(cpiwb_result(1:15), 'CPiWB exception'
     ode_num = 0;
     return;
 end
-
-fprintf('Done.');
 
 % tokenize the script from CPiWB
 tokens = strsplit(cpiwb_result, '\n');
