@@ -30,14 +30,17 @@ for i = 1:num_experiments
 
         j = j + 1;
     end
-
+    
+    num_chosen_species = length(separated_species);
+    count = 1;
+    
     for k = 1:species_num
         if (not(strcmp(chosen_species, 'all')))
             flag = 0;
             
             j = 1;
 
-            while (not(flag) & j <= length(separated_species))
+            while (not(flag) & j <= num_chosen_species)
                 if (strcmp(lower(legendString{k}), lower(separated_species{j})))
                     flag = 1;
                 end
@@ -47,13 +50,18 @@ for i = 1:num_experiments
         
         if (strcmp(chosen_species, 'all') || flag)
             plt{end + 1} = plot(t{i}(start_index:end_index), Y{i}(start_index:end_index, k), 'buttonDownFcn', {@plotCallback, k}, 'LineStyle', '-', 'LineWidth', 1.75);
+            
             if (i == 1)
-                X{end + 1} = t{i}(start_index:end_index);
-                Z{end + 1} = Y{i}(start_index:end_index, k);
+                X{end + 1} = {};
+                Z{end + 1} = {};
+                X{end}{end + 1} = t{i}(start_index:end_index);
+                Z{end}{end + 1} = Y{i}(start_index:end_index, k);
             elseif (i == num_experiments)
-                X{end + 1} = t{i}(start_index:end_index);
-                Z{end + 1} = Y{i}(start_index:end_index, k);
+                X{count}{end + 1} = t{i}(start_index:end_index);
+                Z{count}{end + 1} = Y{i}(start_index:end_index, k);
+                count = count + 1;
             end
+            
         else
             plt{end + 1} = plot(t{i}(start_index:end_index), Y{i}(start_index:end_index, k), 'buttonDownFcn', {@plotCallback, k}, 'LineStyle', '--', 'LineWidth', 1.75);
             plt{end}.Color = [plt{end}.Color 0.2]; 
@@ -78,39 +86,15 @@ title(plot_title);
 ylabel('Species Concentration (units)');
 xlabel('Time (units)');
 
-Xs = [];
-Zs = [];
-
-i = 1;
-max_len = 0;
-
-while (i < length(X))
-    if (max_len < length([X{i}; X{i+1}]))
-        max_len = length([X{i}; X{i+1}]);
-    end
-    
-    if (max_len < length([Z{i}; Z{i+1}]))
-        max_len = length([Z{i}; Z{i+1}]);
-    end
-    
-    i = i + 2;
-end
-
 i = 1;
 
-while (i <= length(X))
-    len_x = length([X{i}; X{i+1}]);
+while (i <= num_chosen_species)
+    fill([X{i}{1}; flip(X{i}{2})], [Z{i}{1}; flip(Z{i}{2})], 'r', 'LineStyle', '-.', 'FaceAlpha', 0.5);
     
-    Xs = [Xs, [X{i}; flip(X{i + 1}); X{i+1}(1) * ones(max_len - len_x, 1)]];
+    hold on;
     
-    len_z = length([Z{i}; Z{i+1}]);
-    
-    Zs = [Zs, [Z{i}; flip(Z{i + 1}); Z{i+1}(1) * ones(max_len - len_z, 1)]];
-    
-    i = i + 2;
+    i = i + 1;
 end
-
-fill(Xs, Zs, 'r', 'LineStyle', '-.', 'FaceAlpha', 0.5);
 
 legend(legendString, 'Location', 'EastOutside');
 
