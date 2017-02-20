@@ -1,10 +1,7 @@
 % this Matlab script collection extends the Continuous Pi Workbench, CPiWB
 % author: Ross Rhodes
 
-function x = create_cpi_simulation(t, Y, start_time, file_name, process_def, def_tokens, def_token_num, process)
-
-% void function - dummy variable
-x = 0;
+function create_cpi_simulation(t, Y, start_time, file_name, process_def, def_tokens, def_token_num, process)
 
 % setup the legend for the simulation
 [legendString, species_num] = prepare_legend(process_def, def_tokens, def_token_num);

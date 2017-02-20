@@ -1,7 +1,7 @@
 % this Matlab script collection extends the Continuous Pi Workbench, CPiWB
 % author: Ross Rhodes
 
-function [t, Y] = solve_cpi_odes(modelODEs, ode_num, init_tokens, end_time)
+function [t, Y] = solve_cpi_odes(modelODEs, ode_num, init_tokens, end_time, solver)
 
 t = [];
 Y = [];
@@ -45,8 +45,17 @@ vars = transpose(sym_vars);
 % solve the system of ODEs
 ode_system = odeFunction(ode_exprs, vars);
 
-warning('off','all');
-[t Y] = ode23s(ode_system, [0 end_time], init_conditions);
-warning('on', 'all');
-
+if (strcmp(solver, 'default'))
+    warning('off','all');
+    [t, Y] = ode23s(ode_system, [0 end_time], init_conditions);
+    warning('on', 'all');
+else
+    t = {};
+    Y = {};
+    warning('off','all');
+    [t{end + 1}, Y{end + 1}] = ode15s(ode_system, [0 end_time], init_conditions);
+    [t{end + 1}, Y{end + 1}] = ode23s(ode_system, [0 end_time], init_conditions);
+    [t{end + 1}, Y{end + 1}] = ode23t(ode_system, [0 end_time], init_conditions);
+    [t{end + 1}, Y{end + 1}] = ode23tb(ode_system, [0 end_time], init_conditions);
+    warning('on', 'all');
 end

@@ -1,10 +1,7 @@
 % this Matlab script collection extends the Continuous Pi Workbench, CPiWB
 % author: Ross Rhodes
 
-function x = simulate_single_model()
-
-% void function - dummy variables
-x = 0;
+function simulate_single_model()
 
 % select an existing .cpi file
 [file_name, file_path, ~] = uigetfile({'*.cpi', 'CPi Models (*.cpi)'}, 'Select a .cpi file');
@@ -41,17 +38,49 @@ if (end_time == 0)
     return;
 end
 
-% solve the system of ODEs for the given time period
-fprintf('\nSolving the system with default solver ... ');
-[t, Y] = solve_cpi_odes(modelODEs, ode_num, init_tokens, end_time);
+fprintf('\nDo you wish to solve only with the default solver or all four solvers?');
+fprintf('\nEnter ''default'' for default, ''all'' for all solvers, or ''cancel'' to cancel.');
+prompt = '\nCPiME:> ';
+solver_input = [];
 
-if (isempty(t))
-    return;
+while(isempty(solver_input))
+    solver_input = strtrim(input(prompt, 's'));
+
+    if (strcmp(solver_input, '') || strcmp(solver_input, 'cancel'))
+        return;
+    elseif(strcmp(solver_input, 'default'))
+        % solve the system of ODEs for the given time period
+        fprintf('\nSolving the system with default solver ... ');
+        [t, Y] = solve_cpi_odes(modelODEs, ode_num, init_tokens, end_time, 'default');
+
+        if (isempty(t))
+            return;
+        end
+        
+        fprintf('Done.');
+        
+        % simulate the solution set for the specified time period
+        create_cpi_simulation(t, Y, start_time, file_name, process_def, def_tokens, def_token_num, process);
+        
+    elseif(strcmp(solver_input, 'all'))
+        
+        % solve the system of ODEs for the given time period
+        fprintf('\nSolving the system with all four solvers ... ');
+        [t, Y] = solve_cpi_odes(modelODEs, ode_num, init_tokens, end_time, 'all');
+
+        if (isempty(t))
+            return;
+        end
+        
+        Y
+        
+        fprintf('Done.');
+        
+        solver_plot_comparison(process_def, def_tokens, def_token_num, t, Y, file_name, start_time);
+        
+    else
+        end_time = str2num(solver_input);
+    end
 end
-
-fprintf('Done.');
-
-% simulate the solution set for the specified time period
-create_cpi_simulation(t, Y, start_time, file_name, process_def, def_tokens, def_token_num, process);
 
 end

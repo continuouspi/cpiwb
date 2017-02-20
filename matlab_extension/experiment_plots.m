@@ -1,10 +1,8 @@
 % this Matlab script collection extends the Continuous Pi Workbench, CPiWB
 % author: Ross Rhodes
 
-function x = experiment_plots(process_def, def_tokens, def_token_num, t, Y, file_name, num_experiments, start_time, process)
+function experiment_plots(process_def, def_tokens, def_token_num, t, Y, file_name, num_experiments, start_time, process)
 
-% dummy variable for void function
-x = 0;
 plt = {};
 X = {};
 Z = {};
