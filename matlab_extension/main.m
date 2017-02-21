@@ -123,4 +123,6 @@ while(not(strcmp(job, 'quit')))
     end
 end
 
+clear all;
+
 return;

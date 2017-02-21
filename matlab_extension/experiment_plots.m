@@ -4,8 +4,8 @@
 function experiment_plots(process_def, def_tokens, def_token_num, t, Y, file_name, num_experiments, start_time, process)
 
 plt = {};
-X = {};
-Z = {};
+time_points = {};
+concentration_points = {};
 
 [legendString, species_num] = prepare_legend(process_def, def_tokens, def_token_num);
 
@@ -50,13 +50,13 @@ for i = 1:num_experiments
             plt{end + 1} = plot(t{i}(start_index:end_index), Y{i}(start_index:end_index, k), 'buttonDownFcn', {@plotCallback, k}, 'LineStyle', '-', 'LineWidth', 1.75);
             
             if (i == 1)
-                X{end + 1} = {};
-                Z{end + 1} = {};
-                X{end}{end + 1} = t{i}(start_index:end_index);
-                Z{end}{end + 1} = Y{i}(start_index:end_index, k);
+                time_points{end + 1} = {};
+                concentration_points{end + 1} = {};
+                time_points{end}{end + 1} = t{i}(start_index:end_index);
+                concentration_points{end}{end + 1} = Y{i}(start_index:end_index, k);
             elseif (i == num_experiments)
-                X{count}{end + 1} = t{i}(start_index:end_index);
-                Z{count}{end + 1} = Y{i}(start_index:end_index, k);
+                time_points{count}{end + 1} = t{i}(start_index:end_index);
+                concentration_points{count}{end + 1} = Y{i}(start_index:end_index, k);
                 count = count + 1;
             end
             
@@ -87,7 +87,10 @@ xlabel('Time (units)');
 i = 1;
 
 while (i <= num_chosen_species)
-    fill([X{i}{1}; flip(X{i}{2})], [Z{i}{1}; flip(Z{i}{2})], 'r', 'LineStyle', '-.', 'FaceAlpha', 0.5);
+    time_frame = [time_points{i}{1}; flip(time_points{i}{2})];
+    concentration_frame = [concentration_points{i}{1}; flip(concentration_points{i}{2})];
+    
+    fill(time_frame, concentration_frame, 'r', 'LineStyle', '-.', 'FaceAlpha', 0.5);
     
     hold on;
     

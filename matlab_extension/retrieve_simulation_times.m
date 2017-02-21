@@ -12,8 +12,9 @@ valid_time = 1;
 while(valid_time == 1)
     % request a start time from the user
     time_input = [];
+    prompt = '\n\nPlease enter the start time.\nEnter ''cancel'' to cancel.\nCPiME:> ';
+    
     while(isempty(time_input))
-        prompt = '\n\nPlease enter the start time.\nEnter ''cancel'' to cancel.\nCPiME:> ';
         time_input = strtrim(input(prompt, 's'));
 
         if (strcmp(time_input, '') == 1 || strcmp(time_input, 'cancel') == 1)

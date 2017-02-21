@@ -8,7 +8,6 @@ param_locs = {};
 num_silent = 0;
 num_affinities = 0;
 num_ic = 0;
-num_params = 0;
 selected_params = {};
 num_selected_params = 0;
 
@@ -61,21 +60,66 @@ num_params = num_ic + num_silent + num_affinities;
 fprintf(['\n', num2str(num_params), ' parameters identified.']);
 
 param_options = {};
+longest_param = 0;
+longest_param_row = 0;
 
 for i = 1:num_params
-    param_options{end + 1} = [params{i}, ', ', num2str(param_locs{i}{1}), ', ', num2str(param_locs{i}{2})];
+
+    if (length(params{i}) > longest_param)
+        longest_param = length(params{i});
+    end
+    
+    if (length(num2str(param_locs{i}{1})) > longest_param_row)
+        longest_param_row = length(num2str(param_locs{i}{1}));
+    end
+   
 end
 
-[selection,ok] = listdlg('Name', 'Select Parameter(s)', 'PromptString', 'Param, Line, Column', 'SelectionMode', 'multiple', 'ListString', param_options);
+if (length('parameter') > longest_param)
+    longest_param = length('parameter');
+end
 
-if (not(ok) || not(length(selection)))
-    return;
+if (length('line') > longest_param_row)
+    longest_param_row = length('line');
+end
+
+fprintf(['\n\nID', blanks(length(num2str(num_params)) + 4), 'Parameter', blanks(longest_param - length('parameter') + 4), 'Line', blanks(longest_param_row - length('line') + 4), 'Column\n']);
+
+for i = 1:num_params
+    fprintf(['\n', num2str(i), blanks(length(num2str(num_params)) - length(num2str(i)) + 4), params{i}, blanks(longest_param - length(params{i}) + 4), num2str(param_locs{i}{1}), blanks(longest_param_row - length(num2str(param_locs{i}{1})) + 4), num2str(param_locs{i}{2})]);
+end
+
+fprintf('\n\nPlease select which parameters to experiment by listing the identifiers on the left-most column, separated by a single space.');
+fprintf('\nEnter ''cancel'' to cancel.');
+prompt = '\nCPiME:> ';
+
+selection_input = [];
+
+while(isempty(selection_input))
+    selection_input = strtrim(input(prompt, 's'));
+
+    if (sum(strcmp(selection_input, {'', 'cancel'})))
+        return;
+    end
+    
+    selection = strsplit(selection_input, ' ');
+    
+    i = 1;
+    
+    while (not(isempty(selection_input)) & i <= length(selection))
+        if (str2num(selection{i}) > num_params)
+            fprintf(['Error: ', selection{i}, ' is an invalid parameter identifier.']);
+            selection_input = [];
+        end
+        
+        i = i + 1;
+    end
 end
 
 num_selected_params = length(selection);
 
 for i = 1:num_selected_params
-    selected_params{end + 1} = {params{selection(i)}, param_locs{selection(i)}{1}, param_locs{selection(i)}{2}};
+    selected_params{end + 1} = {params{str2num(selection{i})}, param_locs{str2num(selection{i})}{1}, param_locs{str2num(selection{i})}{2}};
 end
 
 end

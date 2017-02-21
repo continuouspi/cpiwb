@@ -1,10 +1,7 @@
 % this Matlab script collection extends the Continuous Pi Workbench, CPiWB
 % author: Ross Rhodes
 
-function x = parameter_experiment()
-
-% empty output
-x = 0;
+function parameter_experiment()
 
 selected_params = {};
 min_values = {};
@@ -55,13 +52,50 @@ for i = 1:num_params
     end
 end
 
-fprintf('\nThe experiment details are as follows:\nParams\tMin values\tMax values\tNumber of experiments\n');
+longest_param = 0;
+longest_min_value = 0;
+longest_max_value = 0;
 
 for i = 1:num_params
-    fprintf(['\n', params{i}{1}, '\t', num2str(min_values{i}), '\t', num2str(max_values{i}), '\t', num2str(experiment_nums{i})]);
+    if (length(params{i}{1}) > longest_param)
+        longest_param = length(params{i}{1});
+    end
+    
+    if (length(num2str(min_values{i})) > longest_min_value)
+        longest_min_value = length(num2str(min_values{i}));
+    end
+    
+    if (length(num2str(max_values{i})) > longest_max_value)
+        longest_max_value = length(num2str(max_values{i}));
+    end
 end
 
-prompt = ['\n\nDo you wish to proceed with this experiment? (Y/n)\nCPiWB:> '];
+if (length('parameters') > longest_param)
+    longest_param = length('parameters');
+end
+
+if (length('min values') > longest_min_value)
+    longest_min_value = length('min values');
+end
+
+if (length('max_values') > longest_max_value)
+    longest_max_value = length('max values');
+end
+
+fprintf('\nThe experiment details are as follows:\n');
+fprintf(['\nParameters', blanks(longest_param - length('params'))]);
+fprintf(['\tMin values', blanks(longest_min_value - length('min values'))]);
+fprintf(['\tMax values', blanks(longest_max_value - length('max values'))]);
+fprintf('\t# values');
+
+for i = 1:num_params
+    fprintf(['\n', params{i}{1}, blanks(longest_param - length(params{i}{1}))]);
+    fprintf(['\t', num2str(min_values{i}), blanks(longest_min_value - length(num2str(min_values{i})))]);
+    fprintf(['\t', num2str(max_values{i}), blanks(longest_max_value - length(num2str(max_values{i})))]);
+    fprintf(['\t', num2str(experiment_nums{i})]);
+end
+
+prompt = '\n\nDo you wish to proceed with this experiment? (Y/n)\nCPiWB:> ';
 
 while (isempty(confirmation))
     confirmation = strtrim(input(prompt, 's'));
@@ -126,7 +160,7 @@ for k = 2:(num_experiments + 1)
     % call CPiWB to construct the system of ODEs for the process
     [modelODEs, ode_num, init_tokens] = create_cpi_odes(cpi_defs, chosen_process);
     
-    [t{end + 1}, Y{end + 1}] = solve_cpi_odes(modelODEs, ode_num, init_tokens, end_time);
+    [t{end + 1}, Y{end + 1}] = solve_cpi_odes(modelODEs, ode_num, init_tokens, end_time, 'default');
 end
 
 % plot the results
