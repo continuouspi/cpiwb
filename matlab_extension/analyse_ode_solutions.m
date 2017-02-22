@@ -57,7 +57,7 @@ end
 
 % solve the system of ODEs for the given time period
 fprintf('\nSolving the system with default solver ... ');
-[~, solutions] = solve_cpi_odes(modelODEs, ode_num, init_tokens, end_time);
+[~, solutions] = solve_cpi_odes(modelODEs, ode_num, init_tokens, end_time, 'default');
 
 if (isempty(solutions))
     return;
@@ -76,14 +76,18 @@ lbc_query = [];
 while (isempty(lbc_query))
     lbc_query = strtrim(input(prompt, 's'));
 
-    if (strcmp(lbc_query, '') || strcmp(lbc_query, 'cancel'))
+    if (strcmp(lbc_query, '') || strcmp(lbc_query, 'finish'))
        return;
     elseif (strcmp(lbc_query, 'examples'))
        fprintf('For further guidance, a GUI for creating queries may be found here: http://scantisani.github.io/lbc-expression-creator/.');
        lbc_query = [];
     else
        tokenised_query = validate_query(lbc_query, species);
-       answer_query(tokenised_query, species, solutions);
+       
+       if (size(tokenised_query))
+            answer_query(tokenised_query, species, solutions);
+       end
+       
        lbc_query = [];
     end
 end

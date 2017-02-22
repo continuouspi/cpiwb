@@ -26,7 +26,7 @@ while(not(strcmp(job, 'quit')))
         
     elseif (strcmp(job, 'help') == 1)
         
-        fprintf('\n\nThe following commands are available to execute:\n\n1. edit_model\n2. view_odes\n3. simulate_process\n4. compare_processes\n5. parameter_experiment\n6. analyse_solutions\n7. quit\nEnter ''help <command>'' for further details on a specific command.');
+        fprintf('\n\nThe following commands are available to execute:\n\n1. edit_model\n2. view_odes\n3. simulate_process\n4. compare_processes\n5. parameter_experiment\n6. analyse_solutions\n7. quit\n\nEnter ''help <command>'' for further details on a specific command.');
    
     elseif (length(job) > 4 & strcmp(job(1:5), 'help ') == 1)
         
