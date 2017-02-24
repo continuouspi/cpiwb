@@ -8,23 +8,34 @@ process_defs = {};
 process_options = {};
 process_def_options = {};
 
+
+% strip comments away from file
+file_lines = strsplit(cpi_defs, '\n');
+
+for i = 1:length(file_lines)
+    if (not(isempty(strfind(file_lines{i}, '--'))))
+        file_lines{i} = '';
+    end
+end
+
+cpi_defs = strjoin(file_lines);
+
 % tokenize the CPi file
-def_tokens = strsplit(cpi_defs, ';');
+def_tokens = strsplit(cpi_defs, {';'});
 def_token_num = length(def_tokens);
-i = 1;
 
 % find all process definitions in the file tokens
 i = 1;
+
 while(i <= def_token_num)
     def_token = char(def_tokens(i));
     process_found = findstr(def_token, 'process');
-    comment_line = findstr(def_token, '--');
-    if (process_found & isempty(comment_line))
+    if (process_found)
         process_tokens = strsplit(def_token, ' ');
-        process_options{end + 1} = process_tokens{2};
+        process_options{end + 1} = process_tokens{3};
         process_def_options{end + 1} = def_token;
     end
-    i = i + 1; 
+    i = i + 1;
 end
 
 % request, from the user, the process to model

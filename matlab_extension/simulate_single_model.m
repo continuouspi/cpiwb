@@ -14,6 +14,23 @@ end
 cpi_defs = fileread(strcat(file_path, '/', file_name));
 fprintf(['\n', strtrim(cpi_defs)]);
 
+fprintf('\n\nHit the enter key to proceed, or type ''cancel'' to cancel.');
+prompt = '\n\nCPiME:> ';
+proceed_input = [];
+
+while(isempty(proceed_input))
+    proceed_input = strtrim(input(prompt, 's'));
+
+    if (strcmp(proceed_input, 'cancel'))
+        return;
+    elseif(not(strcmp(proceed_input, '')))
+        fprintf('\nError: Invalid input provided.');
+        proceed_input = [];
+    else
+        proceed_input = 'Y';
+    end
+end
+
 % determine which process the user wishes to model from file
 [process, process_def, def_tokens, def_token_num] = retrieve_single_process(cpi_defs);
 

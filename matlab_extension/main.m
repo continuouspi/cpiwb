@@ -14,7 +14,7 @@ job = [];
 while(not(strcmp(job, 'quit')))
     
     if (assistant == 0)
-        prompt = '\nCPiME:> ';
+        prompt = '\n\nCPiME:> ';
         job = strtrim(input(prompt, 's'));
     else
         assistant = 0;

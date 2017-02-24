@@ -42,8 +42,8 @@ end
 hold off;
 
 title(plot_title);
-ylabel('Species Concentration (units)');
-xlabel('Time (units)');
-legend(legendString, 'Location', 'EastOutside');
+ylabel('Concentration');
+xlabel('Time (seconds)');
+legend([plt{:}], legendString, 'Location', 'EastOutside');
 
 end

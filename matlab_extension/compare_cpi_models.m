@@ -103,7 +103,7 @@ else
                     def_token_num{end + 1} = new_def_token_num;
                     def_tokens{end + 1} = new_def_token;
 
-                    [t{end + 1}, Y{end + 1}] = solve_cpi_odes(modelODEs, ode_num, init_tokens, end_time);
+                    [t{end + 1}, Y{end + 1}] = solve_cpi_odes(modelODEs, ode_num, init_tokens, end_time, 'default');
                     
                     if (isempty(t))
                         continue;
