@@ -1,19 +1,17 @@
 % this Matlab script collection extends the Continuous Pi Workbench, CPiWB
 % author: Ross Rhodes
 
-function x = separate_plot_comparison(process_def, def_tokens, def_token_num, t, Y, file_name, num_models, start_time, process)
+function x = separate_plot_comparison(process_def, def_tokens, def_token_num, t, Y, file_name, num_processes, start_time, process)
 
 % dummy variable for void function
 x = 0;
 plt = {};
 legendStrings = {};
-chosen_species = {};
-separated_species = {};
 species_num = {};
 
 legendStringArray = [];
 
-for i = 1:num_models
+for i = 1:num_processes
     [legendStrings{end + 1}, species_num{end + 1}] = prepare_legend(process_def{i}, def_tokens{i}, def_token_num{i});
     legendStringArray = [legendStringArray unique(legendStrings{i})];
 end
@@ -26,11 +24,11 @@ commonSpecies = {};
 for j = 1:length(legendStringSet)
     speciesCount = 0;
     
-    for k = 1:num_models
+    for k = 1:num_processes
         speciesCount = speciesCount + sum(strcmp(lower(legendStrings{k}), lower(legendStringSet(j))));
     end
    
-    if (speciesCount == num_models)
+    if (speciesCount == num_processes)
         commonSpecies{end + 1} = lower(legendStringSet{j});
     end
 end
@@ -40,10 +38,10 @@ end
 % plot the simulation, and construct a figure around it
 fig = figure('Name','Model Comparison','NumberTitle','on');
 
-for i = 1:num_models
+for i = 1:num_processes
     % introduce a new window to hold space for either 2 or 4 plots
     % in the case that 3 plots are produced, there will be an empty space
-    if num_models > 2
+    if num_processes > 2
         subplot(2, 2, i);
     else
         subplot(1, 2, i);
@@ -51,18 +49,20 @@ for i = 1:num_models
 
     % ODE solvers start with time 0. Find index for the user's start time
     start_index = -1;
-    end_index = length(t{i});
+    end_index = size(t{i}, 1);
 
     j = 1;
+    
+    t{i}(j)
 
-    while (start_index == -1 & j < end_index)
+    while (start_index == -1 & j <= end_index)
         if (t{i}(j) <= start_time & start_time <= t{i}(j + 1))
             start_index = j;
         end
 
         j = j + 1;
     end
-
+    
     for k = 1:species_num{i}
         if (not(strcmp(chosen_species, 'all')))
             flag = 0;
@@ -97,7 +97,7 @@ for i = 1:num_models
     % adjust the figure window size to accomodate multiple plots
     fig.Position(3) = 1.5 * fig.Position(3);
     
-    if (num_models > 2)
+    if (num_processes > 2)
         fig.Position(4) = 1.5 * fig.Position(4);
     end
     

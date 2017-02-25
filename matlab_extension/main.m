@@ -2,48 +2,56 @@
 % author: Ross Rhodes
 
 clc;
-fprintf('Welcome to the Continuous Pi Calculus Matlab Extension, CPiME.\nEnter ''help'' for help.');
+fprintf('Welcome to the Continuous Pi Calculus Matlab Extension, CPiME.');
 
-commands = {'edit_model'; 'view_odes'; 'parameter_experiment'; 'simulate_process'; 'help'; 'compare_processes'; 'analyse_solutions'; 'quit'};
+% list the commands CPiME recognises
+commands = {'edit_model'; 'view_odes'; 'parameter_experiment'; ...
+    'simulate_process'; 'help'; 'compare_processes'; 'analyse_solutions'; ...
+    'quit'};
 
-assistant = 0;
+suggestion_followed = 0;
 job = [];
 
-% run the script until the user requests to leave
-% trim initial and trailing whitespace from user input
+% run the script until the user enters 'quit'
 while(not(strcmp(job, 'quit')))
     
-    if (assistant == 0)
+    % when the user mistypes a command, one suggestion is given
+    % if the suggestion is accepted, then suggestion_followed = 1
+    if (not(suggestion_followed))
+        fprintf('\n\nMain Menu\nEnter ''help'' for help, or ''quit'' to quit.');
         prompt = '\n\nCPiME:> ';
         job = strtrim(input(prompt, 's'));
     else
-        assistant = 0;
+        suggestion_followed = 0;
     end
     
-    if (strcmp(job, 'quit') == 1)
-        
+    if (strcmp(job, 'quit'))
         return;
+    elseif (strcmp(job, 'help'))
         
-    elseif (strcmp(job, 'help') == 1)
-        
-        fprintf('\n\nThe following commands are available to execute:\n\n1. edit_model\n2. view_odes\n3. simulate_process\n4. compare_processes\n5. parameter_experiment\n6. analyse_solutions\n7. quit\n\nEnter ''help <command>'' for further details on a specific command.');
+        % display commands to the user when 'help' is entered
+        fprintf(['\n\nThe following commands are recognised by CPiME:', ...
+        '\n\n1. edit_model\n2. view_odes\n3. analyse_solutions', ...
+        '\n4. simulate_process\n5. compare_processes', ...
+        '\n6. parameter_experiment\n7. quit\n\nEnter ', ...
+        '''help <command>'' for further details on a specific command.']);
    
-    elseif (length(job) > 4 & strcmp(job(1:5), 'help ') == 1)
+    elseif (length(job) > 4 && strcmp(job(1:5), 'help '))
         
         % search command documentation for a suitable description
-        % trim the redundant help from start of user input
+        % ignoring the first five characters, 'help '
         input_length = length(job);
         command_docs(job(6:input_length));
         
-    elseif (strcmp(job, 'view_odes') == 1)
+    elseif (strcmp(job, 'view_odes'))
         
         view_odes();
         
-    elseif (strcmp(job, 'simulate_process') == 1)
+    elseif (strcmp(job, 'simulate_process'))
     
-        simulate_single_model();
+        simulate_single_process();
         
-    elseif (strcmp(job, 'edit_model') == 1)
+    elseif (strcmp(job, 'edit_model'))
         
         % open a dialog to select an existing .cpi file
         [file_name, file_path, ~] = uigetfile({'*.cpi', 'CPi Models (*.cpi)'}, 'Select a .cpi file');
@@ -51,15 +59,15 @@ while(not(strcmp(job, 'quit')))
         % open the chosen file inside Matlab
         edit([file_path, '/', file_name]);
     
-    elseif (strcmp(job, 'compare_processes') == 1)
+    elseif (strcmp(job, 'compare_processes'))
     
-        compare_cpi_models();
+        compare_cpi_processes();
         
-    elseif (strcmp(job, 'parameter_experiment') == 1)
+    elseif (strcmp(job, 'parameter_experiment'))
         
         parameter_experiment();
         
-    elseif (strcmp(job, 'analyse_solutions') == 1)
+    elseif (strcmp(job, 'analyse_solutions'))
         
         analyse_ode_solutions();
     
@@ -78,6 +86,10 @@ while(not(strcmp(job, 'quit')))
             char_matches = 0;
             max_len = max(length(commands{i}), length(job));
             
+            % trim the longer of the existing and entered commands
+            % working only with partial commands to find best match
+            % potential to make more sophisticated help algorithm here
+            
             if (max_len == length(commands{i}))
                 trimmed_command = commands{i}(1:length(job));
                 trimmed_job = job;
@@ -86,11 +98,11 @@ while(not(strcmp(job, 'quit')))
                 trimmed_job = job(1:length(commands{i}));
             end
             
-            numeric_job = double(trimmed_job);
-            numeric_command = double(trimmed_command);
+            ascii_job = double(trimmed_job);
+            ascii_command = double(trimmed_command);
             
-            for j = 1:length(numeric_job)
-                if (numeric_job(j) == numeric_command(j))
+            for j = 1:length(ascii_job)
+                if (ascii_job(j) == ascii_command(j))
                     char_matches = char_matches + 1;
                 end
             end
@@ -103,7 +115,8 @@ while(not(strcmp(job, 'quit')))
             i = i + 1;
         end
         
-        % suggest a command the user likely wanted to execute
+        % suggest the existing command which best matches the user input
+        % as long as the suggestion is at most four characters difference
         if (highest_match_count > (length(best_match) - 4))
 
             prompt = (['\n\nDid you mean ''', best_match, '''? (Y/n)\nCPiME:> ']);
@@ -112,7 +125,7 @@ while(not(strcmp(job, 'quit')))
                 confirmation = strtrim(input(prompt, 's'));
 
                 if (confirmation == 'Y')
-                    assistant = 1;
+                    suggestion_followed = 1;
                     job = best_match;
                 elseif (not(confirmation == 'n'))
                     fprintf('\nError: Invalid input provided. Please enter ''Y'' for yes, or ''n'' for no.');
@@ -122,7 +135,5 @@ while(not(strcmp(job, 'quit')))
         end
     end
 end
-
-clear all;
 
 return;

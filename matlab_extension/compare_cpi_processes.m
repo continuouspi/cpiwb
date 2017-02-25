@@ -1,19 +1,16 @@
 % this Matlab script collection extends the Continuous Pi Workbench, CPiWB
 % author: Ross Rhodes
 
-function x = compare_cpi_models()
-
-% dummy variable - void function
-x = 0;
+function compare_cpi_processes()
 
 num_input = [];
-Y = {};
-t = {};
 file_name = {};
 process_def = {};
 def_tokens = {};
 def_token_num = {};
 process = {};
+t = {};
+Y = {};
 
 % determine the number of processes to be modelled. Maximum 4
 while(isempty(num_input))
@@ -34,6 +31,16 @@ while(isempty(num_input))
     end
 end
 
+ode_solvers = {'ode15s (default)'; 'ode23s'; 'ode23t'; 'ode23tb'};
+[selection,ok] = listdlg('Name', 'Select Solver', 'PromptString', 'Please select one solver to simulate the results:', 'SelectionMode', 'single', 'ListString', ode_solvers);
+
+% if user requests to leave then return to main script
+if (not(ok) || not(length(selection)))
+    return;
+end
+
+chosen_solver = ode_solvers(selection);
+
 % if only one process is to be modelled, follow simulate_model command
 if (num_processes == 0)
     return;
@@ -49,7 +56,7 @@ else
     
     i = 0;
 
-    while i < num_processes
+    while (i < num_processes)
 
         % select an existing .cpi file
         [new_file, file_path, ~] = uigetfile({'*.cpi', 'CPi Models (*.cpi)'}, 'Select a .cpi file');
@@ -103,20 +110,22 @@ else
                     def_token_num{end + 1} = new_def_token_num;
                     def_tokens{end + 1} = new_def_token;
 
-                    [t{end + 1}, Y{end + 1}] = solve_cpi_odes(modelODEs, ode_num, init_tokens, end_time, 'default');
+                    [t{end + 1}, Y{end + 1}] = solve_cpi_odes(modelODEs, ode_num, init_tokens, end_time, chosen_solver);
                     
-                    if (isempty(t))
-                        continue;
-                    end
+                     if (isempty(t{end}))
+                        return;
+                     end
                 end
                 
                 m = m + 1;
             end
         end
         
-        i = length(process);
+        i = i + length(process);
         
     end
+    
+    t{1}
     
     % determine whether to simulate on a single or multiple plots
     prompt = '\n\nDo you wish to simulate the behaviour of all processes on a single plot, or do you wish to see each process on a separate plot?\nEnter ''single'' for a single plot, ''separate'' for separate plots, or ''cancel'' to cancel.\nCPiME:> ';
@@ -132,7 +141,7 @@ else
             plot_type = [];
         end
     end
-
+    
     if (strcmp(plot_type, 'single') == 1)
         single_plot_comparison(process_def, def_tokens, def_token_num, t, Y, file_name, num_processes, start_time, process);
     else 

@@ -1,41 +1,44 @@
 % this Matlab script collection extends the Continuous Pi Workbench, CPiWB
 % author: Ross Rhodes
 
-function x = command_docs(job);
+function command_docs(job)
+% input 'job': the command the user wishes to receive details about
 
-% void function - dummy variable
-x = 0;
-
-if (strcmp(job, 'quit') == 1)
+if (strcmp(job, 'quit'))
 
     fprintf('\nTerminates your current session with CPiME.');
     
-elseif (strcmp(job, 'view_odes') == 1)
+elseif (strcmp(job, 'view_odes'))
     
-    fprintf('\nBuilds and displays a system of first-order ODEs for a given CPi model, which may be saved.');
+    fprintf(['\nBuilds and displays a system of first-order ODEs ', ...
+        'for a CPi process, which may be saved in a text file.']);
 
-elseif (strcmp(job, 'simulate_process') == 1)
+elseif (strcmp(job, 'simulate_process'))
 
     fprintf('\nSimulates one CPi process over a time period of your choosing.');
+    
+elseif (strcmp(job, 'analyse_solutions'))
+    
+    fprintf(['\nAnalyse solutions to systems of first-order ODEs using ', ...
+        'Logic of Behaviour in Context expressions.']);
 
-elseif (strcmp(job, 'edit_model') == 1)
+elseif (strcmp(job, 'edit_model'))
 
     fprintf('\nEdit the definitions of an existing CPi model inside Matlab.');
 
-elseif (strcmp(job, 'compare_processes') == 1)
+elseif (strcmp(job, 'compare_processes'))
 
-    fprintf('\nSimulate at most four CPi processes on a single plot.');
+    fprintf('\nSimulate at most four CPi processes under a single window.');
     
-elseif (strcmp(job, 'parameter_experiment') == 1)
+elseif (strcmp(job, 'parameter_experiment'))
     
-    fprintf('\nRun a series of simulations for varying values of parameters in a CPi model.');
+    fprintf(['\nSelect at least one parameter and plot a series of ' ...
+        'simulations for different values.']);
   
-elseif (not(strcmp(job, 'help')) == 1)
+elseif (not(strcmp(job, 'help')))
     
-    fprintf(['\nCommand ', job, ' does not exist inside CPiME.']);
+    fprintf(['\nCommand ''', job, ''' is not recognised.']);
 
 end
-
-return;
 
 end

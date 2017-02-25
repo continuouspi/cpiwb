@@ -10,50 +10,65 @@ end_time = 0;
 valid_time = 1;
 
 while(valid_time == 1)
+    
     % request a start time from the user
     time_input = [];
-    prompt = '\n\nPlease enter the start time.\nEnter ''cancel'' to cancel.\nCPiME:> ';
+    
+    prompt = '\n\nPlease enter the start time.\nEnter ''cancel'' to cancel.\n\nCPiME:> ';
     
     while(isempty(time_input))
         time_input = strtrim(input(prompt, 's'));
 
-        if (strcmp(time_input, '') == 1 || strcmp(time_input, 'cancel') == 1)
+        if (sum(strcmp(time_input, {'cancel', ''})))
+            
             end_time = 0;
             return;
+            
         elseif(not(isstrprop(time_input, 'digit')))
-            fprintf('\nError: Information entered is nonnumeric.');
+            
+            fprintf('\nError: Start time entered is nonnumeric.');
             time_input = [];
-        elseif (str2num(time_input) < 0)
+            
+        elseif (str2double(time_input) < 0)
+            
             fprintf('\nError: Negative start time entered.');
-            time_inout = [];
+            time_input = [];
+            
         else
-            start_time = str2num(time_input);
+            start_time = str2double(time_input);
         end
     end
 
     % request an end time from the user
     time_input = [];
+    prompt = '\n\nPlease enter the end time.\nEnter ''cancel'' to cancel.\n\nCPiME:> ';
+    
     while(isempty(time_input))
-        prompt = '\nPlease enter the end time.\nEnter ''cancel'' to cancel.\nCPiME:> ';
         time_input = strtrim(input(prompt, 's'));
 
-        if (strcmp(time_input, '') == 1 || strcmp(time_input, 'cancel') == 1)
+        if (sum(strcmp(time_input, {'cancel', ''})))
+            
             end_time = 0;
             return;
+            
         elseif(not(isstrprop(time_input, 'digit')))
-            fprintf('\nError: Information entered is nonnumeric.');
+            
+            fprintf('\nError: End time entered is nonnumeric.');
             time_input = [];
-        elseif(str2num(time_input) < 0)
+            
+        elseif(str2double(time_input) < 0)
+            
             fprintf('\nError: Negative end time entered.');
             time_input = [];
+            
         else
-            end_time = str2num(time_input);
+            end_time = str2double(time_input);
         end
     end
     
     % confirm the times provided are valid
     if (start_time >= end_time)
-        fprintf('\nError: Start time either exceeds or equates to the end time.');
+        fprintf('\nError: End time must exceed the start time.');
     else
         valid_time = 0;
     end

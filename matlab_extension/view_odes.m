@@ -1,42 +1,44 @@
 % this Matlab script collection extends the Continuous Pi Workbench, CPiWB
 % author: Ross Rhodes
 
-function x = view_odes()
-
-% void function - dummy variables
-x = 0;
+function view_odes()
 
 % select an existing .cpi file
 [file_name, file_path, ~] = uigetfile({'*.cpi', 'CPi Models (*.cpi)'}, 'Select a .cpi file');
 
-if (file_name == 0)
+if (not(file_name))
     return;
 end
 
 % read the selected CPi model and display on the console
-cpi_defs = fileread(strcat(file_path, '/', file_name));
-fprintf(['\n\n', cpi_defs]);
+definitions = display_definitions(file_name, file_path);
+
+if (isempty(definitions))
+    return;
+end
 
 % determine which process the user wishes to model from file
-[process, process_def, def_tokens, def_token_num] = retrieve_single_process(cpi_defs);
+[process_name, ~, ~, ~] = select_single_process(definitions);
 
-if (strcmp(process, '') == 1 || strcmp(process, 'cancel') == 1)
+if (sum(strcmp(process_name, {'cancel', ''})))
     return;
 end
 
 % call CPiWB to construct the system of ODEs for the process
-[modelODEs, ode_num, ~] = create_cpi_odes(cpi_defs, process);
+[modelODEs, ode_num, ~] = create_cpi_odes(definitions, process_name);
 
 if (ode_num == 0)
     return;
 end
 
+% display the ODEs to the user on the terminal
 fprintf('\n');
 
 for i = 1:length(modelODEs)
     fprintf(['\n', modelODEs{i}]);
 end
 
+% prompt the user to save the ODEs to file, or return to the main menu
 prompt = '\n\nDo you wish to save this system of ODEs? (Y/n)\nCPiME:> ';
 confirmation = [];
 
@@ -44,7 +46,7 @@ while (isempty(confirmation))
     confirmation = strtrim(input(prompt, 's'));
 
     if (confirmation == 'Y')
-        % save the constructed ODEs to a text file
+
         index = 2;
         valid_name = 0;
 
