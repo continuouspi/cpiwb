@@ -1,7 +1,8 @@
 % this Matlab script collection extends the Continuous Pi Workbench, CPiWB
 % author: Ross Rhodes
 
-function [min_value, max_value, experiment_num] = retrieve_experiment_info(param, param_num)
+function [min_value, max_value, experiment_num] = ...
+    retrieve_experiment_info(param, param_num)
 
 min_value = -1;
 max_value = -1;
@@ -13,7 +14,9 @@ while(not(valid_range))
     valid_range = 1;
     
     while(min_value < 0)
-        prompt = ['\n\nEnter the minimum value for parameter ', num2str(param_num), ': ', param{1}, '.\nEnter ''cancel'' to cancel.\nCPiME:> '];
+        prompt = ['\n\nEnter the minimum value for parameter ', ...
+            num2str(param_num), ': ', param{1}, '.\nEnter ''cancel'' to cancel.\nCPiME:> '];
+        
         user_input = input(prompt, 's');
 
         if (sum(strcmp(user_input, {'cancel', ''})))
@@ -22,9 +25,9 @@ while(not(valid_range))
 
         if(not(isstrprop(user_input, 'digit')))
             fprintf('\nError: The minimum value entered is nonnumeric.');
-            user_input = [];
+            min_value = -1;
         else
-            min_value = str2num(user_input);
+            min_value = str2double(user_input);
 
             if (min_value < 0)
                 fprintf('\nError: The minimum value must be nonnegative.');
@@ -33,7 +36,9 @@ while(not(valid_range))
     end
     
     while(max_value < 0)
-        prompt = ['\n\nEnter the maximum value for parameter ', num2str(param_num), ': ', param{1}, '.\nEnter ''cancel'' to cancel.\nCPiME:> '];
+        prompt = ['\n\nEnter the maximum value for parameter ', ...
+            num2str(param_num), ': ', param{1}, '.\nEnter ''cancel'' to cancel.\nCPiME:> '];
+        
         user_input = input(prompt, 's');
 
         if (sum(strcmp(user_input, {'cancel', ''})))
@@ -42,9 +47,9 @@ while(not(valid_range))
 
         if(not(isstrprop(user_input, 'digit')))
             fprintf('\nError: The maximum value entered is nonnumeric.');
-            user_input = [];
+            max_value = -1;
         else
-            max_value = str2num(user_input);
+            max_value = str2double(user_input);
 
             if (max_value < 0)
                 fprintf('\nError: The maximum value must be nonnegative.');
@@ -57,7 +62,10 @@ while(not(valid_range))
 end
 
 while(experiment_num < 0)
-    prompt = ['\n\nEnter the number of experimental values to substitute for parameter ', num2str(param_num), ': ', param{1}, '.\nEnter ''cancel'' to cancel.\nCPiME:> '];
+    prompt = ['\n\nEnter the number of experimental values to substitute ', ...
+        'for parameter ', num2str(param_num), ': ', param{1}, ...
+        '.\nEnter ''cancel'' to cancel.\nCPiME:> '];
+    
     user_input = input(prompt, 's');
 
     if (sum(strcmp(user_input, {'cancel', ''})))
@@ -66,9 +74,9 @@ while(experiment_num < 0)
 
     if(not(isstrprop(user_input, 'digit')))
         fprintf('\nError: The number of experiments entered is nonnumeric.');
-        user_input = [];
+        experiment_num = -1;
     else
-        experiment_num = str2num(user_input);
+        experiment_num = str2double(user_input);
 
         if (experiment_num < 0)
             fprintf('\nError: The number of experiments must be nonnegative.');

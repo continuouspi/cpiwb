@@ -1,7 +1,8 @@
 % this Matlab script collection extends the Continuous Pi Workbench, CPiWB
 % author: Ross Rhodes
 
-function [selected_params, num_selected_params] = select_parameters(def_tokens, def_token_num)
+function [selected_params, num_selected_params] = ...
+    select_parameters(def_tokens, def_token_num)
 
 params = {};
 param_locs = {};
@@ -24,7 +25,7 @@ for i = 1:def_token_num
     index = 1;
     
     for j = 2:(length(silent_action_tokens) - 1)
-        if (not(isempty(str2num(silent_action_tokens{j}))))
+        if (not(isempty(str2double(silent_action_tokens{j}))))
             params{end + 1} = ['tau<', silent_action_tokens{j}, '>'];
             param_locs{end + 1} = {i, silent_locs(index)};
             num_silent = num_silent + 1;
@@ -35,7 +36,7 @@ for i = 1:def_token_num
     index = 1;
     
     for j = 2:(length(affinity_tokens) - 1)
-        if (not(isempty(str2num(affinity_tokens{j}))))
+        if (not(isempty(str2double(affinity_tokens{j}))))
             params{end + 1} = ['@', affinity_tokens{j}];
             param_locs{end + 1} = {i, affinity_locs(index)};
             num_affinities = num_affinities + 1;
@@ -46,7 +47,7 @@ for i = 1:def_token_num
     index = 1;
     
     for j = 2:(length(ic_tokens) - 1)
-        if (not(isempty(str2num(ic_tokens{j}))))
+        if (not(isempty(str2double(ic_tokens{j}))))
             params{end + 1} = [ic_tokens{j}];
             param_locs{end + 1} = {i, ic_locs(index)};
             num_ic = num_ic + 1;
@@ -59,7 +60,6 @@ num_params = num_ic + num_silent + num_affinities;
 
 fprintf(['\n', num2str(num_params), ' parameters identified.']);
 
-param_options = {};
 longest_param = 0;
 longest_param_row = 0;
 
@@ -83,15 +83,24 @@ if (length('line') > longest_param_row)
     longest_param_row = length('line');
 end
 
-fprintf(['\n\nID', blanks(length(num2str(num_params)) + 4), 'Parameter', blanks(longest_param - length('parameter') + 4), 'Line', blanks(longest_param_row - length('line') + 4), 'Column\n']);
+fprintf(['\n\nID', blanks(length(num2str(num_params)) + 4), 'Parameter', ...
+    blanks(longest_param - length('parameter') + 4), 'Line', ...
+    blanks(longest_param_row - length('line') + 4), 'Column\n']);
 
 for i = 1:num_params
-    fprintf(['\n', num2str(i), blanks(length(num2str(num_params)) - length(num2str(i)) + 4), params{i}, blanks(longest_param - length(params{i}) + 4), num2str(param_locs{i}{1}), blanks(longest_param_row - length(num2str(param_locs{i}{1})) + 4), num2str(param_locs{i}{2})]);
+    
+    fprintf(['\n', num2str(i), blanks(length(num2str(num_params)) - ...
+        length(num2str(i)) + 4), params{i}, blanks(longest_param - ...
+        length(params{i}) + 4), num2str(param_locs{i}{1}), ...
+        blanks(longest_param_row - length(num2str(param_locs{i}{1})) + 4), ...
+        num2str(param_locs{i}{2})]);
 end
 
-fprintf('\n\nPlease select which parameters to experiment by listing the identifiers on the left-most column, separated by a single space.');
-fprintf('\nEnter ''cancel'' to cancel.');
-prompt = '\nCPiME:> ';
+fprintf(['\n\nPlease select which parameters to experiment by listing ', ...
+    'the identifiers on the left-most column, separated by a single space.', ...
+    '\nEnter ''cancel'' to cancel.']);
+
+prompt = '\n\nCPiME:> ';
 
 selection_input = [];
 
@@ -106,7 +115,7 @@ while(isempty(selection_input))
     
     i = 1;
     
-    while (not(isempty(selection_input)) & i <= length(selection))
+    while (not(isempty(selection_input)) && i <= length(selection))
         if (str2num(selection{i}) > num_params)
             fprintf(['Error: ', selection{i}, ' is an invalid parameter identifier.']);
             selection_input = [];
@@ -119,7 +128,8 @@ end
 num_selected_params = length(selection);
 
 for i = 1:num_selected_params
-    selected_params{end + 1} = {params{str2num(selection{i})}, param_locs{str2num(selection{i})}{1}, param_locs{str2num(selection{i})}{2}};
+    selected_params{end + 1} = {params{str2num(selection{i})}, ...
+        param_locs{str2num(selection{i})}{1}, param_locs{str2num(selection{i})}{2}};
 end
 
 end

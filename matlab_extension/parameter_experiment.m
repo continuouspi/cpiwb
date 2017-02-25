@@ -10,20 +10,21 @@ experiment_nums = {};
 experimental_values = {};
 confirmation = [];
 t = {};
-Y = {};
+solutions = {};
 
 % select an existing .cpi file with parameters to estimate
-[chosen_file_name, file_path, ~] = uigetfile({'*.cpi', 'CPi Models (*.cpi)'}, 'Select a .cpi file');
+[chosen_file_name, file_path, ~] = ...
+    uigetfile({'*.cpi', 'CPi Models (*.cpi)'}, 'Select a .cpi file');
 
 if (not(chosen_file_name))
     return;
 end
 
-cpi_defs = fileread(strcat(file_path, '/', chosen_file_name));
-fprintf(['\n', cpi_defs]);
+cpi_defs = display_definitions(chosen_file_name, file_path);
 
 % determine which process the user wishes to model from file
-[chosen_process, chosen_process_def, chosen_def_tokens, chosen_def_token_num] = retrieve_single_process(cpi_defs);
+[chosen_process, chosen_process_def, chosen_def_tokens, ...
+    chosen_def_token_num] = select_single_process(cpi_defs);
 
 if (sum(strcmp(chosen_process, {'cancel', ''})))
     return;
@@ -126,7 +127,8 @@ combs = [selected_params{:}; combs];
 num_experiments = size(combs, 1) - 1;
 
 % run the experiments
-fprintf(['\nPerforming ', num2str(num_experiments), ' experiments with ', num2str(num_params), ' experimental parameters. This may take a while.']);
+fprintf(['\nPerforming ', num2str(num_experiments), ' experiments with ', ...
+    num2str(num_params), ' experimental parameters. This may take a while.']);
 
 for k = 2:(num_experiments + 1)
     for j = 1:num_params
@@ -134,21 +136,26 @@ for k = 2:(num_experiments + 1)
             
             % num2str removes decimal components in integer values
             % make sure to retain these components for easier substitution
-            if (isempty(findstr('.', num2str(combs(k-1,j)))) && isempty(findstr('.', num2str(combs(k,j)))))
+            if (isempty(strfind(num2str(combs(k-1,j)), '.')) && ...
+                    isempty(strfind(num2str(combs(k,j)), '.')))
                 
-                chosen_def_tokens{l} = strrep(chosen_def_tokens{l}, sprintf('%.1f', combs(k-1,j)), sprintf('%.1f', combs(k,j)));
+                chosen_def_tokens{l} = strrep(chosen_def_tokens{l}, ...
+                    sprintf('%.1f', combs(k-1,j)), sprintf('%.1f', combs(k,j)));
                 
-            elseif (isempty(findstr('.', num2str(combs(k-1,j)))))
+            elseif (isempty(strfind(num2str(combs(k-1,j)), '.')))
                 
-                chosen_def_tokens{l} = strrep(chosen_def_tokens{l}, sprintf('%.1f', combs(k-1,j)), num2str(combs(k,j)));
+                chosen_def_tokens{l} = strrep(chosen_def_tokens{l}, ...
+                    sprintf('%.1f', combs(k-1,j)), num2str(combs(k,j)));
                 
-            elseif (isempty(findstr('.', num2str(combs(k,j)))))
+            elseif (isempty(strfind('.', num2str(combs(k,j)), '.')))
                 
-                chosen_def_tokens{l} = strrep(chosen_def_tokens{l}, num2str(combs(k-1,j)), sprintf('%.1f', combs(k,j)));
+                chosen_def_tokens{l} = strrep(chosen_def_tokens{l}, ...
+                    num2str(combs(k-1,j)), sprintf('%.1f', combs(k,j)));
                 
             else
                 
-                chosen_def_tokens{l} = strrep(chosen_def_tokens{l}, num2str(combs(k-1,j)), num2str(combs(k,j)));
+                chosen_def_tokens{l} = strrep(chosen_def_tokens{l}, ...
+                    num2str(combs(k-1,j)), num2str(combs(k,j)));
                 
             end
         end
@@ -160,10 +167,10 @@ for k = 2:(num_experiments + 1)
     % call CPiWB to construct the system of ODEs for the process
     [modelODEs, ode_num, init_tokens] = create_cpi_odes(cpi_defs, chosen_process);
     
-    [t{end + 1}, Y{end + 1}] = solve_cpi_odes(modelODEs, ode_num, init_tokens, end_time, 'default');
+    [t{end + 1}, solutions{end + 1}] = solve_cpi_odes(modelODEs, ode_num, init_tokens, end_time, 'default');
 end
 
 % plot the results
-experiment_plots(chosen_process_def, chosen_def_tokens, chosen_def_token_num, t, Y, chosen_file_name, num_experiments, start_time, chosen_process);
+experiment_plots(chosen_process_def, chosen_def_tokens, chosen_def_token_num, t, solutions, chosen_file_name, num_experiments, start_time, chosen_process);
 
 end

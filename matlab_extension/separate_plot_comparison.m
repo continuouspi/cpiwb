@@ -1,39 +1,13 @@
 % this Matlab script collection extends the Continuous Pi Workbench, CPiWB
 % author: Ross Rhodes
 
-function x = separate_plot_comparison(process_def, def_tokens, def_token_num, t, Y, file_name, num_processes, start_time, process)
+function separate_plot_comparison(process, process_def, def_tokens, ...
+    def_token_num, t, solutions, file_name, num_processes, start_time)
 
-% dummy variable for void function
-x = 0;
-plt = {};
-legendStrings = {};
-species_num = {};
+lines = {};
 
-legendStringArray = [];
-
-for i = 1:num_processes
-    [legendStrings{end + 1}, species_num{end + 1}] = prepare_legend(process_def{i}, def_tokens{i}, def_token_num{i});
-    legendStringArray = [legendStringArray unique(legendStrings{i})];
-end
-
-% identify common species between processes
-legendStringSet = unique(legendStringArray);
-
-commonSpecies = {};
-
-for j = 1:length(legendStringSet)
-    speciesCount = 0;
-    
-    for k = 1:num_processes
-        speciesCount = speciesCount + sum(strcmp(lower(legendStrings{k}), lower(legendStringSet(j))));
-    end
-   
-    if (speciesCount == num_processes)
-        commonSpecies{end + 1} = lower(legendStringSet{j});
-    end
-end
-
-[separated_species, chosen_species] = find_common_species(commonSpecies);
+[legend_strings, separated_species, chosen_species] = find_common_species(process_def, ...
+    def_tokens, def_token_num, num_processes);
 
 % plot the simulation, and construct a figure around it
 fig = figure('Name','Model Comparison','NumberTitle','on');
@@ -49,28 +23,27 @@ for i = 1:num_processes
 
     % ODE solvers start with time 0. Find index for the user's start time
     start_index = -1;
-    end_index = size(t{i}, 1);
+    end_index = length(t{i}{:});
 
     j = 1;
-    
-    t{i}(j)
 
-    while (start_index == -1 & j <= end_index)
-        if (t{i}(j) <= start_time & start_time <= t{i}(j + 1))
+    while (start_index == -1 && j <= end_index)
+        
+        if (t{i}{:}(j) <= start_time && start_time <= t{i}{:}(j + 1))
             start_index = j;
         end
 
         j = j + 1;
     end
     
-    for k = 1:species_num{i}
+    for k = 1:length(legend_strings{i})
         if (not(strcmp(chosen_species, 'all')))
             flag = 0;
             
             j = 1;
 
-            while (not(flag) & j <= length(separated_species))
-                if (strcmp(lower(legendStrings{i}{k}), lower(separated_species{j})))
+            while (not(flag) && j <= length(separated_species))
+                if (strcmpi(legend_strings{i}{k}, separated_species{j}))
                     flag = 1;
                 end
                 j = j + 1;
@@ -78,10 +51,14 @@ for i = 1:num_processes
         end
         
         if (strcmp(chosen_species, 'all') || flag)
-            plt{end + 1} = plot(t{i}(start_index:end_index), Y{i}(start_index:end_index, k), 'buttonDownFcn', {@plotCallback, k}, 'LineStyle', '-', 'LineWidth', 1.75);
+            lines{end + 1} = plot(t{i}{:}(start_index:end_index), ...
+                solutions{i}{:}(start_index:end_index, k), 'buttonDownFcn', ...
+                {@plotCallback, k}, 'LineStyle', '-', 'LineWidth', 1.75);
         else
-            plt{end + 1} = plot(t{i}(start_index:end_index), Y{i}(start_index:end_index, k), 'buttonDownFcn', {@plotCallback, k}, 'LineStyle', '--', 'LineWidth', 1.75);
-            plt{end}.Color = [plt{end}.Color 0.2]; 
+            lines{end + 1} = plot(t{i}{:}(start_index:end_index), ...
+                solutions{i}{:}(start_index:end_index, k), 'buttonDownFcn', ...
+                {@plotCallback, k}, 'LineStyle', '--', 'LineWidth', 1.75);
+            lines{end}.Color = [lines{end}.Color 0.2]; 
         end
         
         if (k == 1)
@@ -89,7 +66,7 @@ for i = 1:num_processes
         end
     end
 
-    filename_tokens = strsplit(file_name{i}, '.cpi');
+    filename_tokens = strsplit(file_name{i}{:}, '.cpi');
     model_name = strrep(filename_tokens(1),'_',' ');
     model_name = regexprep(model_name,'(\<[a-z])','${upper($1)}');
     plot_title = [model_name, ['Process ', process{i}]];
@@ -102,10 +79,10 @@ for i = 1:num_processes
     end
     
     title(plot_title);
-    ylabel('Species Concentration (units)');
-    xlabel('Time (units)');
+    ylabel('Concentration');
+    xlabel('Time (seconds)');
     legend('show');
-    legend(legendStrings{i}, 'Location', 'EastOutside');
+    legend(legend_strings{i}, 'Location', 'EastOutside');
 end
 
 end
