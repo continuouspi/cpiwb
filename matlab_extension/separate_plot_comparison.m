@@ -6,8 +6,8 @@ function separate_plot_comparison(process, process_def, def_tokens, ...
 
 lines = {};
 
-[legend_strings, separated_species, chosen_species] = find_common_species(process_def, ...
-    def_tokens, def_token_num, num_processes);
+% setup the legend for the simulation
+[legendString, species_num] = prepare_legend(process_def, def_tokens, def_token_num);
 
 % plot the simulation, and construct a figure around it
 fig = figure('Name','Model Comparison','NumberTitle','on');

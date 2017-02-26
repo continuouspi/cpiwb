@@ -22,10 +22,13 @@ for i = 1:def_token_num
     affinity_locs = strfind(def_tokens{i}, '@');
     ic_locs = strfind(def_tokens{i}, '[');
     
+    % do not follow Matlab advice to convert str2num to str2double here
+    % converts non-numeric tokens into numeric values; not desired
+    
     index = 1;
     
     for j = 2:(length(silent_action_tokens) - 1)
-        if (not(isempty(str2double(silent_action_tokens{j}))))
+        if (not(isempty(str2num(silent_action_tokens{j}))))
             params{end + 1} = ['tau<', silent_action_tokens{j}, '>'];
             param_locs{end + 1} = {i, silent_locs(index)};
             num_silent = num_silent + 1;
@@ -36,7 +39,7 @@ for i = 1:def_token_num
     index = 1;
     
     for j = 2:(length(affinity_tokens) - 1)
-        if (not(isempty(str2double(affinity_tokens{j}))))
+        if (not(isempty(str2num(affinity_tokens{j}))))
             params{end + 1} = ['@', affinity_tokens{j}];
             param_locs{end + 1} = {i, affinity_locs(index)};
             num_affinities = num_affinities + 1;
@@ -47,7 +50,7 @@ for i = 1:def_token_num
     index = 1;
     
     for j = 2:(length(ic_tokens) - 1)
-        if (not(isempty(str2double(ic_tokens{j}))))
+        if (not(isempty(str2num(ic_tokens{j}))))
             params{end + 1} = [ic_tokens{j}];
             param_locs{end + 1} = {i, ic_locs(index)};
             num_ic = num_ic + 1;
@@ -83,7 +86,7 @@ if (length('line') > longest_param_row)
     longest_param_row = length('line');
 end
 
-fprintf(['\n\nID', blanks(length(num2str(num_params)) + 4), 'Parameter', ...
+fprintf(['\n\nID', blanks(length(num2str(num_params)) + 2), 'Parameter', ...
     blanks(longest_param - length('parameter') + 4), 'Line', ...
     blanks(longest_param_row - length('line') + 4), 'Column\n']);
 

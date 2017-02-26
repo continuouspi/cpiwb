@@ -14,6 +14,7 @@ job = [];
 
 % run the script until the user enters 'quit'
 while(not(strcmp(job, 'quit')))
+    clearvars -except suggestion_followed commands job;
     
     % when the user mistypes a command, one suggestion is given
     % if the suggestion is accepted, then suggestion_followed = 1

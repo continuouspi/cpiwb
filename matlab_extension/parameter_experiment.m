@@ -12,6 +12,8 @@ confirmation = [];
 t = {};
 solutions = {};
 
+ode_solvers = {'ode15s (default)'; 'ode23s'; 'ode23t'; 'ode23tb'};
+
 % select an existing .cpi file with parameters to estimate
 [chosen_file_name, file_path, ~] = ...
     uigetfile({'*.cpi', 'CPi Models (*.cpi)'}, 'Select a .cpi file');
@@ -32,6 +34,18 @@ end
 
 % determine the start and end times of the simulation
 [start_time, end_time] = retrieve_simulation_times();
+
+% request, from the user, the process to model
+[selection,ok] = listdlg('Name', 'Select Solver', 'PromptString', ...
+    'Please select one solver to simulate the results', ...
+    'SelectionMode', 'single', 'ListString', ode_solvers);
+
+% if user requests to leave then return to main script
+if (not(ok & length(selection)))
+    return;
+end
+
+chosen_solver = ode_solvers(selection);
 
 % select the parameters for experimentation
 [params, num_params] = select_parameters(chosen_def_tokens, chosen_def_token_num);
@@ -147,7 +161,7 @@ for k = 2:(num_experiments + 1)
                 chosen_def_tokens{l} = strrep(chosen_def_tokens{l}, ...
                     sprintf('%.1f', combs(k-1,j)), num2str(combs(k,j)));
                 
-            elseif (isempty(strfind('.', num2str(combs(k,j)), '.')))
+            elseif (isempty(strfind(num2str(combs(k,j)), '.')))
                 
                 chosen_def_tokens{l} = strrep(chosen_def_tokens{l}, ...
                     num2str(combs(k-1,j)), sprintf('%.1f', combs(k,j)));
@@ -165,9 +179,9 @@ for k = 2:(num_experiments + 1)
     cpi_defs = strjoin(chosen_def_tokens, ';');
     
     % call CPiWB to construct the system of ODEs for the process
-    [modelODEs, ode_num, init_tokens] = create_cpi_odes(cpi_defs, chosen_process);
+    [odes, ode_num, init_tokens] = create_cpi_odes(cpi_defs, chosen_process);
     
-    [t{end + 1}, solutions{end + 1}] = solve_cpi_odes(modelODEs, ode_num, init_tokens, end_time, 'default');
+    [t{end + 1}, solutions{end + 1}] = solve_cpi_odes(odes, ode_num, init_tokens, end_time, chosen_solver);
 end
 
 % plot the results

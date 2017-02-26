@@ -59,20 +59,25 @@ if (not(duplicate))
     for m = 1:length(new_processes)
 
         % construct and solve the system of ODEs for the selected process
+        fprintf('\n\nConstructing the ODEs ... ');
         [odes, ode_num, init_tokens] = create_cpi_odes(cpi_defs, new_processes{m});
 
         if (ode_num)
+            fprintf('Done.');
             process_names{end + 1} = new_processes{m};
             file_names{end + 1} = new_file_name;
             process_definitions{end + 1} = new_process_defs{m};
             num_definitions{end + 1} = new_def_token_nums;
             definition_tokens{end + 1} = new_def_tokens;
 
+            fprintf('\nSolving the system ... ');
             [t{end + 1}, solutions{end + 1}] = solve_cpi_odes(odes, ode_num, init_tokens, end_time, chosen_solver);
 
              if (isempty(t{end}))
                 return;
              end
+             
+             fprintf('Done.');
         end
 
         m = m + 1;

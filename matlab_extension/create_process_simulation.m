@@ -4,7 +4,7 @@
 function create_process_simulation(t, Y, start_time, file_name, process_def, def_tokens, def_token_num, process, solvers)
 
 % setup the legend for the simulation
-[legendString, species_num] = prepare_legend(process_def, def_tokens, def_token_num);
+[legend_strings, species_num] = prepare_legend(process_def, def_tokens, def_token_num);
 
 % use the file's name to create a plot header
 filename_tokens = strsplit(file_name, '.cpi');
@@ -62,7 +62,7 @@ for m = 1:length(solvers)
     title([plot_title, ode_name{1}]);
     ylabel('Concentration');
     xlabel('Time (seconds)');
-    legend([plt{:}], legendString, 'Location', 'EastOutside');
+    legend([plt{:}], legend_strings, 'Location', 'EastOutside');
 
 end
 
