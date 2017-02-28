@@ -36,10 +36,12 @@ for i = 1:length(disjunctions)
         if (conjunction_size > 2 && strcmp(conjunctions{j}(1:3), 'F(G'))
             clause_type = 'FG';
             current_index = 4;
-        elseif (strcmp(conjunctions{j}(1), 'G') && isempty(strfind(conjunctions{j}(3:conjunction_size), 'F')))
+        elseif (strcmp(conjunctions{j}(1), 'G') && ...
+                isempty(strfind(conjunctions{j}(3:conjunction_size), 'F')))
             clause_type = 'G';
             current_index = 2;
-        elseif (strcmp(conjunctions{j}(1), 'F') && isempty(strfind(conjunctions{j}(3:conjunction_size), 'G')))
+        elseif (strcmp(conjunctions{j}(1), 'F') && ...
+                isempty(strfind(conjunctions{j}(3:conjunction_size), 'G')))
             clause_type = 'F';
             current_index = 2;
         else
@@ -220,7 +222,8 @@ for i = 1:length(disjunctions)
                     end
 
                     if (not(species_found))
-                        fprintf(['\nError: Invalid species named in clause ', conjunctions{j}, '.']);
+                        fprintf(['\nError: Invalid species named in clause ', ...
+                            conjunctions{j}, '.']);
                         tokenised_query = {};
                         return;
                     end

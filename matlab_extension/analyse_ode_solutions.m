@@ -105,9 +105,9 @@ while (isempty(lbc_query))
        tokenised_query = validate_query(lbc_query, species);
        
        % if the query is valid, answer it with True or False
-       %if (size(tokenised_query))
-       %     answer_query(tokenised_query, species, t, solutions);
-       %end
+       if (size(tokenised_query))
+            answer_query(tokenised_query, species, t, solutions);
+       end
        
        fprintf('\n');
        lbc_query = [];
