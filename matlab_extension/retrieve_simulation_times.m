@@ -5,6 +5,7 @@ function [start_time, end_time] = retrieve_simulation_times()
 
 start_time = 0;
 end_time = 0;
+prompt = '\n\nCPiME:> ';
 
 % determine the time frame for the simulation
 valid_time = 1;
@@ -14,12 +15,12 @@ while(valid_time == 1)
     % request a start time from the user
     time_input = [];
     
-    prompt = '\n\nPlease enter the start time.\nEnter ''cancel'' to cancel.\n\nCPiME:> ';
+    fprintf('\n\nPlease enter the start time.\nEnter ''cancel'' to cancel.');
     
     while(isempty(time_input))
         time_input = strtrim(input(prompt, 's'));
 
-        if (sum(strcmp(time_input, {'cancel', ''})))
+        if (strcmp(time_input, 'cancel'))
             
             end_time = 0;
             return;
@@ -34,19 +35,19 @@ while(valid_time == 1)
             fprintf('\nError: Negative start time entered.');
             time_input = [];
             
-        else
+        elseif (not(strcmp(time_input, '')))
             start_time = str2double(time_input);
         end
     end
 
     % request an end time from the user
     time_input = [];
-    prompt = '\n\nPlease enter the end time.\nEnter ''cancel'' to cancel.\n\nCPiME:> ';
+    fprintf('\n\nPlease enter the end time.\nEnter ''cancel'' to cancel.');
     
     while(isempty(time_input))
         time_input = strtrim(input(prompt, 's'));
 
-        if (sum(strcmp(time_input, {'cancel', ''})))
+        if (strcmp(time_input, 'cancel'))
             
             end_time = 0;
             return;
@@ -61,7 +62,7 @@ while(valid_time == 1)
             fprintf('\nError: Negative end time entered.');
             time_input = [];
             
-        else
+        elseif (not(strcmp(time_input, '')))
             end_time = str2double(time_input);
         end
     end

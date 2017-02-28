@@ -3,6 +3,10 @@
 
 function analyse_ode_solutions()
 
+lbc_query = [];
+
+prompt = '\n\nCPiME:> ';
+
 % select an existing .cpi file
 [file_name, file_path, ~] = uigetfile({'*.cpi', 'CPi Models (*.cpi)'}, 'Select a .cpi file');
 
@@ -15,7 +19,7 @@ cpi_defs = fileread(strcat(file_path, '/', file_name));
 fprintf(['\n', strtrim(cpi_defs)]);
 
 % determine which process the user wishes to model from file
-[process, process_def, def_tokens, def_token_num] = retrieve_single_process(cpi_defs);
+[process, process_def, def_tokens, def_token_num] = select_single_process(cpi_defs);
 
 if (strcmp(process, '') == 1 || strcmp(process, 'cancel') == 1)
     return;
@@ -32,22 +36,20 @@ end
 fprintf('Done.\n');
 
 % request an end time from the user
-lbc_query = [];
 while(isempty(lbc_query))
-    prompt = '\nPlease enter an end time for analysis starting from zero.\nEnter ''cancel'' to cancel.\nCPiME:> ';
+    fprintf('\nPlease enter an end time for analysis starting from zero.\nEnter ''cancel'' to cancel.');
     lbc_query = strtrim(input(prompt, 's'));
 
-    if (strcmp(lbc_query, '') == 1 || strcmp(lbc_query, 'cancel') == 1)
-        end_time = 0;
+    if (strcmp(lbc_query, 'cancel'))
         return;
-    elseif(not(isstrprop(lbc_query, 'digit')))
+    elseif(isnan(str2double(lbc_query)))
         fprintf('\nError: Information entered is nonnumeric.');
         lbc_query = [];
-    elseif(str2num(lbc_query) < 0)
+    elseif(str2double(lbc_query) < 0)
         fprintf('\nError: Negative end time entered.');
         lbc_query = [];
-    else
-        end_time = str2num(lbc_query);
+    elseif (not(strcmp(lbc_query, '')));
+        end_time = str2double(lbc_query);
     end
 end
 
@@ -57,7 +59,7 @@ end
 
 % solve the system of ODEs for the given time period
 fprintf('\nSolving the system with default solver ... ');
-[t, solutions] = solve_cpi_odes(modelODEs, ode_num, init_tokens, end_time, 'default');
+[t, solutions] = solve_cpi_odes(modelODEs, ode_num, init_tokens, end_time, {'ode15s'});
 
 if (isempty(solutions))
     return;
@@ -68,25 +70,24 @@ fprintf('Done.\n');
 % setup the legend for the simulation
 [species, ~] = prepare_legend(process_def, def_tokens, def_token_num);
 
-% request a LBC expression from the user
-fprintf('\nPlease enter a query for the solutions of the ODE system.\nFor example queries, enter ''examples''.\nEnter ''finish'' to return to the main options.');
-prompt = '\nCPiME:> ';
 lbc_query = [];
-flag = 0;
 
-while (isempty(lbc_query))
-    
-    if (flag)
-        fprintf('\n\nFor example queries, enter ''examples''.\nEnter ''finish'' to return to the main options.');
-    end
-    
-    flag = 1;
-    
+% request a LBC expression from the user
+fprintf('\nPlease enter a query for the solutions of the system.');
+fprintf('\nFor example queries, enter ''examples''.');
+
+while (isempty(lbc_query))   
+    fprintf('\nEnter ''finish'' to return to the main menu.');
     lbc_query = strtrim(input(prompt, 's'));
 
-    if (strcmp(lbc_query, '') || strcmp(lbc_query, 'finish'))
+    if (strcmp(lbc_query, 'finish'))
+        
        return;
+    
+    % if examples are requested, print them to terminal
+    % also guide users to Cantisani's Blockly tool for LBC expressions
     elseif (strcmp(lbc_query, 'examples'))
+        
        fprintf('\nFor all of time the concentration of P exceeds 0.5:\n');
        fprintf('\n\tG([P] > 0.5)\n');
        fprintf('\nEventually T has degraded to the inert species:\n');
@@ -97,13 +98,18 @@ while (isempty(lbc_query))
        fprintf('\n\tG([P] <= 1) and G([P] != 0)\n');
        fprintf('\nFor further guidance, a GUI to create queries may be found <a href="http://scantisani.github.io/lbc-expression-creator/">here</a>.');
        lbc_query = [];
-    else
+       
+    elseif (not(strcmp(lbc_query, '')))
+        
+       % tokenise and validate the entered expression
        tokenised_query = validate_query(lbc_query, species);
        
-       if (size(tokenised_query))
-            answer_query(tokenised_query, species, t, solutions);
-       end
+       % if the query is valid, answer it with True or False
+       %if (size(tokenised_query))
+       %     answer_query(tokenised_query, species, t, solutions);
+       %end
        
+       fprintf('\n');
        lbc_query = [];
     end
 end

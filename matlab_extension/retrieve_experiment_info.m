@@ -2,31 +2,36 @@
 % author: Ross Rhodes
 
 function [min_value, max_value, experiment_num] = ...
-    retrieve_experiment_info(param, param_num)
+    retrieve_experiment_info(parameter_info, parameter_num)
 
 min_value = -1;
 max_value = -1;
 experiment_num = -1;
 valid_range = 0;
 
+prompt = '\n\nCPiME:> ';
+
 % continue until valid minumum and maximum 
 while(not(valid_range))
     valid_range = 1;
+
+    fprintf(['\n\nEnter the minimum value for parameter ', ...
+            num2str(parameter_num), ': ', parameter_info{1}, ', line ', ...
+            num2str(parameter_info{2}), ', column ', num2str(parameter_info{3}), ...
+            '\nEnter ''cancel'' to cancel.']);
     
     while(min_value < 0)
-        prompt = ['\n\nEnter the minimum value for parameter ', ...
-            num2str(param_num), ': ', param{1}, '.\nEnter ''cancel'' to cancel.\nCPiME:> '];
         
         user_input = input(prompt, 's');
 
-        if (sum(strcmp(user_input, {'cancel', ''})))
+        if (strcmp(user_input, 'cancel'))
             return;
         end
 
         if(not(isstrprop(user_input, 'digit')))
             fprintf('\nError: The minimum value entered is nonnumeric.');
             min_value = -1;
-        else
+        elseif(not(strcmp(user_input, '')))
             min_value = str2double(user_input);
 
             if (min_value < 0)
@@ -35,20 +40,22 @@ while(not(valid_range))
         end
     end
     
-    while(max_value < 0)
-        prompt = ['\n\nEnter the maximum value for parameter ', ...
-            num2str(param_num), ': ', param{1}, '.\nEnter ''cancel'' to cancel.\nCPiME:> '];
+    fprintf(['\n\nEnter the maximum value for parameter ', ...
+            num2str(parameter_num), ': ', parameter_info{1}, ', line ', ...
+            num2str(parameter_info{2}), ', column ', num2str(parameter_info{3}), ...
+            '\nEnter ''cancel'' to cancel.']);
         
+    while(max_value < 0)
         user_input = input(prompt, 's');
 
-        if (sum(strcmp(user_input, {'cancel', ''})))
+        if (strcmp(user_input, 'cancel'))
             return;
         end
 
         if(not(isstrprop(user_input, 'digit')))
             fprintf('\nError: The maximum value entered is nonnumeric.');
             max_value = -1;
-        else
+        elseif (not(strcmp(user_input, '')))
             max_value = str2double(user_input);
 
             if (max_value < 0)
@@ -61,21 +68,24 @@ while(not(valid_range))
     end
 end
 
+fprintf(['\n\nEnter the number of experimental values to attempt on parameter ', ...
+            num2str(parameter_num), ': ', parameter_info{1}, ', line ', ...
+            num2str(parameter_info{2}), ', column ', num2str(parameter_info{3}), ...
+            '\nEnter ''cancel'' to cancel.']);
+
 while(experiment_num < 0)
-    prompt = ['\n\nEnter the number of experimental values to substitute ', ...
-        'for parameter ', num2str(param_num), ': ', param{1}, ...
-        '.\nEnter ''cancel'' to cancel.\nCPiME:> '];
     
     user_input = input(prompt, 's');
 
-    if (sum(strcmp(user_input, {'cancel', ''})))
+    if (strcmp(user_input, 'cancel'))
         return;
     end
 
     if(not(isstrprop(user_input, 'digit')))
         fprintf('\nError: The number of experiments entered is nonnumeric.');
         experiment_num = -1;
-    else
+        
+    elseif(not(strcmp(user_input, '')))
         experiment_num = str2double(user_input);
 
         if (experiment_num < 0)

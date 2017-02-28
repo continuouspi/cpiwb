@@ -11,6 +11,9 @@ experimental_values = {};
 confirmation = [];
 t = {};
 solutions = {};
+longest_param = 0;
+longest_min_value = 0;
+longest_max_value = 0;
 
 ode_solvers = {'ode15s (default)'; 'ode23s'; 'ode23t'; 'ode23tb'};
 
@@ -22,11 +25,15 @@ if (not(chosen_file_name))
     return;
 end
 
-cpi_defs = display_definitions(chosen_file_name, file_path);
+definitions = display_definitions(chosen_file_name, file_path);
+
+if(isempty(definitions))
+    return;
+end
 
 % determine which process the user wishes to model from file
 [chosen_process, chosen_process_def, chosen_def_tokens, ...
-    chosen_def_token_num] = select_single_process(cpi_defs);
+    chosen_def_token_num] = select_single_process(definitions);
 
 if (sum(strcmp(chosen_process, {'cancel', ''})))
     return;
@@ -34,6 +41,10 @@ end
 
 % determine the start and end times of the simulation
 [start_time, end_time] = retrieve_simulation_times();
+
+if (not(end_time))
+    return;
+end
 
 % request, from the user, the process to model
 [selection,ok] = listdlg('Name', 'Select Solver', 'PromptString', ...
@@ -66,10 +77,6 @@ for i = 1:num_params
         experiment_nums{end + 1} = new_experiment_num;
     end
 end
-
-longest_param = 0;
-longest_min_value = 0;
-longest_max_value = 0;
 
 for i = 1:num_params
     if (length(params{i}{1}) > longest_param)
@@ -105,12 +112,17 @@ fprintf('\t# values');
 
 for i = 1:num_params
     fprintf(['\n', params{i}{1}, blanks(longest_param - length(params{i}{1}))]);
-    fprintf(['\t', num2str(min_values{i}), blanks(longest_min_value - length(num2str(min_values{i})))]);
-    fprintf(['\t', num2str(max_values{i}), blanks(longest_max_value - length(num2str(max_values{i})))]);
+    
+    fprintf(['\t', num2str(min_values{i}), blanks(longest_min_value - ...
+        length(num2str(min_values{i})))]);
+    
+    fprintf(['\t', num2str(max_values{i}), blanks(longest_max_value - ...
+        length(num2str(max_values{i})))]);
+    
     fprintf(['\t', num2str(experiment_nums{i})]);
 end
 
-prompt = '\n\nDo you wish to proceed with this experiment? (Y/n)\nCPiWB:> ';
+prompt = '\n\nDo you wish to proceed with this experiment? (Y/n)\n\nCPiWB:> ';
 
 while (isempty(confirmation))
     confirmation = strtrim(input(prompt, 's'));
@@ -176,15 +188,17 @@ for k = 2:(num_experiments + 1)
     end
     
     % redefine the CPi file with the new substitution values
-    cpi_defs = strjoin(chosen_def_tokens, ';');
+    definitions = strjoin(chosen_def_tokens, ';');
     
     % call CPiWB to construct the system of ODEs for the process
-    [odes, ode_num, init_tokens] = create_cpi_odes(cpi_defs, chosen_process);
+    [odes, ode_num, init_tokens] = create_cpi_odes(definitions, chosen_process);
     
-    [t{end + 1}, solutions{end + 1}] = solve_cpi_odes(odes, ode_num, init_tokens, end_time, chosen_solver);
+    [t{end + 1}, solutions{end + 1}] = solve_cpi_odes(odes, ode_num, ...
+        init_tokens, end_time, chosen_solver);
 end
 
 % plot the results
-experiment_plots(chosen_process_def, chosen_def_tokens, chosen_def_token_num, t, solutions, chosen_file_name, num_experiments, start_time, chosen_process);
+experiment_plots(chosen_process_def, chosen_def_tokens, chosen_def_token_num, ...
+    t, solutions, chosen_file_name, num_experiments, start_time, chosen_process);
 
 end

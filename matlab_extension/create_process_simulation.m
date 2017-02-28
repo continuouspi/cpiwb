@@ -1,7 +1,8 @@
 % this Matlab script collection extends the Continuous Pi Workbench, CPiWB
 % author: Ross Rhodes
 
-function create_process_simulation(t, Y, start_time, file_name, process_def, def_tokens, def_token_num, process, solvers)
+function create_process_simulation(t, Y, start_time, file_name, ...
+    process_def, def_tokens, def_token_num, process_name, solvers)
 
 % setup the legend for the simulation
 [legend_strings, species_num] = prepare_legend(process_def, def_tokens, def_token_num);
@@ -10,7 +11,7 @@ function create_process_simulation(t, Y, start_time, file_name, process_def, def
 filename_tokens = strsplit(file_name, '.cpi');
 model_name = strrep(filename_tokens(1),'_',' ');
 model_name = regexprep(model_name,'(\<[a-z])','${upper($1)}');
-plot_title = [model_name, ['Process ', process]];
+plot_title = [model_name, ['Process ', process_name]];
 
 % plot the simulation, and construct a figure around it
 fig = figure('Name',char(model_name),'NumberTitle','on');
@@ -29,18 +30,19 @@ for m = 1:length(solvers)
 
     i = 1;
 
-    while (start_index == -1 & i < end_index)
-        if (start_time <= t{m}(i + 1) & t{m}(i) <= start_time)
+    while (start_index == -1 && i < end_index)
+        if (start_time <= t{m}(i + 1) && t{m}(i) <= start_time)
             start_index = i;
         end
 
         i = i + 1;
     end
 
-    plt = {};
+    plots = {};
 
     for i = 1:species_num
-        plt{end + 1} = plot(t{m}(start_index:end_index), Y{m}(start_index:end_index, i), 'buttonDownFcn', {@plotCallback, i}, 'LineStyle', '-', 'LineWidth', 1.75);
+        plots{end + 1} = plot(t{m}(start_index:end_index), Y{m}(start_index:end_index, i), ...
+            'buttonDownFcn', {@plotCallback, i}, 'LineStyle', '-', 'LineWidth', 1.75);
 
         if (i == 1)
             hold on;
@@ -62,7 +64,7 @@ for m = 1:length(solvers)
     title([plot_title, ode_name{1}]);
     ylabel('Concentration');
     xlabel('Time (seconds)');
-    legend([plt{:}], legend_strings, 'Location', 'EastOutside');
+    legend([plots{:}], legend_strings, 'Location', 'EastOutside');
 
 end
 
