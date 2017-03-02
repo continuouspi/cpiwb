@@ -1,7 +1,7 @@
 % this Matlab script collection extends the Continuous Pi Workbench, CPiWB
 % author: Ross Rhodes
 
-function tokenised_query = validate_query(input_query, species)
+function tokenised_query = validate_query(input_query, species, end_time)
 
 tokenised_query = {};
 max_species_length = 0;
@@ -74,14 +74,16 @@ for i = 1:length(disjunctions)
                 return;
             else
 
-                for k = 1:2
-                    if (isnan(str2double(bounds{k})) || str2double(bounds{k}) < 0)
-                        fprintf(['\nError: Clause ', conjunctions{j}, ' holds invalid time bounds.']);
-                        tokenised_query = {};
-                        return;
-                    end
+                if (isnan(str2double(bounds{1})) || str2double(bounds{1}) < 0)
+                    fprintf(['\nError: Clause ', conjunctions{j}, ' holds invalid initial time bound.']);
+                    tokenised_query = {};
+                    return;
+                elseif (isnan(str2double(bounds{2})) || (str2double(bounds{2}) <= ...
+                        str2double(bounds{1})) || (str2double(bounds{2}) > end_time))
+                    fprintf(['\nError: Clause ', conjunctions{j}, ' holds invalid end time bound.']);
+                    tokenised_query = {};
+                    return;
                 end
-                
             end
 
             tokenised_clause{end + 1} = bounds{1};
@@ -171,18 +173,48 @@ for i = 1:length(disjunctions)
         end
         
         if (isnan(str2double(rhs_expression)) && ...
-                not(strcmp(conjunctions{j}(current_index), '(')))
+                not(sum(strcmp(conjunctions{j}(current_index), {'(', '['}))))
             
             fprintf(['\nError: Invalid expression after the comparison sign in clause ', conjunctions{j}, '.']);
             tokenised_query = {};
             
             return;
             
+        elseif (strcmp(conjunctions{j}(current_index), '['))
+        
+            current_index = current_index + 1;
+
+            end_bracket = strfind(equality_expression{p}(current_index:length(equality_expression{p})), ']');
+
+            if (isempty(end_bracket))
+                fprintf(['\nError: End bracket missing for concentration in clause ', conjunctions{j}, '.']);
+                tokenised_query = {};
+                return;
+            end
+
+            species_found = 0;
+            m = 1;
+
+            while (not(species_found) && m <= length(species))
+                if (strcmp(species{m}, equality_expression{p}(current_index:end_bracket)))
+                    tokenised_clause{end + 1} = species{m};
+                    species_found = 1;
+                end
+                m = m + 1;
+            end
+
+            if (not(species_found))
+                fprintf(['\nError: Invalid species named in clause ', ...
+                    conjunctions{j}, '.']);
+                tokenised_query = {};
+                return;
+            end
+        
         else
             
             % strip operators away and work with terms in the expression
             equality_expression = strsplit(rhs_expression, {'+', '-', '*', '/'});
-            operator_locations = regexp(rhs_expression, {'+', '-', '*', '/'});
+            operator_locations = regexp(rhs_expression, '+|-|*|/');
 
             p = 1;
             
@@ -228,9 +260,9 @@ for i = 1:length(disjunctions)
                         return;
                     end
                     
-                elseif (str2double(equality_expression{p}) <= 0)
+                elseif (str2double(equality_expression{p}) < 0)
                     
-                   fprintf(['\nError: Nonpositive concentration constraint detected in clause ', conjunctions{j}, '.']);
+                   fprintf(['\nError: Negative concentration constraint detected in clause ', conjunctions{j}, '.']);
                    tokenised_query = {};
                    return;
                    
@@ -240,11 +272,7 @@ for i = 1:length(disjunctions)
                 end
                 
                 if (p < length(equality_expression))
-                    tokenised_clause{end + 1} = rhs_expression(operator_locations{p});
-                    
-                    if (strcmp(tokenised_clause{end}, ''))
-                        tokenised_clause{end} = '/';
-                    end
+                    tokenised_clause{end + 1} = rhs_expression(operator_locations(p));
                 end
                 
                 p = p + 1;
@@ -256,7 +284,7 @@ for i = 1:length(disjunctions)
     end
    
     tokenised_query{end + 1} = tokenised_conjunction;
-    tokenised_conjunction{:}
+
 end
 
 end

@@ -102,7 +102,7 @@ while (isempty(lbc_query))
     elseif (not(strcmp(lbc_query, '')))
         
        % tokenise and validate the entered expression
-       tokenised_query = validate_query(lbc_query, species);
+       tokenised_query = validate_query(lbc_query, species, end_time);
        
        % if the query is valid, answer it with True or False
        if (size(tokenised_query))

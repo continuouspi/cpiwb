@@ -11,10 +11,11 @@ commands = {'edit_model'; 'view_odes'; 'parameter_experiment'; ...
 
 suggestion_followed = 0;
 job = [];
+experiment_performed = 0;
 
 % run the script until the user enters 'quit'
 while(not(strcmp(job, 'quit')))
-    clearvars -except suggestion_followed commands job;
+    clearvars -except suggestion_followed commands job experiment_performed;
     
     % when the user mistypes a command, one suggestion is given
     % if the suggestion is accepted, then suggestion_followed = 1
@@ -47,10 +48,12 @@ while(not(strcmp(job, 'quit')))
     elseif (strcmp(job, 'view_odes'))
         
         view_odes();
+        clear view_odes;
         
     elseif (strcmp(job, 'simulate_process'))
     
         simulate_single_process();
+        clear simulate_single_process;
         
     elseif (strcmp(job, 'edit_model'))
         
@@ -66,7 +69,13 @@ while(not(strcmp(job, 'quit')))
         
     elseif (strcmp(job, 'parameter_experiment'))
         
-        parameter_experiment();
+        if (not(experiment_performed))
+            parameter_experiment();
+            experiment_performed = 1;
+        else
+            fprintf(['Only one experiment permitted per session in CPiME', ...
+                ' due to a technical fault. Apologies for the inconvenience.']);
+        end
         
     elseif (strcmp(job, 'analyse_solutions'))
         
@@ -136,5 +145,7 @@ while(not(strcmp(job, 'quit')))
         end
     end
 end
+
+clearvars;
 
 return;

@@ -41,25 +41,30 @@ while(not(answer) && i <= length(tokenised_query))
         
         if (strcmp(tokenised_clause{query_index}, '{'))
             
+            start_index = -1;
+            q = 1;
+            
             while (start_index == -1 && q < length(t{:}))
-                if (str2double(tokenised_clause{query_start + 2}) <= ...
-                        t{:}(q + 1) && t{:}(q) <= str2double(tokenised_clause{query_start + 2}))
+                if (str2double(tokenised_clause{query_index + 1}) <= ...
+                        t{:}(q + 1) && t{:}(q) <= str2double(tokenised_clause{query_index + 1}))
                     start_index = q;
                 else
                     q = q + 1;
                 end
             end
             
+            end_index = -1;
+            
             while (end_index == -1 && q < length(t{:}))
-                if (str2double(tokenised_clause{query_start + 3}) <= ...
-                        t{:}(q + 1) && t{:}(q) <= str2double(tokenised_clause{query_start + 3}))
+                if (str2double(tokenised_clause{query_index + 2}) <= ...
+                        t{:}(q + 1) && t{:}(q) <= str2double(tokenised_clause{query_index + 2}))
                     end_index = q;
                 end
 
                 q = q + 1;
             end
             
-            query_index = query_index + 5;
+            query_index = query_index + 4;
         else
             end_index = length(t{:});
             start_index = 1;
@@ -93,7 +98,7 @@ while(not(answer) && i <= length(tokenised_query))
                     not(isnan(str2double(tokenised_clause{l}))))
                 equation = [equation tokenised_clause{l}];
             elseif (strcmp(tokenised_clause{l}, '/'))
-                equation = [equation tokenised_clause{l}];
+                equation = [equation '/'];
                 denom_vars{end + 1} = tokenised_clause{l + 1};
             else
                 k = 1;

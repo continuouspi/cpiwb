@@ -133,19 +133,27 @@ ylabel('Species Concentration (units)');
 xlabel('Time (units)');
 
 i = 1;
-fills = {};
 
 while (i <= num_chosen_species)
-    time_frame = [time_points{i}{1}; flip(time_points{i}{2})];
-    concentration_frame = [concentration_points{i}{1}; flip(concentration_points{i}{2})];
+    reversed_time = flip(time_points{i}{2});
+    reversed_solutions = flip(concentration_points{i}{2});
+    time_frame = [time_points{i}{1}; reversed_time];
+    concentration_frame = [concentration_points{i}{1}; reversed_solutions];
     
-    fills{end + 1} = patch(time_frame, concentration_frame, fill_colours(mod(i,6)), 'HandleVisibility', 'on', 'FaceAlpha', 0.2, 'buttonDownFcn', {@fillCallback, i}, 'LineStyle', '-.');
+    patch(time_frame, concentration_frame, fill_colours(mod(i,6)), 'HandleVisibility', 'on', 'FaceAlpha', 0.2, 'buttonDownFcn', {@fillCallback, i}, 'LineStyle', '-.');
+    clear patch;
     
-    hold on;
+    if (i == 1)
+        hold on;
+    end
     
     i = i + 1;
 end
 
-legend(separated_species, 'Location', 'EastOutside');
+if(strcmp(chosen_species, 'all'))
+    legend(species, 'Location', 'EastOutside');
+else
+    legend(separated_species, 'Location', 'EastOutside');
+end
 
 end
