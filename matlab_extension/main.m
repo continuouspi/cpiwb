@@ -33,9 +33,9 @@ while(not(strcmp(job, 'quit')))
         
         % display commands to the user when 'help' is entered
         fprintf(['\n\nThe following commands are recognised by CPiME:', ...
-        '\n\n1. edit_model\n2. view_odes\n3. analyse_solutions', ...
-        '\n4. simulate_process\n5. compare_processes', ...
-        '\n6. parameter_experiment\n7. quit\n\nEnter ', ...
+        '\n\nedit_model\nview_odes\nanalyse_solutions', ...
+        '\nsimulate_process\ncompare_processes', ...
+        '\nparameter_experiment\nquit\n\nEnter ', ...
         '''help <command>'' for further details on a specific command.']);
    
     elseif (length(job) > 4 && strcmp(job(1:5), 'help '))
@@ -69,13 +69,9 @@ while(not(strcmp(job, 'quit')))
         
     elseif (strcmp(job, 'parameter_experiment'))
         
-        if (not(experiment_performed))
-            parameter_experiment();
-            experiment_performed = 1;
-        else
-            fprintf(['Only one experiment permitted per session in CPiME', ...
-                ' due to a technical fault. Apologies for the inconvenience.']);
-        end
+        fprintf('\nWarning: High risk of a segmentation fault.');
+        fprintf('\nClick ''cancel'' on the dialog to cancel.');
+        parameter_scan();
         
     elseif (strcmp(job, 'analyse_solutions'))
         

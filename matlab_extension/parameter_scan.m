@@ -1,7 +1,7 @@
 % this Matlab script collection extends the Continuous Pi Workbench, CPiWB
 % author: Ross Rhodes
 
-function parameter_experiment()
+function parameter_scan()
 
 selected_params = {};
 min_values = {};
