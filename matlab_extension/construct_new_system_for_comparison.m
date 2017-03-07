@@ -71,7 +71,7 @@ if (not(duplicate))
             definition_tokens{end + 1} = new_def_tokens;
 
             fprintf('\nSolving the system ... ');
-            [t{end + 1}, solutions{end + 1}] = solve_cpi_odes(odes, ode_num, init_tokens, end_time, chosen_solver);
+            [t{end + 1}, solutions{end + 1}] = solve_cpi_odes(odes, ode_num, init_tokens, end_time, chosen_solver, []);
 
              if (isempty(t{end}))
                 return;

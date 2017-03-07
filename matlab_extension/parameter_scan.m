@@ -196,7 +196,7 @@ for k = 2:(num_experiments + 1)
     [odes, ode_num, init_tokens] = create_cpi_odes(definitions, chosen_process);
     
     [t{end + 1}, solutions{end + 1}] = solve_cpi_odes(odes, ode_num, ...
-        init_tokens, end_time, chosen_solver);
+        init_tokens, end_time, chosen_solver, []);
 end
 
 % plot the results

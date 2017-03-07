@@ -50,14 +50,16 @@ ode_system = odeFunction(ode_exprs, vars);
 prompt = (['\n\nDo you wish to see the numerical solutions? (Y/n)\nCPiME:> ']);
 confirmation = [];
 
-while (isempty(confirmation))
-    confirmation = strtrim(input(prompt, 's'));
+if (not(isempty(legend_strings)))
+    while (isempty(confirmation))
+        confirmation = strtrim(input(prompt, 's'));
 
-    if (confirmation == 'Y')
-        view_solutions = 1;
-    elseif (not(confirmation == 'n'))
-        fprintf('\nError: Invalid input provided. Please enter ''Y'' for yes, or ''n'' for no.');
-        confirmation = [];
+        if (confirmation == 'Y')
+            view_solutions = 1;
+        elseif (not(confirmation == 'n'))
+            fprintf('\nError: Invalid input provided. Please enter ''Y'' for yes, or ''n'' for no.');
+            confirmation = [];
+        end
     end
 end
 
