@@ -2,10 +2,7 @@
 % author: Ross Rhodes
 
 function create_process_simulation(t, Y, start_time, file_name, ...
-    process_def, def_tokens, def_token_num, process_name, solvers)
-
-% setup the legend for the simulation
-[legend_strings, species_num] = prepare_legend(process_def, def_tokens, def_token_num);
+    process_name, solvers, legend_strings, species_num)
 
 % use the file's name to create a plot header
 filename_tokens = strsplit(file_name, '.cpi');

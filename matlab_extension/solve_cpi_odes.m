@@ -1,7 +1,8 @@
 % this Matlab script collection extends the Continuous Pi Workbench, CPiWB
 % author: Ross Rhodes
 
-function [t, solutions] = solve_cpi_odes(modelODEs, ode_num, init_tokens, end_time, solvers)
+function [t, solutions] = solve_cpi_odes(modelODEs, ode_num, init_tokens, ...
+    end_time, solvers, legend_strings)
 
 t = {};
 solutions = {};
@@ -89,12 +90,53 @@ for i = 1:length(solvers)
     end
     
     warning('on', 'all');
+    max_length = 0;
     
-    if(view_solutions)
-        fprintf(['\nSolutions for solver ', ode_name{1}, ':']);
-        solutions{end}
+    % arbitrary limit set to guarantee all solutions will be visible
+    if(view_solutions && size(solutions{end}, 1) <= 1500)
+        fprintf(['\nSolutions for solver ', ode_name{1}, ':\n\n']);
+        
+        for p = 1:length(legend_strings)
+            if (length(legend_strings{p}) > max_length)
+                max_length = length(legend_strings{p});
+            end
+            
+            for q = 1:size(solutions{end}, 2)
+                if (length(solutions{end}(p,q)) > max_length)
+                    max_length = length(num2str(round(solutions{end}(p,q), 3)));
+                end
+            end
+        end
+        
+        for p = 1:length(legend_strings)
+            fprintf([legend_strings{p}, blanks(max_length - length(legend_strings{p}) + 4),'| ']);
+        end
+        
         fprintf('\n');
+        underscores = repmat('-', max_length + 4);
+        
+        for p = 1:length(legend_strings)
+            fprintf([underscores(1, :), '|-']);
+        end
+    
+        for p = 1:size(solutions{end}, 1)
+            fprintf('\n');
+            for q = 1:length(legend_strings)
+                fprintf([num2str(round(solutions{end}(p, q), 3)), blanks(max_length - length(num2str(round(solutions{end}(p, q), 3))) + 4), '| ']);
+            end
+        end
+        
+        fprintf('\n');
+        
+    elseif (view_solutions)
+        
+        fprintf('\nError: Too many solutions to display on terminal.');
+        
     end
+    
 end
 
+if (not(view_solutions))
+    fprintf('Done.');
+end
 end

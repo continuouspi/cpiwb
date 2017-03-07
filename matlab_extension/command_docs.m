@@ -30,7 +30,7 @@ elseif (strcmp(job, 'compare_processes'))
 
     fprintf('\nSimulate at most four CPi processes under a single window.');
     
-elseif (strcmp(job, 'parameter_experiment'))
+elseif (strcmp(job, 'parameter_scans'))
     
     fprintf(['\nSelect at least one parameter and plot a series of ' ...
         'simulations for different values.']);

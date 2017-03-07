@@ -5,7 +5,7 @@ clc;
 fprintf('Welcome to the Continuous Pi Calculus Matlab Extension, CPiME.');
 
 % list the commands CPiME recognises
-commands = {'edit_model'; 'view_odes'; 'parameter_experiment'; ...
+commands = {'edit_model'; 'view_odes'; 'parameter_scans'; ...
     'simulate_process'; 'help'; 'compare_processes'; 'analyse_solutions'; ...
     'quit'};
 
@@ -35,7 +35,7 @@ while(not(strcmp(job, 'quit')))
         fprintf(['\n\nThe following commands are recognised by CPiME:', ...
         '\n\nedit_model\nview_odes\nanalyse_solutions', ...
         '\nsimulate_process\ncompare_processes', ...
-        '\nparameter_experiment\nquit\n\nEnter ', ...
+        '\nparameter_scans\nquit\n\nEnter ', ...
         '''help <command>'' for further details on a specific command.']);
    
     elseif (length(job) > 4 && strcmp(job(1:5), 'help '))
@@ -67,10 +67,9 @@ while(not(strcmp(job, 'quit')))
     
         compare_cpi_processes();
         
-    elseif (strcmp(job, 'parameter_experiment'))
+    elseif (strcmp(job, 'parameter_scans'))
         
-        fprintf('\nWarning: High risk of a segmentation fault.');
-        fprintf('\nClick ''cancel'' on the dialog to cancel.');
+        fprintf('\nWarning: Risk of experiencing a segmentation fault.');
         parameter_scan();
         
     elseif (strcmp(job, 'analyse_solutions'))

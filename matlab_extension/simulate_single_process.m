@@ -59,17 +59,20 @@ for i = 1:length(selection)
     chosen_solvers{end + 1} = ode_name{1};
 end
 
+% setup the legend for the simulation
+[legend_strings, species_num] = prepare_legend(process_def, ...
+    definition_tokens, num_definitions);
+
 fprintf('\nSolving the system ... ');
-[t, Y] = solve_cpi_odes(odes, ode_num, initial_concentrations, end_time, chosen_solvers);
+[t, Y] = solve_cpi_odes(odes, ode_num, initial_concentrations, end_time, ...
+    chosen_solvers, legend_strings);
 
 if (isempty(t))
     return;
 end
         
-fprintf('Done.');
-        
 % simulate the solution set for the specified time period
-create_process_simulation(t, Y, start_time, file_name, process_def, ...
-    definition_tokens, num_definitions, process_name, chosen_solvers);
+create_process_simulation(t, Y, start_time, file_name, ...
+    process_name, chosen_solvers, legend_strings, species_num);
 
 end

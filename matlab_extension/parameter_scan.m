@@ -156,6 +156,8 @@ num_experiments = size(combs, 1) - 1;
 fprintf(['\nPerforming ', num2str(num_experiments), ' experiments with ', ...
     num2str(num_params), ' experimental parameters. This may take a while.']);
 
+combs
+
 for k = 2:(num_experiments + 1)
     for j = 1:num_params
         for l = 1:chosen_def_token_num
