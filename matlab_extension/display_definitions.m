@@ -11,7 +11,7 @@ prompt = '\n\nCPiME:> ';
 proceed_input = [];
 
 while(isempty(proceed_input))
-    fprintf('\n\nHit the enter key to proceed, or type ''cancel'' to cancel.');
+    fprintf('\n\nStudy the definitions for the chosen model.\nHit the enter key when ready to proceed, or type ''cancel'' to cancel.');
     proceed_input = strtrim(input(prompt, 's'));
 
     if (strcmp(proceed_input, 'cancel'))

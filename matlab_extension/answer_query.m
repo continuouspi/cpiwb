@@ -161,7 +161,8 @@ while(not(answer) && i <= length(tokenised_query))
             m = m + 1;
         end
         
-        if (not(answered) && (strcmp(tokenised_clause{1}, 'F')))
+        if ((not(answered) && (strcmp(tokenised_clause{1}, 'F'))) || ...
+                (not(satisfiability_flag) && (strcmp(tokenised_clause{1}, 'FG'))))
             conjunction_answer = 0;
         end        
 

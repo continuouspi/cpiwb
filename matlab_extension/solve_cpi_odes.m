@@ -7,6 +7,7 @@ t = {};
 solutions = {};
 string_vars = {};
 symbolic_vars = sym([ode_num 1]);
+view_solutions = 0;
 
 % retrieve the variable names
 for i = 1:ode_num
@@ -45,7 +46,22 @@ vars = transpose(symbolic_vars);
 % solve the system of ODEs
 ode_system = odeFunction(ode_exprs, vars);
 
+prompt = (['\n\nDo you wish to see the numerical solutions? (Y/n)\nCPiME:> ']);
+confirmation = [];
+
+while (isempty(confirmation))
+    confirmation = strtrim(input(prompt, 's'));
+
+    if (confirmation == 'Y')
+        view_solutions = 1;
+    elseif (not(confirmation == 'n'))
+        fprintf('\nError: Invalid input provided. Please enter ''Y'' for yes, or ''n'' for no.');
+        confirmation = [];
+    end
+end
+
 for i = 1:length(solvers)
+    
     ode_name = strsplit(solvers{i}, ' ');
     
     warning('off','all');
@@ -73,6 +89,12 @@ for i = 1:length(solvers)
     end
     
     warning('on', 'all');
+    
+    if(view_solutions)
+        fprintf(['\nSolutions for solver ', ode_name{1}, ':']);
+        solutions{end}
+        fprintf('\n');
+    end
 end
 
 end
