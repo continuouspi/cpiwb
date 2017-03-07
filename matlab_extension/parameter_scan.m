@@ -156,37 +156,41 @@ num_experiments = size(combs, 1) - 1;
 fprintf(['\nPerforming ', num2str(num_experiments), ' experiments with ', ...
     num2str(num_params), ' experimental parameters. This may take a while.']);
 
-combs
-
 for k = 2:(num_experiments + 1)
     for j = 1:num_params
-        for l = 1:chosen_def_token_num
-            
-            % num2str removes decimal components in integer values
-            % make sure to retain these components for easier substitution
-            if (isempty(strfind(num2str(combs(k-1,j)), '.')) && ...
-                    isempty(strfind(num2str(combs(k,j)), '.')))
-                
-                chosen_def_tokens{l} = strrep(chosen_def_tokens{l}, ...
-                    sprintf('%.1f', combs(k-1,j)), sprintf('%.1f', combs(k,j)));
-                
-            elseif (isempty(strfind(num2str(combs(k-1,j)), '.')))
-                
-                chosen_def_tokens{l} = strrep(chosen_def_tokens{l}, ...
-                    sprintf('%.1f', combs(k-1,j)), num2str(combs(k,j)));
-                
-            elseif (isempty(strfind(num2str(combs(k,j)), '.')))
-                
-                chosen_def_tokens{l} = strrep(chosen_def_tokens{l}, ...
-                    num2str(combs(k-1,j)), sprintf('%.1f', combs(k,j)));
-                
-            else
-                
-                chosen_def_tokens{l} = strrep(chosen_def_tokens{l}, ...
-                    num2str(combs(k-1,j)), num2str(combs(k,j)));
-                
-            end
+
+        start_rep_index = max(1, params{j}{3} - 10);
+        end_rep_index = min(length(chosen_def_tokens{params{j}{2}}), params{j}{3} + 10);
+
+        old_replacement_region = chosen_def_tokens{params{j}{2}}(start_rep_index:end_rep_index);
+
+        % num2str removes decimal components in integer values
+        % make sure to retain these components for easier substitution
+        if (isempty(strfind(num2str(combs(k-1,j)), '.')) && ...
+                isempty(strfind(num2str(combs(k,j)), '.')))
+
+            new_replacement_region = strrep(old_replacement_region, ...
+                sprintf('%.1f', combs(k-1,j)), sprintf('%.1f', combs(k,j)));
+
+        elseif (isempty(strfind(num2str(combs(k-1,j)), '.')))
+
+            new_replacement_region = strrep(old_replacement_region, ...
+                sprintf('%.1f', combs(k-1,j)), num2str(combs(k,j)));
+
+        elseif (isempty(strfind(num2str(combs(k,j)), '.')))
+
+            new_replacement_region = strrep(old_replacement_region, ...
+                num2str(combs(k-1,j)), sprintf('%.1f', combs(k,j)));
+
+        else
+
+            new_replacement_region = strrep(old_replacement_region, ...
+                num2str(combs(k-1,j)), num2str(combs(k,j)));
+
         end
+
+        chosen_def_tokens{params{j}{2}} = strrep(chosen_def_tokens{params{j}{2}}, ...
+            old_replacement_region, new_replacement_region);
     end
     
     % redefine the CPi file with the new substitution values

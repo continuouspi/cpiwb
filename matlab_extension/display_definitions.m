@@ -7,7 +7,7 @@ function definitions = display_definitions(file_name, file_path)
 definitions = fileread(strcat(file_path, '/', file_name));
 fprintf(['\n', strtrim(definitions)]);
 
-prompt = '\n\nCPiME:> ';
+prompt = '\n';
 proceed_input = [];
 
 while(isempty(proceed_input))

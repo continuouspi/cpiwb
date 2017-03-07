@@ -141,7 +141,6 @@ while (i <= num_chosen_species)
     concentration_frame = [concentration_points{i}{1}; reversed_solutions];
     
     patch(time_frame, concentration_frame, fill_colours(mod(i,6)), 'HandleVisibility', 'on', 'FaceAlpha', 0.2, 'buttonDownFcn', {@fillCallback, i}, 'LineStyle', '-.');
-    clear patch;
     
     if (i == 1)
         hold on;

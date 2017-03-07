@@ -51,7 +51,7 @@ for i = 1:def_token_num
     
     for j = 2:(length(ic_tokens) - 1)
         if (not(isempty(str2num(ic_tokens{j}))))
-            params{end + 1} = [ic_tokens{j}];
+            params{end + 1} = ['[', ic_tokens{j}, ']'];
             param_locations{end + 1} = {i, ic_locs(index)};
             num_ic = num_ic + 1;
             index = index + 1;

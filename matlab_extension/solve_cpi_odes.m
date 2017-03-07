@@ -124,7 +124,8 @@ for i = 1:length(solvers)
         for p = 1:size(solutions{end}, 1)
             fprintf('\n');
             for q = 1:length(legend_strings)
-                fprintf([num2str(round(solutions{end}(p, q), 3)), blanks(max_length - length(num2str(round(solutions{end}(p, q), 3))) + 4), '| ']);
+                fprintf([num2str(round(solutions{end}(p, q), 3)), ...
+                    blanks(max_length - length(num2str(round(solutions{end}(p, q), 3))) + 4), '| ']);
             end
         end
         
@@ -138,7 +139,4 @@ for i = 1:length(solvers)
     
 end
 
-if (not(view_solutions))
-    fprintf('Done.');
-end
 end
