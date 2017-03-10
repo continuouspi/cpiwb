@@ -140,6 +140,8 @@ for i = 1:num_params
     experimental_values{end + 1} = linspace(min_values{i}, max_values{i}, experiment_nums{i});
     param_digits = regexp(params{i}{1}, '(\d+(\.\d+)*(E(-)?)?(\d)*)', 'match');
     
+    % confirm the initial substitution's decimal component matches the
+    % parameter on file, since num2str removes decimals for integers
     if (not(isempty(strfind(param_digits{1}, '.'))) && isempty(strfind(min_values{i}, '.'))) 
         chosen_def_tokens{params{i}{2}} = strrep(chosen_def_tokens{params{i}{2}}, ...
             param_digits{1}, num2str(min_values{i}));
@@ -180,15 +182,10 @@ for k = 2:size(combs, 1)
             params{j}{3} + length(string_combs{k-1}{j}) + 4);
 
         old_replacement_region = chosen_def_tokens{params{j}{2}}(start_rep_index:end_rep_index);
-       
-        string_combs{k-1}{j}
-        string_combs{k}{j}
 
         new_replacement_region = strrep(old_replacement_region, ...
             string_combs{k-1}{j}, string_combs{k}{j});
         
-        old_replacement_region
-        new_replacement_region
         chosen_def_tokens{params{j}{2}} = strrep(chosen_def_tokens{params{j}{2}}, ...
             old_replacement_region, new_replacement_region);
     end

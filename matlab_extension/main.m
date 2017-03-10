@@ -69,7 +69,6 @@ while(not(strcmp(job, 'quit')))
         
     elseif (strcmp(job, 'parameter_scans'))
         
-        fprintf('\nWarning: Risk of experiencing a segmentation fault.');
         parameter_scan();
         
     elseif (strcmp(job, 'analyse_solutions'))
