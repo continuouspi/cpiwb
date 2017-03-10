@@ -3,49 +3,52 @@
 
 function answer_query(tokenised_query, species, t, solutions)
 
-answer = 0;
-satisfiability_flag = 0;
-not_equal = 0;
-denom_vars = {};
-satifaction_time = 0;
+query_answer = 0;
+f_g_satisfiability_flag = 0;
+inequality_expression_flag = 0;
+denominator_vars = {};
+notable_behaviour_time = 0;
 
 i = 1;
 
-while(not(answer) && i <= length(tokenised_query))
+% iterate over every clause until a final answer is reached
+while(not(query_answer) && i <= length(tokenised_query))
     
     conjunction_answer = 1;
     j = 1;
     
+    % iterate over every conjunction enclosed by disjunctions
     while (conjunction_answer && j <= length(tokenised_query{i}))
         tokenised_clause = tokenised_query{i}{j};
         equation = [];
         vars = {};
-        query_index = 1;
-        species_index = {};
+        clause_index = 1;
+        species_indices = {};
         
-        clause_size = length(tokenised_clause);
-        
-        % determine clause type: F, G, or F(G
-        if (clause_size > 2 && strcmp(tokenised_clause{1}, 'FG'))
-            clause_type = 'FG';
+        % determine clause type: F, G, or F(G currently supported
+        if (strcmp(tokenised_clause{1}, 'FG'))
+            query_type = 'FG';
         elseif (strcmp(tokenised_clause{1}, 'G') && ...
                 isempty(strfind(tokenised_clause{1}, 'F')))
-            clause_type = 'G';
+            query_type = 'G';
         elseif (strcmp(tokenised_clause{1}, 'F') && ...
                 isempty(strfind(tokenised_clause{1}, 'G')))
-            clause_type = 'F';
+            query_type = 'F';
         end
         
-        query_index = query_index + 1;
+        % proceed to next component of the tokenised clause
+        clause_index = clause_index + 1;
         
-        if (strcmp(tokenised_clause{query_index}, '{'))
+        % determine is a local time interval is specified
+        if (strcmp(tokenised_clause{clause_index}, '{'))
             
             start_index = -1;
             q = 1;
             
+            % set starting point of solution set to match interval given
             while (start_index == -1 && q < length(t{:}))
-                if (str2double(tokenised_clause{query_index + 1}) <= ...
-                        t{:}(q + 1) && t{:}(q) <= str2double(tokenised_clause{query_index + 1}))
+                if (str2double(tokenised_clause{clause_index + 1}) <= ...
+                        t{:}(q + 1) && t{:}(q) <= str2double(tokenised_clause{clause_index + 1}))
                     start_index = q;
                 else
                     q = q + 1;
@@ -54,26 +57,29 @@ while(not(answer) && i <= length(tokenised_query))
             
             end_index = -1;
             
+            % set end point of solution set to match interval given
             while (end_index == -1 && q < length(t{:}))
-                if (str2double(tokenised_clause{query_index + 2}) <= ...
-                        t{:}(q + 1) && t{:}(q) <= str2double(tokenised_clause{query_index + 2}))
+                if (str2double(tokenised_clause{clause_index + 2}) <= ...
+                        t{:}(q + 1) && t{:}(q) <= str2double(tokenised_clause{clause_index + 2}))
                     end_index = q;
                 end
 
                 q = q + 1;
             end
             
-            query_index = query_index + 4;
+            clause_index = clause_index + 4;
         else
             end_index = length(t{:});
             start_index = 1;
         end
         
+        
+        % determine which species appears prior to comparison operator
         k = 1;
         
         while (k <= length(species))
-            if (strcmp(species{k}, tokenised_clause{query_index}))
-                species_index{end + 1} = k;
+            if (strcmp(species{k}, tokenised_clause{clause_index}))
+                species_indices{end + 1} = k;
                 equation = [equation species{k}];
                 vars{end + 1} = sym(species{k});
             end
@@ -81,30 +87,40 @@ while(not(answer) && i <= length(tokenised_query))
             k = k + 1;
         end
         
-        query_index = query_index + 1;
+        clause_index = clause_index + 1;
         
-        if (strcmp(tokenised_clause{query_index}, '!='))
+        % set equation for the operator provided
+        if (strcmp(tokenised_clause{clause_index}, '!='))
             equation = ['not(' equation '=='];
-            not_equal = 1;
+            inequality_expression_flag = 1;
         else
-            equation = [equation tokenised_clause{query_index}];
+            equation = [equation tokenised_clause{clause_index}];
         end
         
-        query_index = query_index + 1;
+        clause_index = clause_index + 1;
         
-        for l = query_index:length(tokenised_clause)
+        % iterate over remaining tokens and construct equation for eval
+        for l = clause_index:length(tokenised_clause)
+            
             if (sum(strcmp(tokenised_clause{l}, {'+', '-', '*'})) || ...
                     not(isnan(str2double(tokenised_clause{l}))))
+                
                 equation = [equation tokenised_clause{l}];
+                
             elseif (strcmp(tokenised_clause{l}, '/'))
+                
+                % identify denominator vars to avoid division by zero
                 equation = [equation '/'];
-                denom_vars{end + 1} = tokenised_clause{l + 1};
+                denominator_vars{end + 1} = tokenised_clause{l + 1};
+                
             else
+                
                 k = 1;
                 
+                % take note of each species name for value substitution
                 while (k <= length(species))
                     if (strcmp(species{k}, tokenised_clause{l}))
-                        species_index{end + 1} = k;
+                        species_indices{end + 1} = k;
                         equation = [equation species{k}];
                         vars{end + 1} = sym(species{k});
                     end
@@ -113,51 +129,56 @@ while(not(answer) && i <= length(tokenised_query))
                 end
             end
             
-            query_index = query_index + 1;
+            clause_index = clause_index + 1;
         end
         
-        if (not_equal)
+        % add required parenthesis in cases where not operator is used
+        if (inequality_expression_flag)
             equation = [equation ')'];
         end
             
         answered = 0;
         m = start_index;
 
+        % convert string equation to a symbolic expression for eval
         sym_eq = sym(equation);
 
+        % iterate over solution set and determine the answer to query
         while(not(answered) && m <= end_index)
             
             new_sym_eq = sym_eq;
             
             for n = 1:length(vars)
                 
-                if (not(solutions{:}(m, species_index{n})) && sum(ismember(denom_vars, vars{n})))
+                % avoid division by zero
+                if (not(solutions{:}(m, species_indices{n})) && sum(ismember(denominator_vars, vars{n})))
+                    fprintf('\nError: Division by zero in this query.');
                     return;
                 else
-                    new_sym_eq = subs(new_sym_eq, vars{n}, solutions{:}(m, species_index{n}));
+                    new_sym_eq = subs(new_sym_eq, vars{n}, solutions{:}(m, species_indices{n}));
                 end
                 
             end 
             
-            if (eval(new_sym_eq) && strcmp(clause_type, 'F'))
+            if (eval(new_sym_eq) && strcmp(query_type, 'F'))
 
                 answered = 1;
-                satisfaction_time = t{:}(m);
+                notable_behaviour_time = t{:}(m);
                 
-            elseif (eval(new_sym_eq) && strcmp(clause_type, 'FG') && not(satisfiability_flag))
+            elseif (eval(new_sym_eq) && strcmp(query_type, 'FG') && not(f_g_satisfiability_flag))
                 
-                satisfiability_flag = 1;
-                satisfaction_time = t{:}(m);
+                f_g_satisfiability_flag = 1;
+                notable_behaviour_time = t{:}(m);
                 
-            elseif (not(eval(new_sym_eq)) && strcmp(clause_type, 'FG') && satisfiability_flag)
+            elseif (not(eval(new_sym_eq)) && strcmp(query_type, 'FG') && f_g_satisfiability_flag)
                 
                 answered = 1;
                 conjunction_answer = 0;
-                satisfaction_time = -1;
+                notable_behaviour_time = -1;
                 
-            elseif(not(eval(new_sym_eq)) && strcmp(clause_type, 'G'))
+            elseif(not(eval(new_sym_eq)) && strcmp(query_type, 'G'))
                 conjunction_answer = 0;
-                satisfaction_time = t{:}(m);
+                notable_behaviour_time = t{:}(m);
                 answered = 1;
             end
 
@@ -165,38 +186,50 @@ while(not(answer) && i <= length(tokenised_query))
         end
         
         if ((not(answered) && (strcmp(tokenised_clause{1}, 'F'))) || ...
-                (not(satisfiability_flag) && (strcmp(tokenised_clause{1}, 'FG'))))
+                (not(f_g_satisfiability_flag) && (strcmp(tokenised_clause{1}, 'FG'))))
             conjunction_answer = 0;
         end        
 
         j = j + 1;
     end
     
+    % if one set of conjunctions is answered, then whole query is true
     if (conjunction_answer)
-        answer = 1;
+        query_answer = 1;
     end
     
     i = i + 1;
 end
+
+% present answer to the user, dependent on the query_type
+if (query_answer && strcmp(query_type, 'F'))
     
-if (answer && strcmp(tokenised_clause{1}, 'F'))
-    fprintf(['\nFirst satisfied at time ', num2str(satisfaction_time), 's.']);
-elseif(not(answer) && strcmp(tokenised_clause{1}, 'F'))
+    fprintf(['\nFirst satisfied at time ', num2str(notable_behaviour_time), 's.']);
+    
+elseif(not(query_answer) && strcmp(query_type, 'F'))
+    
     fprintf('\nFalse.');
-elseif(answer && strcmp(tokenised_clause{1}, 'G'))
-    fprintf('\nTrue.');    
-elseif (not(answer) && strcmp(tokenised_clause{1}, 'G'))
     
-     if (not(satisfaction_time))
+elseif(query_answer && strcmp(query_type, 'G'))
+    
+    fprintf('\nTrue.');
+    
+elseif (not(query_answer) && strcmp(query_type, 'G'))
+    
+     if (not(notable_behaviour_time))
         fprintf('\nNot satisfied at the beginning of the reaction.'); 
      else
-        fprintf(['\nSatisfied until time ', num2str(satisfaction_time), 's.']);
+        fprintf(['\nSatisfied until time ', num2str(notable_behaviour_time), 's.']);
      end
      
-elseif(answer && strcmp(tokenised_clause{1}, 'FG'))
-    fprintf(['\nTrue, starting at time ', num2str(satisfaction_time), 's.']);    
-elseif (not(answer) && strcmp(tokenised_clause{1}, 'FG'))
+elseif(query_answer && strcmp(query_type, 'FG'))
+    
+    fprintf(['\nTrue, starting at time ', num2str(notable_behaviour_time), 's.']);   
+    
+elseif (not(query_answer) && strcmp(query_type, 'FG'))
+    
      fprintf('\nFalse.');
+
 end
 
 end

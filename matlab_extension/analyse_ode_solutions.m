@@ -10,7 +10,7 @@ prompt = '\n\nCPiME:> ';
 % select an existing .cpi file
 [file_name, file_path, ~] = uigetfile({'*.cpi', 'CPi Models (*.cpi)'}, 'Select a .cpi file');
 
-if (file_name == 0)
+if (not(file_name))
     return;
 end
 
@@ -21,15 +21,16 @@ fprintf(['\n', strtrim(cpi_defs)]);
 % determine which process the user wishes to model from file
 [process, process_def, def_tokens, def_token_num] = select_single_process(cpi_defs);
 
-if (strcmp(process, '') == 1 || strcmp(process, 'cancel') == 1)
+if (sum(strcmp(process, {'', 'cancel'})))
     return;
 end
 
 % call CPiWB to construct the system of ODEs for the process
 fprintf('\n\nConstructing the ODEs ... ');
+
 [modelODEs, ode_num, init_tokens] = create_cpi_odes(cpi_defs, process);
 
-if (ode_num == 0)
+if (not(ode_num))
     return;
 end
 
@@ -53,12 +54,13 @@ while(isempty(lbc_query))
     end
 end
 
-if (end_time == 0)
+if (not(end_time))
     return;
 end
 
 % solve the system of ODEs for the given time period
 fprintf('\nSolving the system with default solver ... ');
+
 [t, solutions] = solve_cpi_odes(modelODEs, ode_num, init_tokens, end_time, {'ode15s'}, []);
 
 if (isempty(solutions))

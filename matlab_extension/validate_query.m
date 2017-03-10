@@ -5,7 +5,6 @@ function tokenised_query = validate_query(input_query, species, end_time)
 
 tokenised_query = {};
 max_species_length = 0;
-clause_type = {};
 
 % remove all whitespace from the query
 lbc_query = strrep(input_query, ' ', '');
@@ -34,15 +33,15 @@ for i = 1:length(disjunctions)
         
         % determine clause type: F, G, or F(G
         if (conjunction_size > 2 && strcmp(conjunctions{j}(1:3), 'F(G'))
-            clause_type = 'FG';
+            query_type = 'FG';
             current_index = 4;
         elseif (strcmp(conjunctions{j}(1), 'G') && ...
                 isempty(strfind(conjunctions{j}(3:conjunction_size), 'F')))
-            clause_type = 'G';
+            query_type = 'G';
             current_index = 2;
         elseif (strcmp(conjunctions{j}(1), 'F') && ...
                 isempty(strfind(conjunctions{j}(3:conjunction_size), 'G')))
-            clause_type = 'F';
+            query_type = 'F';
             current_index = 2;
         else
             fprintf(['\nError: Clause ', conjunctions{j}, ' missing prefix F, G or F(G.']);
@@ -50,7 +49,7 @@ for i = 1:length(disjunctions)
             return;
         end
 
-        tokenised_clause{end + 1} = clause_type;
+        tokenised_clause{end + 1} = query_type;
 
         % parse bounds on time (inside braces) if one exists
         if (strcmp(conjunctions{j}(current_index), '{'))
@@ -162,7 +161,7 @@ for i = 1:length(disjunctions)
         end
         
         % parse the right hand side expression of the equality
-        if (strcmp(clause_type, 'FG'))
+        if (strcmp(query_type, 'FG'))
             rhs_expression = conjunctions{j}(current_index:conjunction_size - 2);
         else
             rhs_expression = conjunctions{j}(current_index:conjunction_size - 1);
