@@ -140,7 +140,7 @@ while (i <= num_chosen_species)
     time_frame = [time_points{i}{1}; reversed_time];
     concentration_frame = [concentration_points{i}{1}; reversed_solutions];
     
-    patch(time_frame, concentration_frame, fill_colours(mod(i,6)), 'HandleVisibility', 'on', 'FaceAlpha', 0.2, 'buttonDownFcn', {@fillCallback, i}, 'LineStyle', '-.');
+    %patch(time_frame, concentration_frame, fill_colours(mod(i,6)), 'HandleVisibility', 'on', 'FaceAlpha', 0.2, 'buttonDownFcn', {@fillCallback, i}, 'LineStyle', '-.');
     
     if (i == 1)
         hold on;
@@ -149,10 +149,10 @@ while (i <= num_chosen_species)
     i = i + 1;
 end
 
-if(strcmp(chosen_species, 'all'))
-    legend(species, 'Location', 'EastOutside');
-else
-    legend(separated_species, 'Location', 'EastOutside');
-end
+%if(strcmp(chosen_species, 'all'))
+%    legend(species, 'Location', 'EastOutside');
+%else
+%    legend(separated_species, 'Location', 'EastOutside');
+%end
 
 end

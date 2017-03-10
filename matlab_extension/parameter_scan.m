@@ -139,6 +139,12 @@ end
 for i = 1:num_params
     experimental_values{end + 1} = linspace(min_values{i}, max_values{i}, experiment_nums{i});
     param_digits = regexp(params{i}{1}, '(\d+(\.\d+)*(E(-)?)?(\d)*)', 'match');
+    
+    if (not(isempty(strfind(param_digits{1}, '.'))) && isempty(strfind(min_values{i}, '.'))) 
+        chosen_def_tokens{params{i}{2}} = strrep(chosen_def_tokens{params{i}{2}}, ...
+            param_digits{1}, num2str(min_values{i}));
+    end
+    
     selected_params{end + 1} = str2num(param_digits{1});
 end
 
@@ -150,45 +156,39 @@ combs = cat(num_params + 1, combs{:});
 combs = reshape(combs, [], num_params);
 combs = [selected_params{:}; combs];
 
+string_combs = {};
+
+for i = 1:size(combs,1)
+    string_combs{end + 1} = {};
+    
+    for j = 1:size(combs,2)
+        string_combs{end}{end + 1} = num2str(combs(i,j));
+    end
+end
+
 num_experiments = size(combs, 1) - 1;
 
 % run the experiments
 fprintf(['\nPerforming ', num2str(num_experiments), ' experiments with ', ...
     num2str(num_params), ' experimental parameters. This may take a while.']);
 
-for k = 2:(num_experiments + 1)
-    for j = 1:num_params
+for k = 2:size(combs, 1)
+    for j = 1:size(combs,2)
 
-        start_rep_index = max(1, params{j}{3} - 10);
-        end_rep_index = min(length(chosen_def_tokens{params{j}{2}}), params{j}{3} + 10);
+        start_rep_index = max(1, params{j}{3} - 4);
+        end_rep_index = min(length(chosen_def_tokens{params{j}{2}}), ...
+            params{j}{3} + length(string_combs{k-1}{j}) + 4);
 
         old_replacement_region = chosen_def_tokens{params{j}{2}}(start_rep_index:end_rep_index);
+       
+        string_combs{k-1}{j}
+        string_combs{k}{j}
 
-        % num2str removes decimal components in integer values
-        % make sure to retain these components for easier substitution
-        if (isempty(strfind(num2str(combs(k-1,j)), '.')) && ...
-                isempty(strfind(num2str(combs(k,j)), '.')))
-
-            new_replacement_region = strrep(old_replacement_region, ...
-                sprintf('%.1f', combs(k-1,j)), sprintf('%.1f', combs(k,j)));
-
-        elseif (isempty(strfind(num2str(combs(k-1,j)), '.')))
-
-            new_replacement_region = strrep(old_replacement_region, ...
-                sprintf('%.1f', combs(k-1,j)), num2str(combs(k,j)));
-
-        elseif (isempty(strfind(num2str(combs(k,j)), '.')))
-
-            new_replacement_region = strrep(old_replacement_region, ...
-                num2str(combs(k-1,j)), sprintf('%.1f', combs(k,j)));
-
-        else
-
-            new_replacement_region = strrep(old_replacement_region, ...
-                num2str(combs(k-1,j)), num2str(combs(k,j)));
-
-        end
-
+        new_replacement_region = strrep(old_replacement_region, ...
+            string_combs{k-1}{j}, string_combs{k}{j});
+        
+        old_replacement_region
+        new_replacement_region
         chosen_def_tokens{params{j}{2}} = strrep(chosen_def_tokens{params{j}{2}}, ...
             old_replacement_region, new_replacement_region);
     end
@@ -198,6 +198,10 @@ for k = 2:(num_experiments + 1)
     
     % call CPiWB to construct the system of ODEs for the process
     [odes, ode_num, init_tokens] = create_cpi_odes(definitions, chosen_process);
+    
+    if (not(ode_num))
+        return;
+    end
     
     [t{end + 1}, solutions{end + 1}] = solve_cpi_odes(odes, ode_num, ...
         init_tokens, end_time, chosen_solver, []);
