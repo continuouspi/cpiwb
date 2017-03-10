@@ -180,11 +180,11 @@ for i = 1:length(disjunctions)
             
             return;
             
-        elseif (strcmp(conjunctions{j}(current_index), '['))
+        elseif (strcmp(conjunctions{j}(current_index), '[') && ...
+                isempty(regexp(conjunctions{j}, '+|-|*|/')))
         
             current_index = current_index + 1;
-
-            end_bracket = strfind(equality_expression{p}(current_index:length(equality_expression{p})), ']');
+            end_bracket = strfind(conjunctions{j}(current_index:length(conjunctions{j})), ']');
 
             if (isempty(end_bracket))
                 fprintf(['\nError: End bracket missing for concentration in clause ', conjunctions{j}, '.']);
@@ -196,7 +196,7 @@ for i = 1:length(disjunctions)
             m = 1;
 
             while (not(species_found) && m <= length(species))
-                if (strcmp(species{m}, equality_expression{p}(current_index:end_bracket)))
+                if (strcmp(species{m}, conjunctions{j}(current_index:current_index+end_bracket-2)))
                     tokenised_clause{end + 1} = species{m};
                     species_found = 1;
                 end
@@ -210,7 +210,7 @@ for i = 1:length(disjunctions)
                 return;
             end
         
-        else
+        elseif (strcmp(conjunctions{j}(current_index), '('))
             
             % strip operators away and work with terms in the expression
             equality_expression = strsplit(rhs_expression, {'+', '-', '*', '/'});
@@ -277,7 +277,11 @@ for i = 1:length(disjunctions)
                 
                 p = p + 1;
             end
-
+            
+        else
+            
+            fprintf('\nInvalid query entered. Please try again.');
+            return;
         end
         
         tokenised_conjunction{end + 1} = tokenised_clause;

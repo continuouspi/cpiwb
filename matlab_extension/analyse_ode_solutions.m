@@ -59,7 +59,7 @@ end
 
 % solve the system of ODEs for the given time period
 fprintf('\nSolving the system with default solver ... ');
-[t, solutions] = solve_cpi_odes(modelODEs, ode_num, init_tokens, end_time, {'ode15s'});
+[t, solutions] = solve_cpi_odes(modelODEs, ode_num, init_tokens, end_time, {'ode15s'}, []);
 
 if (isempty(solutions))
     return;

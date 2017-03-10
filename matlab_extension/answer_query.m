@@ -7,6 +7,7 @@ answer = 0;
 satisfiability_flag = 0;
 not_equal = 0;
 denom_vars = {};
+satifaction_time = 0;
 
 i = 1;
 
@@ -14,8 +15,6 @@ while(not(answer) && i <= length(tokenised_query))
     
     conjunction_answer = 1;
     j = 1;
-    
-    
     
     while (conjunction_answer && j <= length(tokenised_query{i}))
         tokenised_clause = tokenised_query{i}{j};
@@ -93,7 +92,7 @@ while(not(answer) && i <= length(tokenised_query))
         
         query_index = query_index + 1;
         
-        for l = (query_index):length(tokenised_clause)
+        for l = query_index:length(tokenised_clause)
             if (sum(strcmp(tokenised_clause{l}, {'+', '-', '*'})) || ...
                     not(isnan(str2double(tokenised_clause{l}))))
                 equation = [equation tokenised_clause{l}];
@@ -103,7 +102,7 @@ while(not(answer) && i <= length(tokenised_query))
             else
                 k = 1;
                 
-                while (k < length(species))
+                while (k <= length(species))
                     if (strcmp(species{k}, tokenised_clause{l}))
                         species_index{end + 1} = k;
                         equation = [equation species{k}];
@@ -143,18 +142,22 @@ while(not(answer) && i <= length(tokenised_query))
             if (eval(new_sym_eq) && strcmp(clause_type, 'F'))
 
                 answered = 1;
+                satisfaction_time = t{:}(m);
                 
             elseif (eval(new_sym_eq) && strcmp(clause_type, 'FG') && not(satisfiability_flag))
                 
                 satisfiability_flag = 1;
+                satisfaction_time = t{:}(m);
                 
             elseif (not(eval(new_sym_eq)) && strcmp(clause_type, 'FG') && satisfiability_flag)
                 
                 answered = 1;
                 conjunction_answer = 0;
+                satisfaction_time = -1;
                 
             elseif(not(eval(new_sym_eq)) && strcmp(clause_type, 'G'))
                 conjunction_answer = 0;
+                satisfaction_time = t{:}(m);
                 answered = 1;
             end
 
@@ -176,10 +179,24 @@ while(not(answer) && i <= length(tokenised_query))
     i = i + 1;
 end
     
-if (answer)
-    fprintf('\nTrue.');
-else
+if (answer && strcmp(tokenised_clause{1}, 'F'))
+    fprintf(['\nFirst satisfied at time ', num2str(satisfaction_time), 's.']);
+elseif(not(answer) && strcmp(tokenised_clause{1}, 'F'))
     fprintf('\nFalse.');
+elseif(answer && strcmp(tokenised_clause{1}, 'G'))
+    fprintf('\nTrue.');    
+elseif (not(answer) && strcmp(tokenised_clause{1}, 'G'))
+    
+     if (not(satisfaction_time))
+        fprintf('\nNot satisfied at the beginning of the reaction.'); 
+     else
+        fprintf(['\nSatisfied until time ', num2str(satisfaction_time), 's.']);
+     end
+     
+elseif(answer && strcmp(tokenised_clause{1}, 'FG'))
+    fprintf(['\nTrue, starting at time ', num2str(satisfaction_time), 's.']);    
+elseif (not(answer) && strcmp(tokenised_clause{1}, 'FG'))
+     fprintf('\nFalse.');
 end
 
 end
