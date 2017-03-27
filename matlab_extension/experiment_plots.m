@@ -95,7 +95,10 @@ for i = 1:num_experiments
         end
         
         if (strcmp(chosen_species, 'all') || flag)
-            plots{end + 1} = plot(t{i}{:}(start_index:end_index), Y{i}{:}(start_index:end_index, k), 'HandleVisibility', 'off', 'LineStyle', '-', 'LineWidth', 1.75);
+            plots{end + 1} = plot(t{i}{:}(start_index:end_index), ...
+                Y{i}{:}(start_index:end_index, k), 'buttonDownFcn', ...
+                {@plotCallback, i}, 'HandleVisibility', 'off', 'LineStyle', ...
+                '-', 'LineWidth', 1.75);
             
             if (i == 1)
                 time_points{end + 1} = {};
@@ -109,7 +112,10 @@ for i = 1:num_experiments
             end
             
         else
-            plots{end + 1} = plot(t{i}{:}(start_index:end_index), Y{i}{:}(start_index:end_index, k), 'HandleVisibility', 'off', 'LineStyle', '--', 'LineWidth', 1.75);
+            plots{end + 1} = plot(t{i}{:}(start_index:end_index), ...
+                Y{i}{:}(start_index:end_index, k), 'buttonDownFcn', ...
+                {@plotCallback, i}, 'HandleVisibility', 'off', 'LineStyle', ...
+                '--', 'LineWidth', 1.75);
             plots{end}.Color = [plots{end}.Color 0.2]; 
         end
 

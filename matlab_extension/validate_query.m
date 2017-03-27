@@ -209,7 +209,7 @@ for i = 1:length(disjunctions)
                 return;
             end
         
-        elseif (strcmp(conjunctions{j}(current_index), '('))
+        else
             
             % strip operators away and work with terms in the expression
             equality_expression = strsplit(rhs_expression, {'+', '-', '*', '/'});
@@ -274,16 +274,13 @@ for i = 1:length(disjunctions)
                     tokenised_clause{end + 1} = rhs_expression(operator_locations(p));
                 end
                 
-                p = p + 1;
+                p = p + 1;  
             end
             
-        else
-            
-            fprintf('\nInvalid query entered. Please try again.');
-            return;
-        end
+        end       
         
         tokenised_conjunction{end + 1} = tokenised_clause;
+        
     end
    
     tokenised_query{end + 1} = tokenised_conjunction;

@@ -60,9 +60,11 @@ while(not(strcmp(job, 'quit')))
         % open a dialog to select an existing .cpi file
         [file_name, file_path, ~] = uigetfile({'*.cpi', 'CPi Models (*.cpi)'}, 'Select a .cpi file');
         
-        % open the chosen file inside Matlab
-        edit([file_path, '/', file_name]);
-    
+        if ((file_name))
+            % open the chosen file inside Matlab
+            edit([file_path, '/', file_name]);
+        end
+        
     elseif (strcmp(job, 'compare_processes'))
     
         compare_cpi_processes();

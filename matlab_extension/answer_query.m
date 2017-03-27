@@ -163,22 +163,36 @@ while(not(query_answer) && i <= length(tokenised_query))
             if (eval(new_sym_eq) && strcmp(query_type, 'F'))
 
                 answered = 1;
-                notable_behaviour_time = t{:}(m);
+                
+                if (length(tokenised_query{i}) == 1 && length(tokenised_query) == 1)
+                    notable_behaviour_time = t{:}(m);
+                else
+                    notable_behaviour_time = -1;
+                end
                 
             elseif (eval(new_sym_eq) && strcmp(query_type, 'FG') && not(f_g_satisfiability_flag))
                 
                 f_g_satisfiability_flag = 1;
-                notable_behaviour_time = t{:}(m);
+                if (length(tokenised_query{i}) == 1 && length(tokenised_query) == 1)
+                    notable_behaviour_time = t{:}(m);
+                else
+                    notable_behaviour_time = -1;
+                end
                 
             elseif (not(eval(new_sym_eq)) && strcmp(query_type, 'FG') && f_g_satisfiability_flag)
                 
-                answered = 1;
-                conjunction_answer = 0;
-                notable_behaviour_time = -1;
+                f_g_satisfiability_flag = 0;
+                if (length(tokenised_query{i}) == 1 && length(tokenised_query) == 1)
+                    notable_behaviour_time = -1;
+                end
                 
             elseif(not(eval(new_sym_eq)) && strcmp(query_type, 'G'))
                 conjunction_answer = 0;
-                notable_behaviour_time = t{:}(m);
+                if (length(tokenised_query{i}) == 1 && length(tokenised_query) == 1)
+                    notable_behaviour_time = t{:}(m);
+                else
+                    notable_behaviour_time = -1;
+                end
                 answered = 1;
             end
 
@@ -202,34 +216,30 @@ while(not(query_answer) && i <= length(tokenised_query))
 end
 
 % present answer to the user, dependent on the query_type
-if (query_answer && strcmp(query_type, 'F'))
+if (query_answer && strcmp(query_type, 'F') && not(notable_behaviour_time == -1))
     
-    fprintf(['\nFirst satisfied at time ', num2str(notable_behaviour_time), 's.']);
+    fprintf(['\nFirst satisfied at time ', num2str(round(notable_behaviour_time, 2)), 's.']);
     
-elseif(not(query_answer) && strcmp(query_type, 'F'))
-    
-    fprintf('\nFalse.');
-    
-elseif(query_answer && strcmp(query_type, 'G'))
-    
-    fprintf('\nTrue.');
-    
-elseif (not(query_answer) && strcmp(query_type, 'G'))
+elseif (not(query_answer) && strcmp(query_type, 'G') && not(notable_behaviour_time == -1))
     
      if (not(notable_behaviour_time))
         fprintf('\nNot satisfied at the beginning of the reaction.'); 
      else
-        fprintf(['\nSatisfied until time ', num2str(notable_behaviour_time), 's.']);
+        fprintf(['\nSatisfied until time ', num2str(round(notable_behaviour_time, 2)), 's.']);
      end
      
-elseif(query_answer && strcmp(query_type, 'FG'))
+elseif(query_answer && strcmp(query_type, 'FG') && not(notable_behaviour_time == -1))
     
-    fprintf(['\nTrue, starting at time ', num2str(notable_behaviour_time), 's.']);   
+    fprintf(['\nTrue, starting at time ', num2str(round(notable_behaviour_time, 2)), 's.']);   
     
-elseif (not(query_answer) && strcmp(query_type, 'FG'))
+elseif (not(query_answer))
     
      fprintf('\nFalse.');
 
+else
+    
+    fprintf('\nTrue.');
+    
 end
 
 end
