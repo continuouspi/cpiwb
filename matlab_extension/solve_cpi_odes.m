@@ -98,6 +98,8 @@ for i = 1:length(solvers)
     if(view_solutions && size(solutions{end}, 1) <= 1500)
         fprintf(['\nSolutions for solver ', ode_name{1}, ':\n\n']);
         
+        max_length = length('time (s)');
+        
         for p = 1:length(legend_strings)
             if (length(legend_strings{p}) > max_length)
                 max_length = length(legend_strings{p});
@@ -110,22 +112,26 @@ for i = 1:length(solvers)
             end
         end
         
+        fprintf(['time (s)', blanks(max_length - length('time (s)') + 1),'| ']);
         for p = 1:length(legend_strings)
-            fprintf([legend_strings{p}, blanks(max_length - length(legend_strings{p}) + 4),'| ']);
+            fprintf([legend_strings{p}, blanks(max_length - length(legend_strings{p}) + 1),'| ']);
         end
         
         fprintf('\n');
-        underscores = repmat('-', max_length + 4);
+        underscores = repmat('-', max_length + 1);
         
         for p = 1:length(legend_strings)
             fprintf([underscores(1, :), '|-']);
         end
+        fprintf([underscores(1, :), '|']);
     
         for p = 1:size(solutions{end}, 1)
             fprintf('\n');
+            fprintf([num2str(round(t{end}(p), 3)), ...
+                    blanks(max_length - length(num2str(round(t{end}(p), 3))) + 1), '| ']);
             for q = 1:length(legend_strings)
                 fprintf([num2str(round(solutions{end}(p, q), 3)), ...
-                    blanks(max_length - length(num2str(round(solutions{end}(p, q), 3))) + 4), '| ']);
+                    blanks(max_length - length(num2str(round(solutions{end}(p, q), 3))) + 1), '| ']);
             end
         end
         
