@@ -2,7 +2,7 @@
 The Continuous Pi Calculus MATLAB Extension (CPiME) is work in progess [WIP]. The extension runs on MATLAB 2015a, calling the Continuous Pi Workbench (CPiWB) in this repository. From its inception in September 2016 until April 2017, the extension is developed by Ross Rhodes (rrhodes) under the supervision of Ian Stark - please forward any questions to these individuals.
 
 # Embedding CPiME in Matlab Code #
-To include CPiME in your own Matlab code, download the CPi Calculus MATLAB Extension toolbox provided. Unpackage this toolbox in a directory of your choice. Then open MATLAB, and select `set path` in the Editor tab of the File menu. Add your chosen directory to the list of paths. After this, you are free to call any CPiME functions inside your own code. In particular, call `cpime` to run CPiME from the main menu.
+To include CPiME in your own Matlab code, download `CPi Calculus MATLAB Extension.mltbx`. Unpackage this toolbox in a directory of your choice. Then open MATLAB, and select `set path` in the Editor tab of the File menu. Add your chosen directory to the list of paths. After this, you are free to call any CPiME functions inside your own code. In particular, call `cpime` to run CPiME from the main menu.
 
 # Installation for Developers #
 First, make sure all Hackage dependencies are installed. Machines provided by the School of Informatics at the University of Edinburgh only require two missing dependencies.
