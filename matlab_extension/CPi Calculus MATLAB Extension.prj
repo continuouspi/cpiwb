@@ -1,0 +1,159 @@
+<deployment-project plugin="plugin.toolbox" plugin-version="1.0">
+  <configuration build-checksum="303252779" file="/afs/inf.ed.ac.uk/user/s13/s1317459/src/CPi Calculus MATLAB Extension.prj" location="/afs/inf.ed.ac.uk/user/s13/s1317459/src" name="CPi Calculus MATLAB Extension" target="target.toolbox" target-name="Package Toolbox">
+    <param.appname>CPi Calculus MATLAB Extension</param.appname>
+    <param.authnamewatermark>Ross Rhodes</param.authnamewatermark>
+    <param.email>ross.rhodes@hotmail.co.uk</param.email>
+    <param.company>Edinburgh University School of Informatics</param.company>
+    <param.summary>This is a MATLAB Extension to the Continuous Pi Calculus biochemical process algebra.</param.summary>
+    <param.description>Continuous Pi (CPi) Calculus is a biochemical process algebra, modelling reactions in continuous time. Adopting functions from the Continuous Pi Calculus Workbench (CPiWB), this MATLAB extension serves to simulate and analyse CPi models to further understand the models defined.</param.description>
+    <param.screenshot>${PROJECT_ROOT}/honours-project/report/images/thrombin.jpg</param.screenshot>
+    <param.version>1.0</param.version>
+    <param.output>${PROJECT_ROOT}/CPi Calculus MATLAB Extension.mltbx</param.output>
+    <param.products.name>
+      <item>MATLAB</item>
+      <item>Robust Control Toolbox</item>
+      <item>Symbolic Math Toolbox</item>
+      <item>Control System Toolbox</item>
+      <item>System Identification Toolbox</item>
+    </param.products.name>
+    <param.products.id>
+      <item>1</item>
+      <item>5</item>
+      <item>15</item>
+      <item>3</item>
+      <item>4</item>
+    </param.products.id>
+    <param.products.version>
+      <item>8.5</item>
+      <item>5.3</item>
+      <item>6.2</item>
+      <item>9.9</item>
+      <item>9.2</item>
+    </param.products.version>
+    <param.platforms />
+    <param.guid>40fe2b1e-28ac-410f-b04e-c053c72197aa</param.guid>
+    <param.exclude.filters>% List files contained in your toolbox folder that you would like to exclude
+% from packaging.  Excludes should be listed relative to the toolbox folder.
+% Some examples of how to specify excludes are provided below:
+%
+% A single file in the toolbox folder:
+% .svn
+%
+% A single file in a subfolder of the toolbox folder:
+% example/.svn
+%
+% All files in a subfolder of the toolbox folder:
+% example/*
+%
+% All files of a certain name in all subfolders of the toolbox folder:
+% **/.svn
+%
+% All files matching a pattern in all subfolders of the toolbox folder:
+% **/*.bak
+%
+
+main.m
+*.c
+*.hs
+*.hi
+*.o
+*.csv
+*.h</param.exclude.filters>
+    <param.examples>&lt;?xml version="1.0" encoding="utf-8"?&gt;
+&lt;examples/&gt;</param.examples>
+    <param.demosxml />
+    <param.apps />
+    <param.docs />
+    <unset>
+      <param.authnamewatermark />
+      <param.email />
+      <param.company />
+      <param.version />
+      <param.output />
+      <param.platforms />
+      <param.demosxml />
+      <param.apps />
+      <param.docs />
+    </unset>
+    <fileset.rootdir>
+      <file>${PROJECT_ROOT}/cpiwb/matlab_extension</file>
+    </fileset.rootdir>
+    <fileset.rootfiles>
+      <file>${PROJECT_ROOT}/cpiwb/matlab_extension/README.md</file>
+      <file>${PROJECT_ROOT}/cpiwb/matlab_extension/analyse_ode_solutions.m</file>
+      <file>${PROJECT_ROOT}/cpiwb/matlab_extension/answer_query.m</file>
+      <file>${PROJECT_ROOT}/cpiwb/matlab_extension/command_docs.m</file>
+      <file>${PROJECT_ROOT}/cpiwb/matlab_extension/compare_cpi_processes.m</file>
+      <file>${PROJECT_ROOT}/cpiwb/matlab_extension/construct_new_system_for_comparison.m</file>
+      <file>${PROJECT_ROOT}/cpiwb/matlab_extension/cpime.m</file>
+      <file>${PROJECT_ROOT}/cpiwb/matlab_extension/create_cpi_odes.m</file>
+      <file>${PROJECT_ROOT}/cpiwb/matlab_extension/create_process_simulation.m</file>
+      <file>${PROJECT_ROOT}/cpiwb/matlab_extension/determine_num_simulations_in_comparison.m</file>
+      <file>${PROJECT_ROOT}/cpiwb/matlab_extension/display_definitions.m</file>
+      <file>${PROJECT_ROOT}/cpiwb/matlab_extension/experiment_plots.m</file>
+      <file>${PROJECT_ROOT}/cpiwb/matlab_extension/fillCallback.m</file>
+      <file>${PROJECT_ROOT}/cpiwb/matlab_extension/find_common_species.m</file>
+      <file>${PROJECT_ROOT}/cpiwb/matlab_extension/libOdeConstruction.so</file>
+      <file>${PROJECT_ROOT}/cpiwb/matlab_extension/parameter_scan.m</file>
+      <file>${PROJECT_ROOT}/cpiwb/matlab_extension/plotCallback.m</file>
+      <file>${PROJECT_ROOT}/cpiwb/matlab_extension/prepare_legend.m</file>
+      <file>${PROJECT_ROOT}/cpiwb/matlab_extension/retrieve_experiment_info.m</file>
+      <file>${PROJECT_ROOT}/cpiwb/matlab_extension/retrieve_process_definitions.m</file>
+      <file>${PROJECT_ROOT}/cpiwb/matlab_extension/retrieve_simulation_times.m</file>
+      <file>${PROJECT_ROOT}/cpiwb/matlab_extension/select_multiple_processes.m</file>
+      <file>${PROJECT_ROOT}/cpiwb/matlab_extension/select_parameters.m</file>
+      <file>${PROJECT_ROOT}/cpiwb/matlab_extension/select_single_process.m</file>
+      <file>${PROJECT_ROOT}/cpiwb/matlab_extension/separate_plot_comparison.m</file>
+      <file>${PROJECT_ROOT}/cpiwb/matlab_extension/simulate_single_process.m</file>
+      <file>${PROJECT_ROOT}/cpiwb/matlab_extension/single_plot_comparison.m</file>
+      <file>${PROJECT_ROOT}/cpiwb/matlab_extension/solve_cpi_odes.m</file>
+      <file>${PROJECT_ROOT}/cpiwb/matlab_extension/validate_query.m</file>
+      <file>${PROJECT_ROOT}/cpiwb/matlab_extension/view_odes.m</file>
+    </fileset.rootfiles>
+    <fileset.depfun.included />
+    <fileset.depfun.excluded />
+    <fileset.package />
+    <build-deliverables>
+      <file location="/afs/inf.ed.ac.uk/user/s13/s1317459/src" name="CPi Calculus MATLAB Extension.mltbx" optional="false">/afs/inf.ed.ac.uk/user/s13/s1317459/src/CPi Calculus MATLAB Extension.mltbx</file>
+    </build-deliverables>
+    <workflow />
+    <matlab>
+      <root>/opt/matlab-R2015a</root>
+      <toolboxes>
+        <toolbox name="matlabhdlcoder" />
+        <toolbox name="fixedpoint" />
+        <toolbox name="matlabcoder" />
+      </toolboxes>
+      <toolbox>
+        <matlabhdlcoder>
+          <enabled>true</enabled>
+        </matlabhdlcoder>
+      </toolbox>
+      <toolbox>
+        <fixedpoint>
+          <enabled>true</enabled>
+        </fixedpoint>
+      </toolbox>
+      <toolbox>
+        <matlabcoder>
+          <enabled>true</enabled>
+        </matlabcoder>
+      </toolbox>
+    </matlab>
+    <platform>
+      <unix>true</unix>
+      <mac>false</mac>
+      <windows>false</windows>
+      <win2k>false</win2k>
+      <winxp>false</winxp>
+      <vista>false</vista>
+      <linux>true</linux>
+      <solaris>false</solaris>
+      <osver>3.10.0-327.36.3.el7.x86_64</osver>
+      <os32>false</os32>
+      <os64>true</os64>
+      <arch>glnxa64</arch>
+      <matlab>true</matlab>
+    </platform>
+  </configuration>
+</deployment-project>
