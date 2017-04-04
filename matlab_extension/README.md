@@ -22,7 +22,7 @@ ghc -O2 -dynamic -shared -fPIC -o libOdeConstruction.so constructODEs.hs odeCons
 
 This will prepare the shared library for CPiME.
 
-To start CPiME, run Matlab, and open the `cpime` script. Enter `cpime` to begin. 
+To start CPiME, run MATLAB. If the MATLAB extension directory is not currently in the search paths for MATLAB, then go to 'Set Path' in the Environment section of the File menu and enter it there. When this is done, enter `cpime` to run CPiME from the main menu.  
 
 ## Updating Cabal ##
 One student experienced issues running Cabal to install dependencies for CPiME. Below are the steps this student followed to resolve their issue:
