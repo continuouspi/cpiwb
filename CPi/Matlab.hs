@@ -17,6 +17,7 @@
 
 module CPi.Matlab
     (solveODEoctave,
+     matlabODE,
      matlabScript
     ) where
 
@@ -55,9 +56,9 @@ matlabODE env p dpdt (n,(t0,tn))
       "x = lsode({@f,@jj}, init, t);\n" ++
       "save (\"-ascii\", \"-\", \"x\");"
           where
-            xdots = ["xdot("++ show i ++")" | i<-[1..]]
+            xdots = ["diff(x"++ show i ++ "(t), t)"| i<-[1..]]
             svxd = speciesVars env xdots p'
-            xs = ["x("++ show i ++")" | i<-[1..]]
+            xs = ["x"++ show i | i<-[1..]]
             svx = speciesVars env xs p'
             p' = simpP' env dpdt
 
@@ -67,19 +68,19 @@ matlabExpr env vs (Var x)
       where
         ex x = X.throw $ CpiException
                ("Bug: failed var lookup in CPi.ODE.matlabExpr: " ++ show x)
-matlabExpr env vs (Plus x y) = matlabExpr env vs x ++ " .+ " ++ matlabExpr env vs y
+matlabExpr env vs (Plus x y) = matlabExpr env vs x ++ " + " ++ matlabExpr env vs y
 matlabExpr env vs (Times (Plus x y) (Plus x' y'))
-    = "(" ++ matlabExpr env vs (Plus x y) ++ ").*(" ++ matlabExpr env vs (Plus x' y') ++ ")"
+    = "(" ++ matlabExpr env vs (Plus x y) ++ ") * (" ++ matlabExpr env vs (Plus x' y') ++ ")"
 matlabExpr env vs (Times (Plus x y) z)
-    = "(" ++ matlabExpr env vs (Plus x y) ++ ").*" ++ matlabExpr env vs z
+    = "(" ++ matlabExpr env vs (Plus x y) ++ ") * " ++ matlabExpr env vs z
 matlabExpr env vs (Times x (Plus y z))
-    = matlabExpr env vs x ++ ".*(" ++ matlabExpr env vs (Plus y z) ++ ")"
-matlabExpr env vs (Times x y) = matlabExpr env vs x ++ ".*" ++ matlabExpr env vs y
+    = matlabExpr env vs x ++ " * (" ++ matlabExpr env vs (Plus y z) ++ ")"
+matlabExpr env vs (Times x y) = matlabExpr env vs x ++ " * " ++ matlabExpr env vs y
 matlabExpr env vs (Num k) = show k
 
 matlabJac :: Env -> P' -> String
 matlabJac env p' = L.concat $ L.intersperse ";\n" $
-                   map (\(a,b) -> a ++ " = " ++ b) $
+                   map (\(a,b) -> a ++ " == " ++ b) $
                    zip rhss $
                    map (matlabExpr env (speciesVars env xs p')) $
                    map (simp env) $
@@ -87,7 +88,7 @@ matlabJac env p' = L.concat $ L.intersperse ";\n" $
     where
       cp (x,y) = [(a,b)|b<-y,a<-x]
       diff' (x,e) = diff x e
-      xs = ["x("++ show i ++")" | i<-[1..]]
+      xs = ["x"++ show i | i<-[1..]]
       sp' = simpP' env p'
       len = Map.size p'
       rhss = ["jac("++ show x ++ "," ++ show y ++ ")" | x<-[1..len], y<-[1..len]]

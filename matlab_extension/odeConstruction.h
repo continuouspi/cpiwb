@@ -1,6 +1,6 @@
 #ifndef ODECONSTRUCTION_H_
 #define ODECONSTRUCTION_H_
 
-char* callCPiWB(char* input);
+char* callCPiWB(char* defs, char* process);
 
 #endif
