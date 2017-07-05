@@ -1,8 +1,8 @@
 % this Matlab script collection extends the Continuous Pi Workbench, CPiWB
 % author: Ross Rhodes
-% This is the primary entry point for the Command Line Interface of CPi-MATLAB.
-% It provides a convenient way of linking to functions stored in other
-% files.
+% description: This is the primary entry point for the Command Line 
+% Interface of CPi-MATLAB. It provides a convenient way of linking to 
+% functions stored in other files, by providing an easy to use interface.
 
 function cpime()
     clc;

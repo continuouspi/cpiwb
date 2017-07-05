@@ -1,5 +1,9 @@
 % this Matlab script collection extends the Continuous Pi Workbench, CPiWB
 % author: Ross Rhodes
+% description: This function accepts CPi definition files and uses CPiWB to
+% create the Ordinary Differential Equations with the initial
+% concentrations. This function is not called by the Command Line Interface
+% function, found in cpime. 
 
 function [odes, ode_num, initial_concentrations] = create_cpi_odes(cpi_defs, process)
 

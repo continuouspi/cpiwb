@@ -5,7 +5,7 @@ function num_processes = determine_num_simulations_in_comparison()
 
 num_processes = 0;
 num_input = [];
-prompt = '\n\nHow many processes do you wish to compare?\nEnter ''cancel'' to cancel.\nCPiME:> ';
+prompt = '\n\nHow many processes do you wish to compare (max. 4)?\nEnter ''cancel'' to cancel.\nCPiME:> ';
 
 while(isempty(num_input))
     num_input = input(prompt, 's');

@@ -1,5 +1,9 @@
 % this Matlab script collection extends the Continuous Pi Workbench, CPiWB
 % author: Ross Rhodes
+% description: This function allows a user to perform parameter scanning.
+% It allows a user to understand the effect of varying a parameter on a
+% specie of interest. It is one of the main function files called by the
+% Command Line Interface function, which is defined in cpime.
 
 function parameter_scan()
 

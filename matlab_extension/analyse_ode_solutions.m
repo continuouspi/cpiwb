@@ -1,6 +1,9 @@
 % this Matlab script collection extends the Continuous Pi Workbench, CPiWB
 % author: Ross Rhodes
-% 
+% description: This primary function is used to analyse Ordinary 
+% Differential Equations (ODEs) solutions. It prompts the user to select a .cpi 
+% file, requests parameters and then creates ODEs from it. Queries can be
+% inserted for the solutions of the system to further understand them.
 
 function analyse_ode_solutions()
 
