@@ -1,5 +1,11 @@
 % this Matlab script collection extends the Continuous Pi Workbench, CPiWB
 % author: Ross Rhodes
+% description: A user can simulate a single CPi definition using this function.
+% After selecting a CPi file and displaying the definition on screen, the
+% function creates the Ordinary Differential Equations (ODEs) 
+% representing the definition, and solves them. The function then plots the
+% solved ODEs. This function is called from main Command Line Interface
+% function, defined in cpime. 
 
 function simulate_single_process()
 
