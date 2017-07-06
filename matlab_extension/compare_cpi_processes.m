@@ -1,5 +1,8 @@
 % this Matlab script collection extends the Continuous Pi Workbench, CPiWB
 % author: Ross Rhodes
+% description: A user can compare up to four CPi processes using this
+% function. The CPi processes are simulated, and then plotted either 
+% on seperate graphs or on one graph.
 
 function compare_cpi_processes()
 

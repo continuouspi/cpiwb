@@ -1,5 +1,10 @@
 % this Matlab script collection extends the Continuous Pi Workbench, CPiWB
 % author: Ross Rhodes
+% description: A user can view the Ordinary Differential Equations (ODEs)
+% which are created for a CPi file using this function. After a user selects
+% the CPi file, the function calls the CPiWB to obtain the ODEs, which are
+% then displayed on screen. This function is called by the Command Line
+% Interface function which is defined in cpime.
 
 function view_odes()
 

@@ -1,5 +1,10 @@
 % this Matlab script collection extends the Continuous Pi Workbench, CPiWB
 % author: Ross Rhodes
+% This function returns the CPi definition of the a CPi file. A user needs
+% to provide the file name and file path. It is used by a number of
+% different functions which need the CPi definition in memory. 
+% The Command Line Interface function, found in cpime, does not directly
+% call this function. 
 
 function definitions = display_definitions(file_name, file_path)
 

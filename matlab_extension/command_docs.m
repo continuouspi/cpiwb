@@ -1,5 +1,6 @@
 % this Matlab script collection extends the Continuous Pi Workbench, CPiWB
 % author: Ross Rhodes
+% description: This function returns the description of an inserted command. 
 
 function command_docs(job)
 % input 'job': the command the user wishes to receive details about
