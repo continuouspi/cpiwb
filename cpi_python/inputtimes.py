@@ -1,14 +1,14 @@
 __author__ = 's1648321'
 import wx
 
-def timeforodeint():
+def timeforodeint():  # determine the start and end times of the simulation
 
     app = wx.App()
     t0 = 0
     tfinal = 0
     tdivide = 0
-    dialog = wx.TextEntryDialog(None, "Time Start:","Text Entry", "0.0")
-    dialog2 = wx.TextEntryDialog(None, "Time End:","Text Entry", "0.0")
+    dialog = wx.TextEntryDialog(None, "Time Start(s):","Text Entry", "0.0")
+    dialog2 = wx.TextEntryDialog(None, "Time End(s):","Text Entry", "0.0")
     dialog3 = wx.TextEntryDialog(None, "Number of Times:","Text Entry", "0")
     if dialog.ShowModal() == wx.ID_OK and dialog2.ShowModal() == wx.ID_OK and dialog3.ShowModal() == wx.ID_OK:
         try:
@@ -34,12 +34,12 @@ def timeforodeint():
         print("Please input the correct time.")
         return 0, 0, 0
 
-def picturename():
+def picturename():  # determine the name of figure saved after simulation
 
     app = wx.App()
     picture_name = ''
 
-    dialog = wx.TextEntryDialog(None, "Input the name of picture:","Text Entry", ".png")
+    dialog = wx.TextEntryDialog(None, "Input the name of picture:", "Text Entry", ".png")
 
     if dialog.ShowModal() == wx.ID_OK:
         picture_name = dialog.GetValue()

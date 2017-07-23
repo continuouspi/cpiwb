@@ -2,7 +2,7 @@ __author__ = 's1648321'
 import wx
 import os
 
-def getFilePath():
+def getFilePath():  # select a cpi file from locals
 
     app = wx.App()
     file_path = ''
@@ -13,7 +13,8 @@ def getFilePath():
         file_path = dialog.GetPath()
         if file_path:
             loc_number = file_path.rfind('/')
-            filename = file_path[loc_number + 1:].split('.')[0]
+            filename_number = file_path.rfind('.')
+            filename = file_path[loc_number + 1:filename_number]
             print "Selected cpi file: %s" % filename
 
     dialog.Destroy()
@@ -21,12 +22,15 @@ def getFilePath():
 
 
 
-def readFileContent(filepath):
+def readFileContent(filepath):  # read the contents in selected file
 
-    content = open(filepath, 'r')
-    lines = content.readlines()
-    char_line = ""
-    for line in lines:
-        char_line += '\n' + line
+    try:
+        content = open(filepath, 'r')
+        lines = content.readlines()
+        char_line = ""
+        for line in lines:
+            char_line += '\n' + line
 
-    return char_line
+        return char_line
+    except IOError:
+        print 'Cannot open the selected file.'

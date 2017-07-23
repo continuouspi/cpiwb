@@ -1,7 +1,7 @@
 __author__ = 's1648321'
 from ctypes import c_char_p
 
-def parse_process(cpi_defs):
+def parse_process(cpi_defs):  # parse all the processes in the selected cpi model
 
     tokens = cpi_defs.split('\n')
     process = []
@@ -15,7 +15,7 @@ def parse_process(cpi_defs):
 
     return process
 
-def parse_species(cpi_defs, process):
+def parse_species(cpi_defs, process):  # parse the species in the selected process and sort them alphabetically
 
     tokens = cpi_defs.split('\n')
     species = []
@@ -51,7 +51,7 @@ def parse_species(cpi_defs, process):
 
     return species_cur
 
-def parse_odes(ode_convert, cpi_defs, process):
+def parse_odes(ode_convert, cpi_defs, process):  # parse the odes with the functions in shared library
 
     ode_convert.argtypes = [c_char_p, c_char_p]
     ode_convert.restype = c_char_p
@@ -60,7 +60,7 @@ def parse_odes(ode_convert, cpi_defs, process):
     ode_num = 0
     initial_concentrations = []
 
-    if ode_string:
+    if ode_string:   # terminate if CPiWB encountered an error
         if ode_string == 'parse error':
             print('The CPi Workbench failed to parse your .cpi file. Please try again.')
         elif ode_string == 'process not found':
@@ -70,7 +70,7 @@ def parse_odes(ode_convert, cpi_defs, process):
         else:
             tokens = ode_string.split('\n')
 
-            for token in tokens:
+            for token in tokens:  # retrieve the ODEs from the script
                 if token[0:4] == 'diff':
                     odes.append(token)
 

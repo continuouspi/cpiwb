@@ -1,11 +1,11 @@
 __author__ = 's1648321'
 
 import matplotlib.pyplot as plt
-from assimulo.problem import Explicit_Problem  #Imports the problem formulation from Assimulo
-from assimulo.solvers import GLIMDA #Imports the solver from Assimulo
+from assimulo.problem import Explicit_Problem  # Imports the problem formulation from Assimulo
+from assimulo.solvers import GLIMDA  # Imports the solver from Assimulo
 import inputtimes
 
-def preodes(odes):
+def preodes(odes):  # prepare to convert the string ODEs and Xns into variables and funcrions
 
     name_list = []
     diff_odes = []
@@ -23,11 +23,11 @@ def preodes(odes):
 
     return diff_odes, name_copy
 
-
-def solvecomplex(rhs, initial_concentrations, t0, tfinal):
+# GLIMDA solver, provided for the case that odeint cannot solve the odes
+def solvecomplex(rhs, initial_concentrations, t0, tfinal, plot_title):
 
     model = Explicit_Problem(rhs, initial_concentrations, t0)
-    model.name = 'Simulate ODEs'
+    model.name = 'Simulate ' + plot_title
 
     sim = GLIMDA(model)
 
@@ -35,34 +35,49 @@ def solvecomplex(rhs, initial_concentrations, t0, tfinal):
     return t, y
 
 
-def plotodes(filename, process, species_list, solution, times, is_save):
+def plotodes(filetitle, species_list, solution, times, is_save):
 
     plt.style.use('ggplot')
     fig = plt.figure(figsize=(12, 6))
-    ax1 = fig.add_subplot(111)
+    ax1 = fig.add_axes([0.1, 0.1, 0.7, 0.8])
+    line_add = []
 
-    color_list = ['peru', 'khaki','aquamarine', 'darkblue', 'lime', 'darkgreen', 'cyan']
-    solutionc = solution.T
+    for item in solution:
+        line_temp, = ax1.plot(times, item, picker=5)
+        line_add.append(line_temp)
 
-    if len(species_list) > 7:
-        for num in range(len(species_list)):
-            if num < 7:
-                ax1.plot(times, solutionc[num])
-            elif 7 <= num < 14:
-                ax1.plot(times, solutionc[num], linestyle='--')
-            else:
-                ax1.plot(times, solutionc[num], color=color_list[num-14])
-    else:
-        for num in range(len(species_list)):
-            ax1.plot(times, solutionc[num])
-
-    ax1.legend(species_list, bbox_to_anchor=(1.02,0.8),loc=6)
+    leg = ax1.legend(species_list, bbox_to_anchor=(1.02, 0.4), loc=6)
     ax1.set_xlabel('Time (seconds)')
     ax1.set_ylabel('Concentration')
-    ax1.set_title(filename +' process ' + process)
+    ax1.set_title(filetitle)
+
+    line_leg = dict()
+    for origline, legline in zip(line_add, leg.get_lines()):
+        line_leg[origline] = legline
+
+    def on_pick(event):
+        legline = line_leg[event.artist]
+
+        if event.artist.get_linestyle() == '-':
+            event.artist.set_linestyle('--')
+            legline.set_linestyle('--')
+        elif event.artist.get_linestyle() == '--':
+            event.artist.set_linestyle(':')
+            legline.set_linestyle(':')
+        elif event.artist.get_linestyle() == ':':
+            event.artist.set_linestyle(' ')
+            legline.set_linestyle(' ')
+        else:
+            event.artist.set_linestyle('-')
+            legline.set_linestyle('-')
+        fig.canvas.draw()
+
+    fig.canvas.mpl_connect('pick_event', on_pick)
 
     if is_save == 'Yes':
         save_name = inputtimes.picturename()
         plt.savefig(save_name, dpi=300)
     elif is_save == 'No':
         print('Picture will not be saved or you can change your selection.')
+    else:
+        print('No this selection. Picture will not be saved or you can change your selection.')
