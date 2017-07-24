@@ -22,7 +22,7 @@ function varargout = gui(varargin)
 
 % Edit the above text to modify the response to help gui
 
-% Last Modified by GUIDE v2.5 22-Jul-2017 18:50:14
+% Last Modified by GUIDE v2.5 24-Jul-2017 13:39:15
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -170,14 +170,16 @@ function pushbutton7_Callback(hObject, eventdata, handles)
 % hObject    handle to pushbutton7 (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-[fname, pname] = uigetfile('../*.cpi');
+[fname, pname] = uigetfile({'*.cpi', 'CPi Models (*.cpi)'}, 'Select a .cpi file');
 
 if(~isequal(fname,0))
     
     filepath = fullfile(pname, fname);
     set(handles.edit2,'string',filepath);
+    
     M=textread(filepath,'%s','delimiter','\n');
     set(handles.edit1,'string',M);
+    set(handles.edit1,'Enable','on') 
     
 end
 
@@ -189,7 +191,7 @@ function pushbutton8_Callback(hObject, eventdata, handles)
  file_path = get(handles.edit2,'String'); 
  file_content = get(handles.edit1,'String'); 
  if isempty(file_path)
-   errordlg('Error: File Path cannot be empty\n');
+   errordlg('Error: File Path cannot be empty');
  else
    fid=fopen(file_path,'w');
 
@@ -226,5 +228,226 @@ function pushbutton9_Callback(hObject, eventdata, handles)
 % hObject    handle to pushbutton9 (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-set(handles.edit1,'String',''); 
-set(handles.edit2,'String',''); 
+% Construct a questdlg with three options
+
+%Confirm user wants to close the file
+ file_path = get(handles.edit2,'String'); 
+ 
+if (~isempty(file_path))
+choice = questdlg('Are you sure you want to close the file? Any unsaved changes will be lost.', ...
+	'Close Button Confirmation', ...
+	'Yes','Cancel','Cancel');
+% Handle response
+    switch choice
+    case 'Yes'
+        set(handles.edit1,'String',''); 
+        set(handles.edit1,'Enable','off') 
+        set(handles.edit2,'String',''); 
+        set(handles.text2,'string','Status: Ready');
+        set(handles.text2,'Position',[0.833 0.5 17.333 1.083]);
+    case 'Cancel'
+        
+    end
+end
+
+
+
+% --- If Enable == 'on', executes on mouse press in 5 pixel border.
+% --- Otherwise, executes on mouse press in 5 pixel border or over edit1.
+function edit1_ButtonDownFcn(hObject, eventdata, handles)
+% hObject    handle to edit1 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+
+
+% --- Executes on key press with focus on edit1 and none of its controls.
+function edit1_KeyPressFcn(hObject, eventdata, handles)
+% hObject    handle to edit1 (see GCBO)
+% eventdata  structure with the following fields (see MATLAB.UI.CONTROL.UICONTROL)
+%	Key: name of the key that was pressed, in lower case
+%	Character: character interpretation of the key(s) that was pressed
+%	Modifier: name(s) of the modifier key(s) (i.e., control, shift) pressed
+% handles    structure with handles and user data (see GUIDATA)
+enableString = get(handles.edit1, 'Enable');
+
+if(isequal(lower(enableString), 'on'))
+    set(handles.text2,'string','Status: Editing file contents');
+    set(handles.text2,'Position',[2.5 0.5 17.333 1.083]);
+end
+
+
+% --- Executes on button press in pushbutton10.
+function pushbutton10_Callback(hObject, eventdata, handles)
+% hObject    handle to pushbutton10 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+global definitions;
+[fname, pname] = uigetfile({'*.cpi', 'CPi Models (*.cpi)'}, 'Select a .cpi file');
+
+%Ensuring a file was selected
+if(~isequal(fname,0))
+    %Clearing current data
+    set(handles.edit4,'string','');
+    set(handles.edit5,'string','','enable','off');
+    
+    %Creating the file path string
+    filepath = fullfile(pname, fname);
+    set(handles.edit3,'string',filepath);
+    
+    %Reading the file
+    definitions = fileread(strcat(pname, '/', fname));
+    set(handles.edit4,'string',definitions, 'enable','inactive');
+     
+    %Populating the process list dialog box
+    [process_name_options, ~, ~, ...
+    ~] = retrieve_process_definitions(definitions);
+    set(handles.popupmenu1,'String',process_name_options);
+    
+end
+
+% --- Executes on button press in pushbutton11.
+function pushbutton11_Callback(hObject, eventdata, handles)
+% hObject    handle to pushbutton11 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+
+
+function edit3_Callback(hObject, eventdata, handles)
+% hObject    handle to edit3 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'String') returns contents of edit3 as text
+%        str2double(get(hObject,'String')) returns contents of edit3 as a double
+
+
+% --- Executes during object creation, after setting all properties.
+function edit3_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to edit3 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+
+
+function edit4_Callback(hObject, eventdata, handles)
+% hObject    handle to edit4 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'String') returns contents of edit4 as text
+%        str2double(get(hObject,'String')) returns contents of edit4 as a double
+
+
+% --- Executes during object creation, after setting all properties.
+function edit4_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to edit4 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+
+% --- Executes on selection change in popupmenu1.
+function popupmenu1_Callback(hObject, eventdata, handles)
+% hObject    handle to popupmenu1 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: contents = cellstr(get(hObject,'String')) returns popupmenu1 contents as cell array
+%        contents{get(hObject,'Value')} returns selected item from popupmenu1
+
+
+% --- Executes during object creation, after setting all properties.
+function popupmenu1_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to popupmenu1 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: popupmenu controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+
+% --- Executes on button press in pushbutton12.
+function pushbutton12_Callback(hObject, eventdata, handles)
+% hObject    handle to pushbutton12 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+%Updating the status string
+set(handles.text6,'string','Status: Generating the ODEs');
+set(handles.text6,'Position',[0.8 0.5 30 1.0833333333333333]);
+pause(0.02);
+
+%Getting the currently selected process
+global definitions;
+selection=get(handles.popupmenu1,'value');
+process_name=get(handles.popupmenu1,'string');
+
+%Obtaining the ODEs
+[modelODEs, ode_num, ~] = create_cpi_odes(definitions, process_name{selection,:});
+
+%Setting the ODEs to the text edit content
+set(handles.edit5,'string',modelODEs, 'enable','inactive');
+
+%Resetting the status string
+set(handles.text6,'string','Status: Ready');
+set(handles.text6,'Position',[0.833 0.5 17.333 1.083]);
+
+% --- Executes on button press in pushbutton13.
+function pushbutton13_Callback(hObject, eventdata, handles)
+% hObject    handle to pushbutton13 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+
+
+function edit5_Callback(hObject, eventdata, handles)
+% hObject    handle to edit5 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'String') returns contents of edit5 as text
+%        str2double(get(hObject,'String')) returns contents of edit5 as a double
+
+
+% --- Executes during object creation, after setting all properties.
+function edit5_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to edit5 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+
+% --- Executes on button press in pushbutton14.
+function pushbutton14_Callback(hObject, eventdata, handles)
+% hObject    handle to pushbutton14 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+
+% --- If Enable == 'on', executes on mouse press in 5 pixel border.
+% --- Otherwise, executes on mouse press in 5 pixel border or over pushbutton10.
+function pushbutton10_ButtonDownFcn(hObject, eventdata, handles)
+% hObject    handle to pushbutton10 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
