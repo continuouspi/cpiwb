@@ -29,8 +29,6 @@ if (sum(strcmp(process_name, {'cancel', ''})))
     return;
 end
 
-whos;
-
 % call CPiWB to construct the system of ODEs for the process
 [modelODEs, ode_num, ~] = create_cpi_odes(definitions, process_name);
 

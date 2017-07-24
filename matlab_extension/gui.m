@@ -58,6 +58,14 @@ handles.output = hObject;
 % Update handles structure
 guidata(hObject, handles);
 
+%Reset the value of the global file name and path
+global fname;
+global pname;
+global definitions;
+fname=0;
+pname=0;
+definitions = '';
+
 %Show Edit Models Panel when opening application
 global current_panel;
 current_panel = change_panel('~','uipanel6',handles);
@@ -81,8 +89,20 @@ function pushbutton1_Callback(hObject, eventdata, handles)
 % hObject    handle to pushbutton1 (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
+global fname;
+global pname;
 global current_panel;
 current_panel = change_panel(current_panel,'uipanel6',handles);
+
+if(~isequal(fname,0));
+    %Making the filepath persistent across screens
+    filepath = fullfile(pname, fname);
+    set(handles.edit2,'string',filepath);
+    
+    %Opening the file
+    openfile_editmodel(handles);
+end 
+
 %file = fullfile('icons','pencil-64.gif');
 %[x,map]=imread(file);
 
@@ -97,7 +117,29 @@ function pushbutton2_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 global current_panel;
+global fname;
+global pname;
+
 current_panel = change_panel(current_panel,'uipanel1',handles);
+
+if(~isequal(fname,0));
+    %Making the filepath persistent across screens
+    filepath = fullfile(pname, fname);
+    set(handles.edit3,'string',filepath);
+    
+    %Opening the file
+    openfile_viewodes(handles);
+else(isequal(fname,0));
+    %Resetting screen
+    reset_viewodes(handles);
+end 
+
+%Reset View ODEs screen
+function reset_viewodes(handles)
+ set(handles.edit3,'string','');
+ set(handles.edit4,'string','','enable','off');
+ set(handles.edit5,'string','','enable','off');
+ set(handles.popupmenu1,'String','Process List');
 
 % --- Executes on button press in pushbutton4.
 function pushbutton4_Callback(hObject, eventdata, handles)
@@ -170,18 +212,33 @@ function pushbutton7_Callback(hObject, eventdata, handles)
 % hObject    handle to pushbutton7 (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-[fname, pname] = uigetfile({'*.cpi', 'CPi Models (*.cpi)'}, 'Select a .cpi file');
+global fname;
+global pname;
+[Ifname, Ipname] = uigetfile({'*.cpi', 'CPi Models (*.cpi)'}, 'Select a .cpi file');
 
-if(~isequal(fname,0))
+if(~isequal(Ifname,0));
     
+    %Setting global variables
+    fname = Ifname;
+    pname = Ipname;
+    
+    openfile_editmodel(handles);
+    
+end
+
+%Function to open file in the Edit Model screen
+function openfile_editmodel(handles)
+    global pname;
+    global fname;
+    
+    %Create the file path and populate the text field
     filepath = fullfile(pname, fname);
     set(handles.edit2,'string',filepath);
     
+    %Read the text file
     M=textread(filepath,'%s','delimiter','\n');
     set(handles.edit1,'string',M);
-    set(handles.edit1,'Enable','on') 
-    
-end
+    set(handles.edit1,'Enable','on'); 
 
 % --- Executes on button press in pushbutton8.
 function pushbutton8_Callback(hObject, eventdata, handles)
@@ -229,6 +286,8 @@ function pushbutton9_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 % Construct a questdlg with three options
+global pname;
+global fname;
 
 %Confirm user wants to close the file
  file_path = get(handles.edit2,'String'); 
@@ -241,10 +300,12 @@ choice = questdlg('Are you sure you want to close the file? Any unsaved changes 
     switch choice
     case 'Yes'
         set(handles.edit1,'String',''); 
-        set(handles.edit1,'Enable','off') 
+        set(handles.edit1,'Enable','off'); 
         set(handles.edit2,'String',''); 
         set(handles.text2,'string','Status: Ready');
         set(handles.text2,'Position',[0.833 0.5 17.333 1.083]);
+        pname=0;
+        fname=0;
     case 'Cancel'
         
     end
@@ -271,7 +332,7 @@ function edit1_KeyPressFcn(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 enableString = get(handles.edit1, 'Enable');
 
-if(isequal(lower(enableString), 'on'))
+if(isequal(lower(enableString), 'on'));
     set(handles.text2,'string','Status: Editing file contents');
     set(handles.text2,'Position',[2.5 0.5 17.333 1.083]);
 end
@@ -282,14 +343,30 @@ function pushbutton10_Callback(hObject, eventdata, handles)
 % hObject    handle to pushbutton10 (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-global definitions;
-[fname, pname] = uigetfile({'*.cpi', 'CPi Models (*.cpi)'}, 'Select a .cpi file');
+global fname;
+global pname;
+[Ifname, Ipname] = uigetfile({'*.cpi', 'CPi Models (*.cpi)'}, 'Select a .cpi file');
 
 %Ensuring a file was selected
-if(~isequal(fname,0))
+if(~isequal(Ifname,0));
+    
+    %Setting global variables
+    fname = Ifname;
+    pname = Ipname;
+    
+    %Open file
+    openfile_viewodes(handles);
+    
+end
+
+%Open file in View ODEs screen
+function openfile_viewodes(handles)
+    global pname;
+    global fname;
+    global definitions;
+
     %Clearing current data
-    set(handles.edit4,'string','');
-    set(handles.edit5,'string','','enable','off');
+    reset_viewodes(handles);
     
     %Creating the file path string
     filepath = fullfile(pname, fname);
@@ -303,16 +380,18 @@ if(~isequal(fname,0))
     [process_name_options, ~, ~, ...
     ~] = retrieve_process_definitions(definitions);
     set(handles.popupmenu1,'String',process_name_options);
-    
-end
 
 % --- Executes on button press in pushbutton11.
 function pushbutton11_Callback(hObject, eventdata, handles)
 % hObject    handle to pushbutton11 (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
+global fname;
 
-
+if(~isequal(fname,0));
+    %Open file again
+    openfile_viewodes(handles);
+end
 
 function edit3_Callback(hObject, eventdata, handles)
 % hObject    handle to edit3 (see GCBO)
@@ -387,33 +466,35 @@ function pushbutton12_Callback(hObject, eventdata, handles)
 % hObject    handle to pushbutton12 (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-
-%Updating the status string
-set(handles.text6,'string','Status: Generating the ODEs');
-set(handles.text6,'Position',[0.8 0.5 30 1.0833333333333333]);
-pause(0.02);
-
-%Getting the currently selected process
+global fname;
 global definitions;
-selection=get(handles.popupmenu1,'value');
-process_name=get(handles.popupmenu1,'string');
 
-%Obtaining the ODEs
-[modelODEs, ode_num, ~] = create_cpi_odes(definitions, process_name{selection,:});
+if(~isequal(fname,0));
+    %Updating the status string
+    set(handles.text6,'string','Status: Generating the ODEs');
+    set(handles.text6,'Position',[0.8 0.5 30 1.0833333333333333]);
+    pause(0.02);
 
-%Setting the ODEs to the text edit content
-set(handles.edit5,'string',modelODEs, 'enable','inactive');
+    %Getting the currently selected process
+    selection=get(handles.popupmenu1,'value');
+    process_name=get(handles.popupmenu1,'string');
+    
+    %Obtaining the ODEs
+    [modelODEs, ode_num, ~] = create_cpi_odes(definitions, process_name{selection,:});
 
-%Resetting the status string
-set(handles.text6,'string','Status: Ready');
-set(handles.text6,'Position',[0.833 0.5 17.333 1.083]);
+    %Setting the ODEs to the text edit content
+    set(handles.edit5,'string',modelODEs, 'enable','inactive');
 
+    %Resetting the status string
+    set(handles.text6,'string','Status: Ready');
+    set(handles.text6,'Position',[0.833 0.5 17.333 1.083]);
+end
 % --- Executes on button press in pushbutton13.
 function pushbutton13_Callback(hObject, eventdata, handles)
 % hObject    handle to pushbutton13 (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-
+pushbutton1_Callback(hObject, eventdata, handles);
 
 
 function edit5_Callback(hObject, eventdata, handles)
@@ -444,6 +525,29 @@ function pushbutton14_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
+%Get generated ODEs
+file_content = get(handles.edit5,'String'); 
+
+if(~isequal(file_content,''));
+    %Get file details
+    [FileName,PathName,~] = uiputfile('*.txt','Text Files (*.txt)','ODE.txt');
+    
+    %Create file and export contents
+    if(~isequal(FileName,0));
+        
+        %Create full filepath
+        filepath = fullfile(PathName, FileName);
+
+        %Open file
+        fid=fopen(filepath,'wt');
+
+        %Get content from text edit, and fprintf it
+        fprintf(fid,'%s\n',file_content{:});
+
+        %Close file
+        fclose(fid);
+    end 
+end
 
 % --- If Enable == 'on', executes on mouse press in 5 pixel border.
 % --- Otherwise, executes on mouse press in 5 pixel border or over pushbutton10.
