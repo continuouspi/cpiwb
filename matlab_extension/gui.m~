@@ -741,7 +741,7 @@ if(~isequal(fname,0));
         
     % simulate the solution set for the specified time period
     create_process_simulation(t, Y, start_time, file_name, ...
-    process_name, solver_name{selection2,:}, legend_strings, species_num);
+    process_name, chosen_solvers, legend_strings, species_num);
     
     %Resetting the status string
     set(handles.text10,'string','Status: Ready');

@@ -6,4 +6,4 @@ species C() = tau<1>.0;
 species D() = tau<0>.D();
 
 process Pi = [1] A(a) || [1] B(b) || [0] C() || [0] D()
-           : {a-b@1};
+: {a-b@1};
