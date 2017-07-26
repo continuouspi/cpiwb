@@ -725,25 +725,28 @@ if(~isequal(fname,0));
     %Obtaining the ODEs
     [odes, ode_num, initial_concentrations] = create_cpi_odes(definitions, process_name{selection,:});
 
-    %Creating the plot
-    % setup the legend for the simulation
-    %TODO: populate parameters of prepare_legend
-    [legend_strings, species_num] = prepare_legend(process_def, ...
+    % Creating the plot...
+    % Setup the legend for the simulation
+    [~, process_def_options, definition_tokens, ...
+    num_definitions] = retrieve_process_definitions(definitions);
+
+    [legend_strings, species_num] = prepare_legend(process_def_options{selection}, ...
     definition_tokens, num_definitions);
 
-    fprintf('\nSolving the system ... ');
-    [t, Y] = solve_cpi_odes(odes, ode_num, initial_concentrations, end_time_db, ...
-    solver_name{selection2,:}, legend_strings);
+    %TODO: Adapt solve_cpi_odes to GUI
+    [t, Y] = solve_cpi_odes_gui(odes, ode_num, initial_concentrations, end_time_db, ...
+    solver_name(selection2,:), legend_strings);
 
     if (isempty(t))
         return;
     end
         
+    % TODO: Adapt create_process_simulation to GUI
     % simulate the solution set for the specified time period
-    create_process_simulation(t, Y, start_time, file_name, ...
-    process_name, solver_name{selection2,:}, legend_strings, species_num);
+    create_process_simulation(t, Y, start_time_db, fname, ...
+    process_name(selection,:), solver_name(selection2,:), legend_strings, species_num);
     
-    %Resetting the status string
+    % Resetting the status string
     set(handles.text10,'string','Status: Ready');
     set(handles.text10,'Position',[0.833 0.5 17.333 1.083]);
 end 
