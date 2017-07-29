@@ -47,22 +47,11 @@ vars = transpose(symbolic_vars);
 % solve the system of ODEs
 ode_system = odeFunction(ode_exprs, vars);
 
-prompt = (['\n\nDo you wish to see the numerical solutions? (Y/n)\nCPiME:> ']);
-confirmation = [];
-
 if (not(isempty(legend_strings)))
-    while (isempty(confirmation))
-        confirmation = strtrim(input(prompt, 's'));
-
-        if (confirmation == 'Y')
-            view_solutions = 1;
-        elseif (not(confirmation == 'n'))
-            fprintf('\nError: Invalid input provided. Please enter ''Y'' for yes, or ''n'' for no.');
-            confirmation = [];
-        end
-    end
+    view_solutions = 1;
 end
 
+% returning solutions
 for i = 1:length(solvers)
     
     ode_name = strsplit(solvers{i}, ' ');
@@ -94,54 +83,31 @@ for i = 1:length(solvers)
     warning('on', 'all');
     max_length = 0;
     
-    % arbitrary limit set to guarantee all solutions will be visible
-    if(view_solutions && size(solutions{end}, 1) <= 1500)
-        fprintf(['\nSolutions for solver ', ode_name{1}, ':\n\n']);
-        
-        max_length = length('time (s)');
-        
-        for p = 1:length(legend_strings)
-            if (length(legend_strings{p}) > max_length)
-                max_length = length(legend_strings{p});
-            end
-            
-            for q = 1:size(solutions{end}, 2)
-                if (length(solutions{end}(p,q)) > max_length)
-                    max_length = length(num2str(round(solutions{end}(p,q), 3)));
-                end
-            end
-        end
-        
-        fprintf(['time (s)', blanks(max_length - length('time (s)') + 1),'| ']);
-        for p = 1:length(legend_strings)
-            fprintf([legend_strings{p}, blanks(max_length - length(legend_strings{p}) + 1),'| ']);
-        end
-        
-        fprintf('\n');
-        underscores = repmat('-', max_length + 1);
-        
-        for p = 1:length(legend_strings)
-            fprintf([underscores(1, :), '|-']);
-        end
-        fprintf([underscores(1, :), '|']);
+    name = strcat('Numerical Solutions for solver ', ode_name{1});
     
-        for p = 1:size(solutions{end}, 1)
-            fprintf('\n');
-            fprintf([num2str(round(t{end}(p), 3)), ...
-                    blanks(max_length - length(num2str(round(t{end}(p), 3))) + 1), '| ']);
-            for q = 1:length(legend_strings)
-                fprintf([num2str(round(solutions{end}(p, q), 3)), ...
-                    blanks(max_length - length(num2str(round(solutions{end}(p, q), 3))) + 1), '| ']);
-            end
-        end
-        
-        fprintf('\n');
-        
-    elseif (view_solutions)
-        
-        fprintf('\nError: Too many solutions to display on terminal.');
-        
-    end
+    % plot the simulation, and construct a figure around it
+    figu = figure('Name', name,'NumberTitle','on');
+    parentPosition = get(figu, 'position');
+    
+    % setting table position
+    uitablePosition = [1 1 parentPosition(3)-2 parentPosition(4)-2];
+    
+    tabl = uitable(figu, 'position', uitablePosition);
+    
+    % populating table headers
+    tabl.ColumnName = ['Time' legend_strings];
+    
+    % generating table content - first column has the time,
+    % the next columns are the values for each specie.
+    first_column = t{1,1};
+    solns = solutions{:};
+    table_solutions = [first_column solns(:,1:length(legend_strings))];
+    
+    % rounding the values to four decimal places.
+    tabl.Data = round(table_solutions,4);
+    
+    % moving the figure to the east.
+    movegui(figu,'east');
     
 end
 

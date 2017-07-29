@@ -12,6 +12,10 @@ plot_title = [model_name, ['Process ', process_name]];
 
 % plot the simulation, and construct a figure around it
 fig = figure('Name',char(model_name),'NumberTitle','on');
+
+% moving the figure to the west to accomodate numerical solutions of 
+% ODE.
+movegui(fig,'west');
     
 for m = 1:length(solvers)
     

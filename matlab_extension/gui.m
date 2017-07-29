@@ -22,7 +22,7 @@ function varargout = gui(varargin)
 
 % Edit the above text to modify the response to help gui
 
-% Last Modified by GUIDE v2.5 25-Jul-2017 16:40:53
+% Last Modified by GUIDE v2.5 29-Jul-2017 18:07:11
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -141,11 +141,14 @@ function reset_viewodes(handles)
  set(handles.edit5,'string','','enable','off');
  set(handles.popupmenu1,'String','Process List');
 
-%Reset View ODEs screen
+%Reset Simulation screen
 function reset_simulate(handles)
  set(handles.edit6,'string','');
  set(handles.edit7,'string','','enable','off');
  set(handles.popupmenu2,'String','Process List');
+ set(handles.edit8,'string','0');
+ set(handles.edit9,'string','1');
+ set(handles.popupmenu3,'Value',1);
  
 % --- Executes on button press in pushbutton4.
 function pushbutton4_Callback(hObject, eventdata, handles)
@@ -197,13 +200,10 @@ function current_panel = change_panel(old_panel, new_panel, handles)
 %TODO: do not allow panel to change if the new panel is the old panel
 if old_panel ~= '~'
     set(handles.(old_panel),'visible','off');
-    
 end 
     
 set(handles.(new_panel),'visible','on'); 
 current_panel = new_panel;
-
-
 
 function edit1_Callback(hObject, eventdata, handles)
 % hObject    handle to edit1 (see GCBO)
@@ -733,7 +733,7 @@ if(~isequal(fname,0));
     [legend_strings, species_num] = prepare_legend(process_def_options{selection}, ...
     definition_tokens, num_definitions);
 
-    %TODO: Adapt solve_cpi_odes to GUI
+    %Solve CPi ODEs and display numerical solutions in a table.
     [t, Y] = solve_cpi_odes_gui(odes, ode_num, initial_concentrations, end_time_db, ...
     solver_name(selection2,:), legend_strings);
 
@@ -741,8 +741,8 @@ if(~isequal(fname,0));
         return;
     end
         
-    % TODO: Adapt create_process_simulation to GUI
     % simulate the solution set for the specified time period
+    % and display a graph of it
     create_process_simulation(t, Y, start_time_db, fname, ...
     process_name(selection,:), solver_name(selection2,:), legend_strings, species_num);
     
@@ -881,3 +881,11 @@ function popupmenu3_CreateFcn(hObject, eventdata, handles)
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor','white');
 end
+
+
+% --- Executes on button press in pushbutton21.
+function pushbutton21_Callback(hObject, eventdata, handles)
+% hObject    handle to pushbutton21 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+reset_simulate(handles)
