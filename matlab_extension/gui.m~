@@ -22,7 +22,7 @@ function varargout = gui(varargin)
 
 % Edit the above text to modify the response to help gui
 
-% Last Modified by GUIDE v2.5 29-Jul-2017 17:52:16
+% Last Modified by GUIDE v2.5 30-Jul-2017 21:52:23
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -58,12 +58,22 @@ handles.output = hObject;
 % Update handles structure
 guidata(hObject, handles);
 
-%Reset the value of the global file name and path
-global fname;
-global pname;
+%Reset the values of the global file name and path map
 global definitions;
-fname=0;
-pname=0;
+global curr_fname;
+global curr_pname;
+global file_map;
+global process_map;
+
+keys = {'fname','pname','fname2','pname2','fname3','pname3','fname4','pname4'};
+values = {'','','','','','','',''};
+values_num = {1,1,1,1,1,1,1,1};
+
+file_map = containers.Map(keys,values);
+process_map = containers.Map(keys,values_num);
+curr_fname = 'fname';
+curr_pname = 'pname';
+
 definitions = '';
 
 %Show Edit Models Panel when opening application
@@ -71,6 +81,9 @@ global current_panel;
 current_panel = change_panel('~','uipanel6',handles);
 % UIWAIT makes gui wait for user response (see UIRESUME)
 % uiwait(handles.figure1);
+
+% Preselect first radiobutton 
+set(handles.uibuttongroup4,'selectedobject',handles.radiobutton1)
 
 
 % --- Outputs from this function are returned to the command line.
@@ -89,18 +102,22 @@ function pushbutton1_Callback(hObject, eventdata, handles)
 % hObject    handle to pushbutton1 (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-global fname;
-global pname;
+global curr_fname;
+global curr_pname;
+global file_map;
 global current_panel;
 current_panel = change_panel(current_panel,'uipanel6',handles);
 
-if(~isequal(fname,0));
+if(isempty(file_map(curr_fname)) == 0);
     %Making the filepath persistent across screens
-    filepath = fullfile(pname, fname);
+    filepath = fullfile(file_map(curr_pname), file_map(curr_fname));
     set(handles.edit2,'string',filepath);
     
     %Opening the file
     openfile_editmodel(handles);
+elseif(isempty(file_map(curr_fname)) == 1);
+    %Resetting screen
+    reset_edit(handles);
 end 
 
 %file = fullfile('icons','pencil-64.gif');
@@ -117,37 +134,68 @@ function pushbutton2_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 global current_panel;
-global fname;
-global pname;
+global curr_fname;
+global curr_pname;
+global file_map;
 
 current_panel = change_panel(current_panel,'uipanel1',handles);
 
-if(~isequal(fname,0));
+if(isempty(file_map(curr_fname)) == 0);
     %Making the filepath persistent across screens
-    filepath = fullfile(pname, fname);
+    filepath = fullfile(file_map(curr_pname), file_map(curr_fname));
     set(handles.edit3,'string',filepath);
     
     %Opening the file
     openfile_viewodes(handles);
-else(isequal(fname,0));
+elseif(isempty(file_map(curr_fname)) == 1);
     %Resetting screen
     reset_viewodes(handles);
 end 
+
+%Reset Edit Models screen
+function reset_edit(handles)
+global curr_fname;
+global process_map;
+global curr_pname;
+global file_map;
+
+ set(handles.edit2,'string','');
+ set(handles.edit1,'string','','enable','off');
 
 %Reset View ODEs screen
 function reset_viewodes(handles)
  set(handles.edit3,'string','');
  set(handles.edit4,'string','','enable','off');
  set(handles.edit5,'string','','enable','off');
+ set(handles.popupmenu1,'value',1);
  set(handles.popupmenu1,'String','Process List');
 
-%Reset View ODEs screen
+%Reset Simulation screen
 function reset_simulate(handles)
+global file_map;
+global 
  set(handles.edit6,'string','');
  set(handles.edit7,'string','','enable','off');
+ set(handles.popupmenu2,'value',1);
  set(handles.popupmenu2,'String','Process List');
  set(handles.edit8,'string','0');
- a
+ set(handles.edit9,'string','1');
+ set(handles.popupmenu3,'Value',1);
+ 
+ empty = '';
+ file_map(curr_pname) = empty;
+ file_map(curr_fname) = empty;
+ process_map(curr_fname) = 1;
+ 
+ %Reset Comparing screen
+function reset_compare(handles)
+ set(handles.edit10,'string','');
+ set(handles.edit11,'string','','enable','off');
+ set(handles.popupmenu4,'Value',1);
+ set(handles.popupmenu4,'String','Process List');
+ set(handles.edit12,'string','0');
+ set(handles.edit13,'string','1');
+ set(handles.popupmenu5,'Value',1);
  
 % --- Executes on button press in pushbutton4.
 function pushbutton4_Callback(hObject, eventdata, handles)
@@ -155,7 +203,22 @@ function pushbutton4_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 global current_panel;
+global curr_fname;
+global file_map;
 current_panel = change_panel(current_panel,'uipanel4',handles);
+
+update_processes(handles);
+
+if(isempty(file_map(curr_fname)) == 0);
+    %Making the filepath persistent across screens
+    set(handles.edit10,'string',file_map(curr_fname));
+    
+    %Opening the file
+    openfile_compare(handles);
+elseif(isempty(file_map(curr_fname)) == 1);
+    %Resetting screen
+    reset_compare(handles);
+end 
 
 % --- Executes on button press in pushbutton5.
 function pushbutton5_Callback(hObject, eventdata, handles)
@@ -179,18 +242,19 @@ function pushbutton3_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 global current_panel;
-global fname;
-global pname;
+global curr_fname;
+global curr_pname;
+global file_map;
 current_panel = change_panel(current_panel,'uipanel2',handles);
 
-if(~isequal(fname,0));
+if(isempty(file_map(curr_fname)) == 0);
     %Making the filepath persistent across screens
-    filepath = fullfile(pname, fname);
+    filepath = fullfile(file_map(curr_pname), file_map(curr_fname));
     set(handles.edit6,'string',filepath);
     
     %Opening the file
     openfile_simulate(handles);
-else(isequal(fname,0));
+elseif(isempty(file_map(curr_fname)) == 1);
     %Resetting screen
     reset_simulate(handles);
 end 
@@ -231,15 +295,15 @@ function pushbutton7_Callback(hObject, eventdata, handles)
 % hObject    handle to pushbutton7 (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-global fname;
-global pname;
+global curr_fname;
+global curr_pname; global file_map;
 [Ifname, Ipname] = uigetfile({'*.cpi', 'CPi Models (*.cpi)'}, 'Select a .cpi file');
 
 if(~isequal(Ifname,0));
     
     %Setting global variables
-    fname = Ifname;
-    pname = Ipname;
+    file_map(curr_fname) = Ifname;
+    file_map(curr_pname) = Ipname;
     
     openfile_editmodel(handles);
     
@@ -247,11 +311,11 @@ end
 
 %Function to open file in the Edit Model screen
 function openfile_editmodel(handles)
-    global pname;
-    global fname;
+    global curr_pname; global file_map;
+    global curr_fname;
     
     %Create the file path and populate the text field
-    filepath = fullfile(pname, fname);
+    filepath = fullfile(file_map(curr_pname), file_map(curr_fname));
     set(handles.edit2,'string',filepath);
     
     %Read the text file
@@ -305,8 +369,10 @@ function pushbutton9_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 % Construct a questdlg with three options
-global pname;
-global fname;
+global curr_pname; 
+global curr_fname; 
+global process_map;
+global file_map;
 
 %Confirm user wants to close the file
  file_path = get(handles.edit2,'String'); 
@@ -322,12 +388,13 @@ choice = questdlg('Are you sure you want to close the file? Any unsaved changes 
         set(handles.edit2,'String',''); 
         set(handles.text2,'string','Status: Ready');
         set(handles.text2,'Position',[0.833 0.5 17.333 1.083]);
-        pname=0;
-        fname=0;
+            
+        empty = '';
+        file_map(curr_pname) = empty;
+        file_map(curr_fname) = empty;
+        process_map(curr_fname) = 1;
     end
 end
-
-
 
 % --- If Enable == 'on', executes on mouse press in 5 pixel border.
 % --- Otherwise, executes on mouse press in 5 pixel border or over edit1.
@@ -359,16 +426,16 @@ function pushbutton10_Callback(hObject, eventdata, handles)
 % hObject    handle to pushbutton10 (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-global fname;
-global pname;
+global curr_fname;
+global curr_pname; global file_map;
 [Ifname, Ipname] = uigetfile({'*.cpi', 'CPi Models (*.cpi)'}, 'Select a .cpi file');
 
 %Ensuring a file was selected
 if(~isequal(Ifname,0));
     
     %Setting global variables
-    fname = Ifname;
-    pname = Ipname;
+    file_map(curr_fname) = Ifname;
+    file_map(curr_pname) = Ipname;
     
     %Open file
     openfile_viewodes(handles);
@@ -377,34 +444,39 @@ end
 
 %Open file in View ODEs screen
 function openfile_viewodes(handles)
-    global pname;
-    global fname;
+    global curr_pname; global file_map;
+    global curr_fname;
     global definitions;
+    global process_map;
 
     %Clearing current data
     reset_viewodes(handles);
     
     %Creating the file path string
-    filepath = fullfile(pname, fname);
+    filepath = fullfile(file_map(curr_pname), file_map(curr_fname));
     set(handles.edit3,'string',filepath);
     
     %Reading the file
-    definitions = fileread(strcat(pname, '/', fname));
+    definitions = fileread(strcat(file_map(curr_pname), '/', file_map(curr_fname)));
     set(handles.edit4,'string',definitions, 'enable','inactive');
      
     %Populating the process list dialog box
     [process_name_options, ~, ~, ...
     ~] = retrieve_process_definitions(definitions);
     set(handles.popupmenu1,'String',process_name_options);
+    
+    %Recalling selection of process list dialog box
+    set(handles.popupmenu1,'value',process_map(curr_fname));
 
 % --- Executes on button press in pushbutton11.
 function pushbutton11_Callback(hObject, eventdata, handles)
 % hObject    handle to pushbutton11 (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-global fname;
+global curr_fname;
+global file_map;
 
-if(~isequal(fname,0));
+if(isempty(file_map(curr_fname)) == 0);
     %Open file again
     openfile_viewodes(handles);
 end
@@ -462,7 +534,10 @@ function popupmenu1_Callback(hObject, eventdata, handles)
 
 % Hints: contents = cellstr(get(hObject,'String')) returns popupmenu1 contents as cell array
 %        contents{get(hObject,'Value')} returns selected item from popupmenu1
+global curr_fname;
+global process_map;
 
+process_map(curr_fname)=get(handles.popupmenu1,'value');
 
 % --- Executes during object creation, after setting all properties.
 function popupmenu1_CreateFcn(hObject, eventdata, handles)
@@ -482,10 +557,11 @@ function pushbutton12_Callback(hObject, eventdata, handles)
 % hObject    handle to pushbutton12 (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-global fname;
+global curr_fname;
 global definitions;
+global file_map;
 
-if(~isequal(fname,0));
+if(isempty(file_map(curr_fname)) == 0);
     %Updating the status string
     set(handles.text6,'string','Status: Generating the ODEs');
     set(handles.text6,'Position',[0.8 0.5 30 1.0833333333333333]);
@@ -650,7 +726,10 @@ function popupmenu2_Callback(hObject, eventdata, handles)
 
 % Hints: contents = cellstr(get(hObject,'String')) returns popupmenu2 contents as cell array
 %        contents{get(hObject,'Value')} returns selected item from popupmenu2
+global curr_fname;
+global process_map;
 
+process_map(curr_fname)=get(handles.popupmenu2,'value');
 
 % --- Executes during object creation, after setting all properties.
 function popupmenu2_CreateFcn(hObject, eventdata, handles)
@@ -671,10 +750,11 @@ function pushbutton17_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 global definitions;
-global fname;
+global curr_fname;
+global file_map;
 
 %Simulating the process after getting the selected parameters
-if(~isequal(fname,0));
+if(isempty(file_map(curr_fname)) == 0);
     %Getting start and end time
     start_time = get(handles.edit8,'String'); 
     end_time = get(handles.edit9,'String'); 
@@ -732,7 +812,7 @@ if(~isequal(fname,0));
     [legend_strings, species_num] = prepare_legend(process_def_options{selection}, ...
     definition_tokens, num_definitions);
 
-    %TODO: Adapt solve_cpi_odes to GUI
+    %Solve CPi ODEs and display numerical solutions in a table.
     [t, Y] = solve_cpi_odes_gui(odes, ode_num, initial_concentrations, end_time_db, ...
     solver_name(selection2,:), legend_strings);
 
@@ -740,9 +820,9 @@ if(~isequal(fname,0));
         return;
     end
         
-    % TODO: Adapt create_process_simulation to GUI
     % simulate the solution set for the specified time period
-    create_process_simulation(t, Y, start_time_db, fname, ...
+    % and display a graph of it
+    create_process_simulation(t, Y, start_time_db, file_map(curr_fname), ...
     process_name(selection,:), solver_name(selection2,:), legend_strings, species_num);
     
     % Resetting the status string
@@ -762,57 +842,89 @@ function pushbutton19_Callback(hObject, eventdata, handles)
 % hObject    handle to pushbutton19 (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-global fname;
-global pname;
+global curr_fname;
+global curr_pname; 
+global file_map;
+
 [Ifname, Ipname] = uigetfile({'*.cpi', 'CPi Models (*.cpi)'}, 'Select a .cpi file');
 
 %Ensuring a file was selected
 if(~isequal(Ifname,0));
     
     %Setting global variables
-    fname = Ifname;
-    pname = Ipname;
+    file_map(curr_fname) = Ifname;
+    file_map(curr_pname) = Ipname;
     
     %Open file
     openfile_simulate(handles);
     
 end
 
-%Open file in View ODEs screen
+%Open file in the Simulate screen
 function openfile_simulate(handles)
-    global pname;
-    global fname;
+    global curr_pname; 
+    global curr_fname; 
     global definitions;
-
+    global file_map;
+    global process_map;
+    
     %Clearing current data
     reset_simulate(handles);
     
     %Creating the file path string
-    filepath = fullfile(pname, fname);
+    filepath = fullfile(file_map(curr_pname), file_map(curr_fname));
     set(handles.edit6,'string',filepath);
     
     %Reading the file
-    definitions = fileread(strcat(pname, '/', fname));
+    definitions = fileread(strcat(file_map(curr_pname), '/', file_map(curr_fname)));
     set(handles.edit7,'string',definitions, 'enable','inactive');
      
     %Populating the process list dialog box
     [process_name_options, ~, ~, ...
     ~] = retrieve_process_definitions(definitions);
     set(handles.popupmenu2,'String',process_name_options);
+    
+    %Recalling selection of process list dialog box
+    set(handles.popupmenu2,'value',process_map(curr_fname));
+    
+%Open file in the Compare screen
+function openfile_compare(handles)
+    global curr_pname; 
+    global curr_fname;
+    global definitions;
+    global file_map;
+    global process_map;
+
+    %Clearing current data
+    reset_compare(handles);
+    
+    %Creating the file path string
+    filepath = fullfile(file_map(curr_pname), file_map(curr_fname));
+    set(handles.edit10,'string',file_map(curr_fname));
+    
+    %Reading the file
+    definitions = fileread(strcat(file_map(curr_pname), '/', file_map(curr_fname)));
+    set(handles.edit11,'string',definitions, 'enable','inactive');
+     
+    %Populating the process list dialog box
+    [process_name_options, ~, ~, ...
+    ~] = retrieve_process_definitions(definitions);
+    set(handles.popupmenu4,'String',process_name_options);
+    
+    %Recalling selection of process list dialog box
+    set(handles.popupmenu4,'value',process_map(curr_fname));
 
 % --- Executes on button press in pushbutton20.
 function pushbutton20_Callback(hObject, eventdata, handles)
 % hObject    handle to pushbutton20 (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-global fname;
-
-if(~isequal(fname,0));
+global curr_fname;
+global file_map;
+if(isempty(file_map(curr_fname)) == 0);
     %Open file again
     openfile_simulate(handles);
 end
-
-
 
 function edit8_Callback(hObject, eventdata, handles)
 % hObject    handle to edit8 (see GCBO)
@@ -888,3 +1000,382 @@ function pushbutton21_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 reset_simulate(handles)
+
+
+
+function edit10_Callback(hObject, eventdata, handles)
+% hObject    handle to edit10 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'String') returns contents of edit10 as text
+%        str2double(get(hObject,'String')) returns contents of edit10 as a double
+
+
+% --- Executes during object creation, after setting all properties.
+function edit10_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to edit10 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+
+
+function edit11_Callback(hObject, eventdata, handles)
+% hObject    handle to edit11 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'String') returns contents of edit11 as text
+%        str2double(get(hObject,'String')) returns contents of edit11 as a double
+
+
+% --- Executes during object creation, after setting all properties.
+function edit11_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to edit11 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+
+% --- Executes on selection change in popupmenu4.
+function popupmenu4_Callback(hObject, eventdata, handles)
+% hObject    handle to popupmenu4 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: contents = cellstr(get(hObject,'String')) returns popupmenu4 contents as cell array
+%        contents{get(hObject,'Value')} returns selected item from popupmenu4
+global curr_fname;
+global process_map;
+
+process_map(curr_fname)=get(handles.popupmenu4,'value');
+
+% --- Executes during object creation, after setting all properties.
+function popupmenu4_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to popupmenu4 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: popupmenu controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+
+% --- Executes on button press in pushbutton22.
+function pushbutton22_Callback(hObject, eventdata, handles)
+% hObject    handle to pushbutton22 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+
+% --- Executes on button press in pushbutton23.
+function pushbutton23_Callback(hObject, eventdata, handles)
+% hObject    handle to pushbutton23 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+pushbutton1_Callback(hObject, eventdata, handles);
+
+% --- Executes on button press in pushbutton24.
+function pushbutton24_Callback(hObject, eventdata, handles)
+% hObject    handle to pushbutton24 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+global curr_fname;
+global curr_pname; 
+global file_map;
+
+[Ifname, Ipname] = uigetfile({'*.cpi', 'CPi Models (*.cpi)'}, 'Select a .cpi file');
+
+%Ensuring a file was selected
+if(~isequal(Ifname,0));
+    
+    %Setting global variables
+    file_map(curr_fname) = Ifname;
+    file_map(curr_pname) = Ipname;
+    
+    %Open file
+    openfile_compare(handles);
+    
+end
+
+% --- Executes on button press in pushbutton25.
+function pushbutton25_Callback(hObject, eventdata, handles)
+% hObject    handle to pushbutton25 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+global curr_fname;
+global file_map;
+if(isempty(file_map(curr_fname)) == 0);
+    %Open file again
+    openfile_compare(handles);
+end
+
+
+function edit12_Callback(hObject, eventdata, handles)
+% hObject    handle to edit12 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'String') returns contents of edit12 as text
+%        str2double(get(hObject,'String')) returns contents of edit12 as a double
+
+
+% --- Executes during object creation, after setting all properties.
+function edit12_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to edit12 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+
+
+function edit13_Callback(hObject, eventdata, handles)
+% hObject    handle to edit13 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'String') returns contents of edit13 as text
+%        str2double(get(hObject,'String')) returns contents of edit13 as a double
+
+
+% --- Executes during object creation, after setting all properties.
+function edit13_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to edit13 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+
+% --- Executes on selection change in popupmenu5.
+function popupmenu5_Callback(hObject, eventdata, handles)
+% hObject    handle to popupmenu5 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: contents = cellstr(get(hObject,'String')) returns popupmenu5 contents as cell array
+%        contents{get(hObject,'Value')} returns selected item from popupmenu5
+
+
+% --- Executes during object creation, after setting all properties.
+function popupmenu5_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to popupmenu5 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: popupmenu controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+
+% --- Executes on button press in pushbutton27.
+function pushbutton27_Callback(hObject, eventdata, handles)
+% hObject    handle to pushbutton27 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+reset_compare(handles);
+
+% --- Executes on selection change in popupmenu6.
+function popupmenu6_Callback(hObject, eventdata, handles)
+% hObject    handle to popupmenu6 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: contents = cellstr(get(hObject,'String')) returns popupmenu6 contents as cell array
+%        contents{get(hObject,'Value')} returns selected item from popupmenu6
+update_processes(handles);
+
+function update_processes(handles)
+selection=get(handles.popupmenu6,'value');
+name=get(handles.popupmenu6,'string');
+
+% Get the currently selected object
+curr_selection = get(handles.uibuttongroup4,'selectedobject');
+curr_selection_tag = get(curr_selection, 'Tag');
+
+% Updates the number of radio buttons displayed when selecting a new
+% number of processes 
+
+if(name{selection,:} == '2');
+    
+    set(handles.radiobutton3, 'Visible', 'Off');
+    set(handles.radiobutton4, 'Visible', 'Off');
+    
+    if(curr_selection == handles.radiobutton3 || curr_selection == handles.radiobutton4);
+        set(handles.uibuttongroup4,'selectedobject',handles.radiobutton1);
+    end 
+    
+elseif(name{selection,:} == '3');  
+        
+    set(handles.radiobutton3, 'Visible', 'On');
+    set(handles.radiobutton4, 'Visible', 'Off');
+    
+    if(curr_selection == handles.radiobutton4);
+        set(handles.uibuttongroup4,'selectedobject',handles.radiobutton1);
+    end 
+    
+elseif(name{selection,:} == '4');  
+        
+    set(handles.radiobutton3, 'Visible', 'On');
+    set(handles.radiobutton4, 'Visible', 'On');
+    
+end 
+
+% --- Executes during object creation, after setting all properties.
+function popupmenu6_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to popupmenu6 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: popupmenu controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+
+% --- Executes on selection change in popupmenu7.
+function popupmenu7_Callback(hObject, eventdata, handles)
+% hObject    handle to popupmenu7 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: contents = cellstr(get(hObject,'String')) returns popupmenu7 contents as cell array
+%        contents{get(hObject,'Value')} returns selected item from popupmenu7
+
+
+% --- Executes during object creation, after setting all properties.
+function popupmenu7_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to popupmenu7 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: popupmenu controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+
+% --- Executes during object creation, after setting all properties.
+function uibuttongroup4_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to uibuttongroup4 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Preselecting radiobutton 1 the first time it's created.
+
+
+% --- Executes during object creation, after setting all properties.
+function radiobutton4_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to radiobutton4 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+
+% --- Executes on button press in radiobutton1.
+function radiobutton1_Callback(hObject, eventdata, handles)
+% hObject    handle to radiobutton1 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hint: get(hObject,'Value') returns toggle state of radiobutton1
+global curr_fname;
+global curr_pname;
+global file_map;
+
+curr_fname = 'fname';
+curr_pname = 'pname';
+
+reset_compare(handles);
+
+if(isempty(file_map(curr_fname)) == 0);
+    openfile_compare(handles);
+end
+
+
+% --- Executes on button press in radiobutton2.
+function radiobutton2_Callback(hObject, eventdata, handles)
+% hObject    handle to radiobutton2 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hint: get(hObject,'Value') returns toggle state of radiobutton2
+global curr_fname;
+global curr_pname;
+global file_map;
+
+curr_fname = 'fname2';
+curr_pname = 'pname2';
+
+reset_compare(handles);
+
+if(isempty(file_map(curr_fname)) == 0);
+    openfile_compare(handles);
+end
+
+
+% --- Executes on button press in radiobutton3.
+function radiobutton3_Callback(hObject, eventdata, handles)
+% hObject    handle to radiobutton3 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hint: get(hObject,'Value') returns toggle state of radiobutton3
+global curr_fname;
+global curr_pname;
+global file_map;
+
+curr_fname = 'fname3';
+curr_pname = 'pname3';
+
+reset_compare(handles);
+
+if(isempty(file_map(curr_fname)) == 0);
+    openfile_compare(handles);
+end
+
+
+% --- Executes on button press in radiobutton4.
+function radiobutton4_Callback(hObject, eventdata, handles)
+% hObject    handle to radiobutton4 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hint: get(hObject,'Value') returns toggle state of radiobutton4
+global curr_fname;
+global curr_pname;
+global file_map;
+
+curr_fname = 'fname4';
+curr_pname = 'pname4';
+
+reset_compare(handles);
+
+if(isempty(file_map(curr_fname)) == 0);
+    openfile_compare(handles);
+end
