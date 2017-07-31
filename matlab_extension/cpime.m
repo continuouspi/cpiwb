@@ -8,7 +8,7 @@ function cpime()
     % list the commands CPiME recognises
     commands = {'edit_model'; 'view_odes'; 'parameter_scans'; ...
         'simulate_process'; 'help'; 'compare_processes'; 'analyse_solutions'; ...
-        'quit'};
+        'generate_report'; 'quit'};
 
     suggestion_followed = 0;
     job = [];
@@ -35,7 +35,7 @@ function cpime()
             fprintf(['\n\nThe following commands are recognised by CPiME:', ...
             '\n\nedit_model\nview_odes\nanalyse_solutions', ...
             '\nsimulate_process\ncompare_processes', ...
-            '\nparameter_scans\nquit\n\nEnter ', ...
+            '\nparameter_scans\ngenerate_report\nquit\n\nEnter ', ...
             '''help <command>'' for further details on a specific command.']);
 
         elseif (length(job) > 4 && strcmp(job(1:5), 'help '))
@@ -76,6 +76,10 @@ function cpime()
         elseif (strcmp(job, 'analyse_solutions'))
 
             analyse_ode_solutions();
+            
+        elseif (strcmp(job, 'generate_report'))
+            
+            report_plan();
 
         elseif (not(strcmp(job, '')))
 

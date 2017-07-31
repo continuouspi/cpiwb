@@ -2,7 +2,7 @@
 % author: Ross Rhodes
 
 function [t, solutions] = solve_cpi_odes(modelODEs, ode_num, init_tokens, ...
-    end_time, solvers, legend_strings)
+    end_time, solvers, legend_strings,isreport)
 
 t = {};
 solutions = {};
@@ -50,15 +50,17 @@ ode_system = odeFunction(ode_exprs, vars);
 prompt = (['\n\nDo you wish to see the numerical solutions? (Y/n)\nCPiME:> ']);
 confirmation = [];
 
-if (not(isempty(legend_strings)))
-    while (isempty(confirmation))
-        confirmation = strtrim(input(prompt, 's'));
+if (not(exist('isreport')))
+    if (not(isempty(legend_strings)))
+        while (isempty(confirmation))
+            confirmation = strtrim(input(prompt, 's'));
 
-        if (confirmation == 'Y')
-            view_solutions = 1;
-        elseif (not(confirmation == 'n'))
-            fprintf('\nError: Invalid input provided. Please enter ''Y'' for yes, or ''n'' for no.');
-            confirmation = [];
+            if (confirmation == 'Y')
+                view_solutions = 1;
+            elseif (not(confirmation == 'n'))
+                fprintf('\nError: Invalid input provided. Please enter ''Y'' for yes, or ''n'' for no.');
+                confirmation = [];
+            end
         end
     end
 end
@@ -93,7 +95,7 @@ for i = 1:length(solvers)
     
     warning('on', 'all');
     max_length = 0;
-    
+   
     % arbitrary limit set to guarantee all solutions will be visible
     if(view_solutions && size(solutions{end}, 1) <= 1500)
         fprintf(['\nSolutions for solver ', ode_name{1}, ':\n\n']);
