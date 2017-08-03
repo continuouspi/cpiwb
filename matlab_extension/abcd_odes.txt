@@ -1,4 +1,0 @@
-diff(x1(t), t) = -1.0 * x2 * x1;
-diff(x2(t), t) = -1.0 * x2 * x1;
-diff(x3(t), t) = -1.0 * x3 + x2 * x1;
-diff(x4(t), t) = x2 * x1;

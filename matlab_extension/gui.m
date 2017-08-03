@@ -65,14 +65,14 @@ global curr_pname;
 global file_map;
 global process_map;
 
-keys = {'fname','pname','fname2','pname2','fname3','pname3','fname4','pname4'};
+keys = {'fname1','pname1','fname2','pname2','fname3','pname3','fname4','pname4'};
 values = {'','','','','','','',''};
 values_num = {1,1,1,1,1,1,1,1};
 
 file_map = containers.Map(keys,values);
 process_map = containers.Map(keys,values_num);
-curr_fname = 'fname';
-curr_pname = 'pname';
+curr_fname = 'fname1';
+curr_pname = 'pname1';
 
 definitions = '';
 
@@ -154,10 +154,6 @@ end
 
 %Reset Edit Models screen
 function reset_edit(handles)
-global curr_fname;
-global process_map;
-global curr_pname;
-global file_map;
 
  set(handles.edit2,'string','');
  set(handles.edit1,'string','','enable','off');
@@ -207,6 +203,17 @@ function reset_compare(handles)
  set(handles.popupmenu5,'Value',1);
  
  reset_file_selection();
+ 
+ %Clear Comparing screen
+ function clear_compare(handles)
+
+ set(handles.edit10,'string','');
+ set(handles.edit11,'string','','enable','off');
+ set(handles.popupmenu4,'Value',1);
+ set(handles.popupmenu4,'String','Process List');
+ set(handles.edit12,'string','0');
+ set(handles.edit13,'string','1');
+ set(handles.popupmenu5,'Value',1);
  
 % --- Executes on button press in pushbutton4.
 function pushbutton4_Callback(hObject, eventdata, handles)
@@ -349,6 +356,9 @@ function pushbutton8_Callback(hObject, eventdata, handles)
    fprintf(fid,'%s\n',file_content{:});
    
    fclose(fid);
+   
+   set(handles.text2,'string','Status: File saved.');
+   set(handles.text2,'Position',[2.2 0.5 17.333 1.083]);
  end
 
 
@@ -380,16 +390,12 @@ function pushbutton9_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 % Construct a questdlg with three options
-global curr_pname; 
-global curr_fname; 
-global process_map;
-global file_map;
 
 %Confirm user wants to close the file
  file_path = get(handles.edit2,'String'); 
  
 if (~isempty(file_path))
-choice = questdlg('Are you sure you want to close the file? Any unsaved changes will be lost.', ...
+choice = questdlg('Are you sure you want to close the file?', ...
 	'Close Button Confirmation', ...
 	'Yes','Cancel','Cancel');
 % Handle response
@@ -819,9 +825,11 @@ if(isempty(file_map(curr_fname)) == 0);
 
     %Solve CPi ODEs and display numerical solutions in a table.
     [t, Y] = solve_cpi_odes_gui(odes, ode_num, initial_concentrations, end_time_db, ...
-    solver_name(selection2,:), legend_strings);
+    solver_name(selection2,:), legend_strings, 1);
 
-    if (isempty(t))
+    pause(0.1);
+
+    if (isempty(t));
         return;
     end
         
@@ -997,7 +1005,16 @@ function pushbutton21_Callback(hObject, eventdata, handles)
 % hObject    handle to pushbutton21 (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-reset_simulate(handles)
+
+choice = questdlg('Are you sure you want to reset this process'' settings?', ...
+	'Close Button Confirmation', ...
+	'Yes','Cancel','Cancel');
+% Handle response
+if(isequal(choice,'Yes'));      
+    reset_simulate(handles)  
+end
+
+
 
 
 
@@ -1077,7 +1094,21 @@ function pushbutton22_Callback(hObject, eventdata, handles)
 % hObject    handle to pushbutton22 (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
+global process_map;
+global file_map;
 
+
+% Setting Status string
+set(handles.text16,'string','Status: Creating comparison...');
+set(handles.text16,'Position',[2.2 0.5 25 1.083]);
+
+pause(0.1);
+
+compare_cpi_processes_gui(handles, process_map, file_map);
+
+% Resetting Status string
+set(handles.text16,'string','Status: Ready');
+set(handles.text16,'Position',[2.333 0.5 17.333 1.083]);
 
 % --- Executes on button press in pushbutton23.
 function pushbutton23_Callback(hObject, eventdata, handles)
@@ -1195,7 +1226,14 @@ function pushbutton27_Callback(hObject, eventdata, handles)
 % hObject    handle to pushbutton27 (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-reset_compare(handles);
+
+choice = questdlg('Are you sure you want to reset the settings?', ...
+	'Close Button Confirmation', ...
+	'Yes','Cancel','Cancel');
+% Handle response
+if(isequal(choice,'Yes'));      
+    reset_compare(handles)  
+end
 
 % --- Executes on selection change in popupmenu6.
 function popupmenu6_Callback(hObject, eventdata, handles)
@@ -1306,10 +1344,10 @@ global curr_fname;
 global curr_pname;
 global file_map;
 
-curr_fname = 'fname';
-curr_pname = 'pname';
+curr_fname = 'fname1';
+curr_pname = 'pname1';
 
-reset_compare(handles);
+clear_compare(handles);
 
 if(isempty(file_map(curr_fname)) == 0);
     openfile_compare(handles);
@@ -1330,7 +1368,7 @@ global file_map;
 curr_fname = 'fname2';
 curr_pname = 'pname2';
 
-reset_compare(handles);
+clear_compare(handles);
 
 if(isempty(file_map(curr_fname)) == 0);
     openfile_compare(handles);
@@ -1351,7 +1389,7 @@ global file_map;
 curr_fname = 'fname3';
 curr_pname = 'pname3';
 
-reset_compare(handles);
+clear_compare(handles);
 
 if(isempty(file_map(curr_fname)) == 0);
     openfile_compare(handles);
@@ -1372,7 +1410,7 @@ global file_map;
 curr_fname = 'fname4';
 curr_pname = 'pname4';
 
-reset_compare(handles);
+clear_compare(handles);
 
 if(isempty(file_map(curr_fname)) == 0);
     openfile_compare(handles);

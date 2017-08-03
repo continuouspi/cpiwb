@@ -2,7 +2,7 @@
 % author: Ross Rhodes, adapted to GUI by Luke Paul Buttigieg
 
 function [t, solutions] = solve_cpi_odes_gui(modelODEs, ode_num, init_tokens, ...
-    end_time, solvers, legend_strings)
+    end_time, solvers, legend_strings, show_solutions)
 
 t = {};
 solutions = {};
@@ -83,16 +83,17 @@ for i = 1:length(solvers)
     warning('on', 'all');
     max_length = 0;
     
+    if(show_solutions == 1);
     name = strcat('Numerical Solutions for solver ', ode_name{1});
     
     % plot the simulation, and construct a figure around it
-    figu = figure('Name', name,'NumberTitle','on');
-    parentPosition = get(figu, 'position');
+    figur = figure('Name', name,'NumberTitle','on');
+    parentPosition = get(figur, 'position');
     
     % setting table position
     uitablePosition = [1 1 parentPosition(3)-2 parentPosition(4)-2];
     
-    tabl = uitable(figu, 'position', uitablePosition);
+    tabl = uitable(figur, 'position', uitablePosition);
     
     % populating table headers
     tabl.ColumnName = ['Time' legend_strings];
@@ -107,8 +108,8 @@ for i = 1:length(solvers)
     tabl.Data = round(table_solutions,4);
     
     % moving the figure to the east.
-    movegui(figu,'east');
-    
+    movegui(figur,'east');
+    end
 end
 
 end
