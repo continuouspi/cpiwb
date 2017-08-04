@@ -1,0 +1,12 @@
+--Mutual Activation - Version B (with the shadow species RX)
+
+species S(a) = tau < 0.01 > .(S(a) | R(a));
+species R(a) = { d - u@0.01, d - t@100, f - g@5000 } a < u,t > .(RX(f,a) | d.g.0)
++ tau < 1 > .0;
+species E(a,b,c) = b(x,y).(x.E(a,b,c) + y.EP(a,b,c));
+species EP(a,b,c) = c(v,w).(v.EP(a,b,c) + w.E(a,b,c)) + tau < 0.004 > .(EP(a,b,c) | R(a));
+species A(d) = { e - s@0.01, e - r@20 } d < s,r > .e.A(d);
+species RX(f,a) = f.R(a) + tau < 1 > .f.0;
+process P = [0.15] S(a) || [0.01] A(d) || [1] E(a,b,c) || [0] EP(a,b,c) ||
+[0] R(a) || [0] RX(f,a):
+{ a - b@2000.2, c - d@400.2, f - g@5000 } ;

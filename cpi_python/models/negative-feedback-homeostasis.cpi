@@ -1,0 +1,8 @@
+species S(a,c,e,n) = n.S(a,c,e,n) + a(b).b.S(a,c,e,n);
+species R(c,e) = { d - u@0.01, d - t@100, f - g@10000 } c < u,t > .(RX(c,e,f,l) | d.g.0) + e.0;
+species E(c,e,h,i) = h(x,y).(x.E(c,e,h,i) + y.EP(c,e,h,i)) + tau < 0.01 > .(E(c,e,h,i) | R(c,e));
+species EP(c,e,h,i) = i(v,w).(v.EP(c,e,h,i) + w.E(c,e,h,i));
+species A(j) = { k - s@0.01, k - t@50 } j < s,t > .k.A(j);
+species RX(c,e,f,l) = { m - n@10000 } l < m > .n.f.0 + f.R(c,e);
+
+process P = [0] S(a,c,e,n) || [0.01] A(j) || [0] EP(c,e,h,i) || [1] E(c,e,h,i) || [0] R(c,e) || [0] RX(c,e,f,l): { c - h@10001, i - j@5001, e - n@1, f - g@10000, a - l@1 } ;

@@ -1,0 +1,6 @@
+-- Synthesis and Degradation
+
+species R() = tau < 5 > .0;
+species S() = tau < 1 > .(S() | R());
+species A() = tau < 0.01 > .(A() | R());
+process P = [1.0] A() || [1.0] S() || [0] R(): {} ;

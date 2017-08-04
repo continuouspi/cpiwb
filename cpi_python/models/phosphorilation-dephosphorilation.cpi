@@ -1,0 +1,13 @@
+-- Phosphorylation and Dephosphorylation - version A (not working)
+
+-- species R(a) = a.RP(a);
+-- species S(b) = b.S(b);
+-- species RP(a) = tau < 1 > .R(a);
+-- process P = [1] S(b) || [1] R(a) || [0] RP(a): { a − b@1 } ;
+
+-- Phosphorylation and Dephosphorylation - version B (with the workaround)
+
+species R(a) = { t - r@1000 } a < r > .t.Rp(a);
+species S(b) = b(r).r.S(b);
+species Rp(a) = tau < 1 > .R(a);
+process P = [1] S(b) || [1] R(a) || [0] Rp(a): { a - b@1 } ;

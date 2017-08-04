@@ -1,0 +1,7 @@
+-- X + E  <-> C -> Q + E
+
+species X(a) = a(x,y).(x.X(a) + y.Q());
+species E(e) = {b-u @ 0.0, b-t @ 0.5} e<u,t>.b.E(e);
+species Q() = tau<0>.Q();
+
+process Pi = [8.0] X(a) || [1.0] E(e) || [0.0] Q() : {a-e@1};

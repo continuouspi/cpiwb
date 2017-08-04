@@ -1,0 +1,5 @@
+-- Code Snippet 4.4
+species R(a,b) = a.0;
+species X(a,b) = tau < 1 > .0 + b.X(a,b);
+species S(a,b) = tau < 2 > .(S(a,b) | R(a,b)) + tau < 1 > .(S(a,b) | X(a,b));
+process P = [1.0]S(a,b) || [0.0]X(a,b) || [1.0]R(a,b): { a - b@2 } ;

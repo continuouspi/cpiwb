@@ -1,0 +1,8 @@
+-- Sigmoidal Signal Response by Stanley Wang
+
+species R(a,b) = a(x,y).(x.R(a,b) + y.RP(a,b));
+species S(c) = { e - r@0.01,e - s@100 } c < r,s > .e.S(c);
+species RP(a,b) = b(v,w).(v.RP(a,b) + w.R(a,b));
+species A(d) = { f - t@0.01,f - u@100 } d < t,u > .f.A(d);
+process Pi = [1.0] R(a,b) || [0.01] S(c) || [0.0] RP(a,b) || [0.01] A(d)
+: { a - c@2000.2, b - d@2000.2 } ;

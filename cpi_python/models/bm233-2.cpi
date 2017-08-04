@@ -1,0 +1,38 @@
+-- cPi model of BIOMD0000000233
+
+-- S + Y -> 2X
+-- 2X -> X + Y
+-- X + Y -> Y + P
+-- X -> P.
+
+-- S + Y -> 2X  
+-- represented as a tau transition "Y -> 2X" as S is a controlled quantity 
+-- which is abstracted away in the final ODE as part of k1.
+
+-- X + Y -> Y + P 
+-- represented as a reaction transition between X and Y 
+-- via names x and y respectively at rate k3.
+
+species Y(y,x,m,n) = tau<11>.(X(x,y,m,n)|X(x,y,m,n)) + y.P();
+
+-- 2X -> X + Y
+-- represented as X being able to react on two names m and n 
+-- with both names being held by X itself.
+
+-- X + Y -> Y + P
+-- See above.
+
+-- X -> P
+-- represented as a tau transition from from X to P.
+
+species X(x,y,m,n) = m.Y(y,x,m,n) +  n.X(x,y,m,n) + x.Y(y,x,m,n) + tau<14>.P();
+
+species P() = tau<0>.P();
+
+process Pi = [10] Y(y,x,m,n) || [0] X(x,y,m,n) || [0] P() : {
+  x-y@13,
+  m-n@12
+};
+    
+
+
