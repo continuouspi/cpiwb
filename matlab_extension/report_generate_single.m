@@ -1,24 +1,39 @@
 
-function report_generate_single(definitions,save_name,saving_path,report_content,font,...
+function report_generate_single(model_name,process_name,definitions,save_name,saving_path,report_content,font,...
                 odes,start_time,end_time,chosen_solvers,legend_strings,t,solutions)
 
 import mlreportgen.dom.*
 
 fprintf('\n\nConstructing report ... '); 
-plot_path = [saving_path,'my.png'];
+
+
 report_path = [saving_path,save_name];
 
-if strcmp(num2str(save_name((length(save_name)-2):end)),'tml')
+if strcmp(num2str(save_name((length(save_name)-4):end)),'.html')
     report_tpye = 'html';
-elseif sum(save_name((length(save_name)-2):end)=='pdf')==3
+elseif sum(save_name((length(save_name)-3):end)=='.pdf')==4
     report_tpye = 'pdf';
+elseif strcmp(num2str(save_name((length(save_name)-4):end)),'.docx')
+    report_tpye = 'docx';
 else
     fprintf('Error: invalid format');
     return
 end    
 
+% document format
 if strcmp(report_tpye,'html')
    report = Document(report_path,'HTML-FILE');
+elseif strcmp(report_tpye,'docx')
+   report = Document(report_path,'docx');
+   %insert page number
+    open(report);
+    footer = DOCXPageFooter('default');
+    report.CurrentPageLayout.PageFooters = footer;
+    report.CurrentPageLayout.FirstPageNumber = 1;
+    pageinfo = Paragraph();
+    pageinfo.HAlign = 'center';
+    append(pageinfo,Page());
+    append(footer,pageinfo);
 else
     try
         report = Document(report_path,'pdf');
@@ -42,24 +57,64 @@ else
     end
 end
 
-if report_content.toc ==1
-    try        
-        p = Paragraph('Table of Contents');  
-        if strcmp(report_tpye,'html')
-            p.Style = {Bold(true),FontSize('22pt')};
-        else
-            p.Style = {Bold(true),FontSize('16pt')};
-        end    
-        toc = TOC(1,' ');
-        toc.Style = {PageBreakBefore};
-        append(report,p);
-        append(report,toc);
-    catch
-        warning('TOC is invalid. TOC will not be generated.')
+% b= Border();
+% b.BottomStyle = 'single';
+%b.BottomColor = 'LightGray';
+
+% add report title
+if (report_content.Plot==0 && report_content.Num==0)
+    if (report_content.Plot==1 && report_content.Num==0)
+        title = ['Code of ', model_name];
+    elseif (report_content.Plot==0 && report_content.Num==1)
+        title = ['ODEs of ', model_name];
+    else
+        title = ['Code and ODEs of ', model_name];
     end
+else
+    title = ['Simulate Single Process: ', model_name];
+
+end
+p = Paragraph(title);  
+
+if strcmp(report_tpye,'html') 
+    p.Style = {Bold(true),FontSize('24pt'),HAlign('center')};
+else
+    p.Style = {Bold(true),FontSize('18pt'),HAlign('center')};
+end
+append(report,p);
+
+%add time
+p = Paragraph(date);  
+p.Style = {HAlign('center')};
+append(report,p);
+%append(report,Paragraph(''));
+
+
+% add TOC 
+if strcmp(report_tpye,'html') || strcmp(report_tpye,'pdf') 
+    if report_content.toc ==1
+        try        
+            p = Paragraph('Table of Contents');  
+            if strcmp(report_tpye,'html')
+                p.Style = {Bold(true),FontSize('20pt')};
+            else
+                p.Style = {Bold(true),FontSize('14pt'), Color('steelblue')};
+            end    
+            toc = TOC(1,' ');
+            toc.Style = {PageBreakBefore(true)};
+            append(report,p);
+            append(report,toc);
+        catch
+            warning('TOC is invalid. TOC will not be generated.')
+        end
+    end
+elseif strcmp(report_tpye,'docx') 
+    fprintf('TOC will not be generated in docx document');
 end
 
 
+
+% get chosen font proporties 
 if  isstruct(font) 
     
     if strcmp(font.FontWeight,'bold')
@@ -75,13 +130,13 @@ if  isstruct(font)
     end       
 
     font_option = {FontFamily(font.FontName),FontSize([num2str(font.FontSize),'pt']),...
-        Bold(Bold_option),Italic(Italic_option),WhiteSpace('preserve')};
+        Bold(Bold_option),Italic(Italic_option),WhiteSpace('pre')};
 else
     
     font_option = {FontFamily(),FontSize(),Bold(false),Italic(false),WhiteSpace('preserve')};
 end
 
-
+% report body
 % 1. code
 if (report_content.Code==1)
     h1 = Heading(1, 'Code');
@@ -109,18 +164,19 @@ end
 
 
 %3. plot
+plot_path = [saving_path,'my.png'];
 if (report_content.Plot==1)
     
     plot1 = Image(plot_path);
 
     if strcmp(report_tpye,'html')
-        plot1.Style = {Width('90%')};
+        plot1.Style = {Width('85%')};
     else
-        plot1.Style = { ScaleToFit};
+        plot1.Style = {ScaleToFit};
     end
     
     h3 = Heading(1, 'Plot');
-    t3=['Process Pi was plotted from  time ',num2str(start_time),' to ', num2str(end_time),'.'];
+    t3=['Process ', process_name, ' was plotted from  time ',num2str(start_time),' to ', num2str(end_time),'.'];
     
     p3 = Paragraph(t3);
     p3.Style = font_option;
@@ -193,8 +249,10 @@ if (report_content.Num==1)
         append(r,TableEntry('Time(s)'));
         for i = 1:length(legend_strings)
            append(r,TableEntry(legend_strings{i}));           
-        end
-        r.Style={Bold};
+        end      
+        header_font = font_option;
+        header_font{3} = Bold(true); 
+        r.Style = header_font;      
         append(table.Header,r);
         
         %table.Style = {RowHeight('0.1in')};
@@ -202,19 +260,32 @@ if (report_content.Num==1)
         table.ColSep = 'Single';
         table.RowSep = 'Single';
         
-        if length(legend_strings)<=9
-            table.Width = '60%';
-        else
-            table.Width = '95%';
+        if strcmp(report_tpye,'html')
+           grps(1)=TableColSpecGroup;
+           grps(1).Span= length(legend_strings)+1;       
+           grps(1).Style = {Width('1in')};        
+           table.ColSpecGroups = grps;
+        elseif strcmp(report_tpye,'docx')           
+            table.Width = '95%'; 
+            table.HAlign = 'center';
+        else      
+            if length(legend_strings)<=9
+                table.Width = '60%';          
+                grps(1)=TableColSpecGroup;
+                grps(1).Span= length(legend_strings)+1;       
+                grps(1).Style = {Width('0.8in')};        
+                table.ColSpecGroups = grps;
+                %table.Style = {ResizeToFitContents(true)};             
+            else
+                table.Width = '110%';
+                ColWid = num2str(round(100/(length(legend_strings)+1))-1);
+                grps(1)=TableColSpecGroup;
+                grps(1).Span= length(legend_strings)+1;       
+                grps(1).Style = {Width([ColWid,'%'])};
+                table.ColSpecGroups = grps;
+           end  
         end
-        
-        ColWid = num2str(round(100/(length(legend_strings)+1))-1);
-        grps(1)=TableColSpecGroup;
-        grps(1).Span= length(legend_strings)+1;       
-        grps(1).Style = {Width([ColWid,'%'])};
-        table.ColSpecGroups = grps;
-        %table.Style = {ResizeToFitContents(true)};
-        append(report,table); 
+        append(report,table);                
     end
 
 end
@@ -222,7 +293,6 @@ end
 
 close(report);
 rptview(report.OutputPath);
-delete(plot_path);
 fprintf('Done.');
 
 

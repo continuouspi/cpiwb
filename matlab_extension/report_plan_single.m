@@ -278,7 +278,7 @@ f.Visible = 'on';
          errordlg('No definitions. Please choose another model');
          return
       end
-      source.UserData = cpi_defs;
+      source.UserData = struct('cpi_Defs',cpi_defs, 'model_Name',model_name);
       [process_name_options, process_def_options, definition_tokens, ...
                        num_definitions] = retrieve_process_definitions(cpi_defs);                
       process_popup.String = process_name_options;    
@@ -412,7 +412,7 @@ f.Visible = 'on';
 
 
    function save_path_Callback(source,eventdata)   
-        [save_name,saving_path] = uiputfile({'*.html';'*.pdf'},'Save Report As');
+        [save_name,saving_path] = uiputfile({'*.html';'*.pdf';'*.docx'},'Save Report As');
         
         if (not(saving_path))
             save_name = '';
@@ -432,16 +432,22 @@ f.Visible = 'on';
       end
       
       h1 = findobj('Tag','filename'); 
-      cpi_defs = h1.UserData; 
+      data1 = h1.UserData; 
+      cpi_defs = data1.cpi_Defs;
+      model_name = data1.model_Name;
       
       if strcmp(saving_path, '')
           errordlg('Please choose a path to save your report.'); 
           return;
       end  
       
+      if (report_content.Code==0 && report_content.ODEs==0 && report_content.Plot==0 && report_content.Num ==0)
+            errordlg('No report content is added.');
+            return;
+      end
       % code
       if report_content.Code==1 && report_content.ODEs==0 && report_content.Plot==0 && report_content.Num==0
-         report_generate_single(cpi_defs,save_name,saving_path,report_content,font); 
+         report_generate_single(model_name, process_name,cpi_defs,save_name,saving_path,report_content,font); 
    
       % (code) + odes   
       elseif report_content.ODEs==1 && report_content.Plot==0 && report_content.Num==0
@@ -469,7 +475,7 @@ f.Visible = 'on';
          end
          
          fprintf('Done.');
-         report_generate_single(cpi_defs,save_name,saving_path,report_content,font,odes); 
+         report_generate_single(model_name, process_name,cpi_defs,save_name,saving_path,report_content,font,odes); 
         
       % (code) + (odes) + (plot) + (numeritic)
       elseif  report_content.Plot==1 || report_content.Num==1
@@ -500,6 +506,7 @@ f.Visible = 'on';
              errordlg('Please choose a solve.');
             return;
          end
+         
          
          [legend_strings, species_num] = prepare_legend(process_def, ...
             definition_tokens, num_definitions);
@@ -534,8 +541,12 @@ f.Visible = 'on';
          plot_path = [saving_path,'my.png'];
          saveas(gcf,plot_path);
               
-         report_generate_single(cpi_defs,save_name,saving_path,report_content,font,odes,start_time,end_time,chosen_solvers,legend_strings,t,Y); 
+         report_generate_single(model_name, process_name, cpi_defs, save_name, saving_path,...
+                   report_content,font,odes,start_time,end_time,chosen_solvers,legend_strings,t,Y); 
          
+         % delete plot figure window
+         delete(plot_path);
+         delete(gcf);
 
       else
           return    

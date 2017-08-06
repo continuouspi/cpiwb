@@ -23,9 +23,9 @@ font = [];
 % Ode_num={}; 
 % Init_tokens={};
 
-fig = findobj('Tag','figure_multi'); 
+fig = findobj('Tag','figure_multi');
 if not(isempty(fig))
-     close(fig(1));   
+     close(fig);   
 end
 
 
@@ -266,6 +266,7 @@ rp_plot = uicontrol('Parent',panel_content,...
       'Style','checkbox','String','Plot',...
       'Position',[15,5,100,25],...
       'BackgroundColor',[1,1,1],...
+      'Value',1,...
       'Callback',@report_plot_Callback);  
   
 back = uicontrol('Style','pushbutton',...
@@ -383,7 +384,7 @@ f.Visible = 'on';
    end
 
     function save_path_Callback(source,eventdata)   
-        [save_name,saving_path] = uiputfile({'*.html';'*.pdf'},'Save Report As');
+        [save_name,saving_path] = uiputfile({'*.html';'*.pdf';'*.docx'},'Save Report As');
         
         if (not(saving_path))
             save_name = '';
@@ -507,7 +508,7 @@ f.Visible = 'on';
           definition_tokens(1) = [];
           definations(1) = [];
           
-          model_names = update_processes_disp(file_names,process_names)
+          model_names = update_processes_disp(file_names,process_names);
     end
 
     
@@ -520,7 +521,7 @@ f.Visible = 'on';
           num_definitions(2) = [];
           definition_tokens(2) = [];
           definations(2) = [];
-          model_names = update_processes_disp(file_names,process_names)
+          model_names = update_processes_disp(file_names,process_names);
     end
 
 
@@ -532,7 +533,7 @@ f.Visible = 'on';
       num_definitions(3) = [];
       definition_tokens(3) = [];
       definations(3) = [];
-      model_names = update_processes_disp(file_names,process_names)
+      model_names = update_processes_disp(file_names,process_names);
     end
 
 
@@ -544,7 +545,7 @@ f.Visible = 'on';
       num_definitions(4) = [];
       definition_tokens(4) = [];
       definations(4) = [];
-      model_names = update_processes_disp(file_names,process_names)
+      model_names = update_processes_disp(file_names,process_names);
     end
 
 
@@ -612,8 +613,9 @@ f.Visible = 'on';
        
        plot_path = [saving_path,'my_plot.png'];
        saveas(gcf,plot_path);
-       report_generate_multiple(model_names,definations, save_name, saving_path,start_time, end_time, report_content,font)
-       
+       report_generate_multiple(model_names, process_names, definations, save_name, saving_path,...
+           start_time, end_time, report_content,font)
+       delete(gcf);
        
     end
 %Main function end
