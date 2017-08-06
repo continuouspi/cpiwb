@@ -170,40 +170,18 @@ if (report_content.Code==1)
     
     h1 = Heading(1, 'Code');
     append(report,h1);
+
+    %[uni_model_names,ia,~] = unique(model_names,'stable');
     
-    text1=Text(model_names{1});
-    
-    p1 = Heading(2,text1);  
-    %p1.Style = font_option;
-    %p1.Bold = true;
-    append(report,p1);
-    
-    text2=Text(strtrim(definations{1}));
-    p2 = Paragraph(text2);
-    p2.Style = font_option;
-    append(report,p2);
-    
-    if length(model_names) > 1 
-        for i = 2:length(model_names)
-            flag = 0;
-            for j = 1:(i-1)
-                if strcmp(model_names{i},model_names{j})
-                   flag = 1; 
-                end
-            end
-            
-            if flag == 0
-                text1=Text(model_names{i});
-                p1 = Heading(2,text1);
-                %p1.Style = font_option;
-                %p1.Bold = true;
-                append(report,p1);
-                text2=Text(strtrim(definations{i}));
-                p2 = Paragraph(text2);
-                p2.Style = font_option;
-                append(report,p2);
-            end
-        end
+    for i = 1:length(uni_model_names)
+        text1 = Text(uni_model_names{i});
+        p1 = Heading(2,text1);  
+        append(report,p1);
+
+        text2=Text(strtrim(definations{ia(i)}));
+        p2 = Paragraph(text2);
+        p2.Style = font_option;
+        append(report,p2);
     end
 end
 
