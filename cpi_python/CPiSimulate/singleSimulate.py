@@ -118,7 +118,7 @@ class Simulate():
             print 'Cannot find this process in the selected CPi model, please input the correct one.'
 
     # simulate the solution set for the specified time period
-    def simulate_process(self, process, solver, t_start, t_final, t_divide):
+    def simulate(self, process, solver, t_start, t_final, t_divide):
 
         try:
             loc = self.process_list.index(process)
@@ -163,13 +163,17 @@ class Simulate():
             print 'Cannot find this process in the selected CPi model, please input the correct one.'
             return 0, 0
 
-    def show_plot(self, process, times, solution):
+    def simulate_process(self, process, solver, t_start, t_final, t_divide):
         try:
             loc = self.process_list.index(process)
+            times, solution = self.simulate(process, solver, t_start, t_final, t_divide)
             plot_title = self.filename + ' process ' + process
-            solveodes.plotodes(plot_title, self.species_list[loc], solution, times)
+            solution_object = solveodes.PlotOdes(plot_title, self.species_list[loc], solution, times)
+
+            return solution_object
         except ValueError:
             print 'Cannot find this process in the selected CPi model, please input the correct one.'
+            return 0
 
     # compare the difference of two solver in one cpi model
     def compare_solver(self, process, t_start, t_final, t_divide, plot_type):
@@ -177,8 +181,8 @@ class Simulate():
         try:
             loc = self.process_list.index(process)
 
-            ode_times, ode_sol = self.simulate_process(process, 'odeint', t_start, t_final, t_divide)
-            GLIMDA_times, GLIMDA_sol = self.simulate_process(process, 'GLIMDA', t_start, t_final, t_divide)
+            ode_times, ode_sol = self.simulate(process, 'odeint', t_start, t_final, t_divide)
+            GLIMDA_times, GLIMDA_sol = self.simulate(process, 'GLIMDA', t_start, t_final, t_divide)
 
             plottitle = self.filename + ' process ' + process
             model_tran1 = [i + '(odeint)' for i in self.species_list[loc]]

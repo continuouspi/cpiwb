@@ -33,53 +33,60 @@ def solvecomplex(rhs, initial_concentrations, t0, tfinal, plot_title):
     t, y = sim.simulate(tfinal)
     return t, y
 
+class PlotOdes():
+    def __init__(self, filetitle, species_list, solution, times):
+        self.filetitle = filetitle
+        self.species_list = species_list
+        self.solution = solution
+        self.times = times
 
-def plotodes(filetitle, species_list, solution, times):
+    def show_plot(self):
 
-    plt.style.use('ggplot')
-    fig = plt.figure(figsize=(12, 6))
-    ax1 = fig.add_axes([0.1, 0.1, 0.7, 0.8])
-    line_add = []
+        plt.style.use('ggplot')
+        fig = plt.figure(figsize=(12, 6))
+        ax1 = fig.add_axes([0.1, 0.1, 0.7, 0.8])
+        line_add = []
 
-    spec_num = len(species_list)
-    re_solution = solution[0: spec_num]  # cut unnecessary solutions
+        spec_num = len(self.species_list)
+        re_solution = self.solution[0: spec_num]  # cut unnecessary solutions
 
-    for item in re_solution:
-        line_temp, = ax1.plot(times, item, picker=5)
-        line_add.append(line_temp)
+        for item in re_solution:
+            line_temp, = ax1.plot(self.times, item, picker=5)
+            line_add.append(line_temp)
 
-    leg = ax1.legend(species_list, bbox_to_anchor=(1.02, 0.4), loc=6)
-    ax1.set_xlabel('Time (seconds)')
-    ax1.set_ylabel('Concentration')
-    ax1.set_title(filetitle)
+        leg = ax1.legend(self.species_list, bbox_to_anchor=(1.02, 0.4), loc=6)
+        ax1.set_xlabel('Time (seconds)')
+        ax1.set_ylabel('Concentration')
+        ax1.set_title(self.filetitle)
 
-    line_leg = dict()
-    for origline, legline in zip(line_add, leg.get_lines()):
-        legline.set_picker(5)
-        line_leg[legline] = origline
+        line_leg = dict()
+        for origline, legline in zip(line_add, leg.get_lines()):
+            legline.set_picker(5)
+            line_leg[legline] = origline
 
-    def on_pick(event):   # add pick event and the style of label and lines cna be changed by mouse click
-        origline = line_leg[event.artist]
+        def on_pick(event):   # add pick event and the style of label and lines cna be changed by mouse click
+            origline = line_leg[event.artist]
 
-        if origline.get_linestyle() == '-':
-            event.artist.set_linestyle('--')
-            origline.set_linestyle('--')
-        elif origline.get_linestyle() == '--':
-            event.artist.set_linestyle('-.')
-            origline.set_linestyle('-.')
-        elif origline.get_linestyle() == '-.':
-            event.artist.set_linestyle(':')
-            origline.set_linestyle(':')
-        elif origline.get_linestyle() == ':':
-            event.artist.set_linestyle(' ')
-            origline.set_linestyle(' ')
-        else:
-            event.artist.set_linestyle('-')
-            origline.set_linestyle('-')
-        fig.canvas.draw()
+            if origline.get_linestyle() == '-':
+                event.artist.set_linestyle('--')
+                origline.set_linestyle('--')
+            elif origline.get_linestyle() == '--':
+                event.artist.set_linestyle('-.')
+                origline.set_linestyle('-.')
+            elif origline.get_linestyle() == '-.':
+                event.artist.set_linestyle(':')
+                origline.set_linestyle(':')
+            elif origline.get_linestyle() == ':':
+                event.artist.set_linestyle(' ')
+                origline.set_linestyle(' ')
+            else:
+                event.artist.set_linestyle('-')
+                origline.set_linestyle('-')
+            fig.canvas.draw()
 
-    fig.canvas.mpl_connect('pick_event', on_pick)
+        fig.canvas.mpl_connect('pick_event', on_pick)
 
-    plt.show()
+        plt.show()
 
-
+    def show_solution(self):
+        print self.solution

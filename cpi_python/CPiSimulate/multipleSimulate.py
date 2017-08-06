@@ -5,8 +5,7 @@ import numpy as np
 import singleSimulate
 import solveodes
 import inputtimes
-import singleCompare
-import separateCompare
+import compareSolution
 import comparecpi
 
 class Simulate():
@@ -79,7 +78,7 @@ class Simulate():
         return times, re_solution
 
     # compare processes in from different models
-    def compare_model(self, process_input, solver, t_start, t_final, t_divide):
+    def compare_simulate(self, process_input, solver, t_start, t_final, t_divide):
 
         loc_list = []
         try:
@@ -132,33 +131,14 @@ class Simulate():
             else:
                 print 'There is no common species in selected processes.'
 
-    def show_plot(self, select_one, plot_type):
+    def compare_model(self, process_input, solver, t_start, t_final, t_divide):
 
-        tol_numlist = []
-        if self.same_list:
-            if select_one != 'all' and select_one != '':  # if only some common species are required to be emphasized
-                input_list = select_one.split()
+        self.compare_simulate(process_input, solver, t_start, t_final, t_divide)
 
-                num_list = []
-                for item in input_list:
-                    if item in self.same_list:
-                        num_list.append(item)
-                    else:
-                        print 'There is no common species named: ' + item +', it will be ignored here.'
-
-                tol_numlist = num_list
-            elif select_one == 'all':
-                tol_numlist = self.same_list
-
-        if plot_type == 'single':
-            singleplot_title = 'CPi Model: ' + ' and '.join(self.tol_title)
-            singleCompare.plotdiffs(singleplot_title, self.tol_label, self.input_comparelist, tol_numlist,
-                                    self.tol_solution, self.times_list)
-        elif plot_type == 'separate':
-            separateCompare.plotdiffs(self.separateplot_title, self.input_comparelist, tol_numlist,
-                                      self.tol_solution, self.times_list)
-        else:
-            print "Please input the correct plot type, 'single' or 'separate'."
+        solution_object = compareSolution.SingleCompareSolution(self.same_list, self.separateplot_title,
+                                                                self.tol_title, self.tol_label, self.input_comparelist,
+                                                                self.tol_solution, self.times_list)
+        return solution_object
 
 
 
