@@ -63,9 +63,9 @@ end
 
 % add report title
 if (report_content.Plot==0 && report_content.Num==0)
-    if (report_content.Plot==1 && report_content.Num==0)
+    if (report_content.Code==1 && report_content.ODEs==0)
         title = ['Code of ', model_name];
-    elseif (report_content.Plot==0 && report_content.Num==1)
+    elseif (report_content.Code==0 && report_content.ODEs==1)
         title = ['ODEs of ', model_name];
     else
         title = ['Code and ODEs of ', model_name];
@@ -85,7 +85,7 @@ append(report,p);
 
 %add time
 p = Paragraph(date);  
-p.Style = {HAlign('center')};
+p.Style = {HAlign('center'),LineSpacing(1.5)};
 append(report,p);
 %append(report,Paragraph(''));
 
@@ -133,7 +133,7 @@ if  isstruct(font)
         Bold(Bold_option),Italic(Italic_option),WhiteSpace('pre')};
 else
     
-    font_option = {FontFamily(),FontSize(),Bold(false),Italic(false),WhiteSpace('preserve')};
+    font_option = {FontFamily(),FontSize(),Bold(false),Italic(false),WhiteSpace('pre')};
 end
 
 % report body
@@ -153,10 +153,12 @@ if (report_content.ODEs==1)
     
     h2 = Heading(1, 'ODES');
     append(report,h2);
-
+    
+    odes_font = font_option;
+    odes_font{end+1} = FirstLineIndent('-1in');
     for i = 1:length(odes)
         p2 = Paragraph('');
-        p2.Style = font_option;
+        p2.Style = odes_font;
         append(p2, odes{i});
         append(report,p2);
     end
