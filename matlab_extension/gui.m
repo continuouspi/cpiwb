@@ -22,7 +22,7 @@ function varargout = gui(varargin)
 
 % Edit the above text to modify the response to help gui
 
-% Last Modified by GUIDE v2.5 04-Aug-2017 00:22:12
+% Last Modified by GUIDE v2.5 04-Aug-2017 11:09:25
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -215,6 +215,17 @@ function reset_compare(handles)
  set(handles.edit13,'string','1');
  set(handles.popupmenu5,'Value',1);
  
+ %Reset Analyse Solutions screen
+function reset_analysesolns(handles)
+ set(handles.edit14,'string','');
+ set(handles.edit15,'string','','enable','off');
+ set(handles.edit16,'string','','enable','off');
+ set(handles.popupmenu8,'value',1);
+ set(handles.popupmenu8,'String','Process List');
+ set(handles.edit17,'string','1');
+ 
+ reset_file_selection();
+ 
 % --- Executes on button press in pushbutton4.
 function pushbutton4_Callback(hObject, eventdata, handles)
 % hObject    handle to pushbutton4 (see GCBO)
@@ -244,7 +255,22 @@ function pushbutton5_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 global current_panel;
+global curr_fname;
+global curr_pname;
+global file_map;
 current_panel = change_panel(current_panel,'uipanel3',handles);
+
+if(isempty(file_map(curr_fname)) == 0);
+    %Making the filepath persistent across screens
+    filepath = fullfile(file_map(curr_pname), file_map(curr_fname));
+    set(handles.edit14,'string',filepath);
+    
+    %Opening the file
+    openfile_analysesolns(handles);
+elseif(isempty(file_map(curr_fname)) == 1);
+    %Resetting screen
+    reset_analysesolns(handles);
+end 
 
 % --- Executes on button press in pushbutton6.
 function pushbutton6_Callback(hObject, eventdata, handles)
@@ -341,6 +367,32 @@ function openfile_editmodel(handles)
     set(handles.edit1,'string',M);
     set(handles.edit1,'Enable','on'); 
 
+%Function to open file in the Analyse Solutions screen
+function openfile_analysesolns(handles)
+    global curr_pname; global file_map;
+    global curr_fname;
+    global definitions;
+    global process_map;
+    
+    %Creating the file path string
+    filepath = fullfile(file_map(curr_pname), file_map(curr_fname));
+    set(handles.edit14,'string',filepath);
+    
+    %Reading the file
+    definitions = fileread(strcat(file_map(curr_pname), '/', file_map(curr_fname)));
+    set(handles.edit15,'string',definitions, 'enable','inactive');
+     
+    %Populating the process list dialog box
+    [process_name_options, ~, ~, ...
+    ~] = retrieve_process_definitions(definitions);
+    set(handles.popupmenu8,'String',process_name_options);
+    
+    %Recalling selection of process list dialog box
+    set(handles.popupmenu8,'value',process_map(curr_fname));
+    
+    %Enabling LBC Query Edit Box
+    set(handles.edit16,'enable','on');
+    
 % --- Executes on button press in pushbutton8.
 function pushbutton8_Callback(hObject, eventdata, handles)
 % hObject    handle to pushbutton8 (see GCBO)
@@ -1015,9 +1067,6 @@ if(isequal(choice,'Yes'));
 end
 
 
-
-
-
 function edit10_Callback(hObject, eventdata, handles)
 % hObject    handle to edit10 (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
@@ -1422,14 +1471,34 @@ function pushbutton28_Callback(hObject, eventdata, handles)
 % hObject    handle to pushbutton28 (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
+global curr_fname;
+global curr_pname; 
+global file_map;
+[Ifname, Ipname] = uigetfile({'*.cpi', 'CPi Models (*.cpi)'}, 'Select a .cpi file');
 
+%Ensuring a file was selected
+if(~isequal(Ifname,0));
+    
+    %Setting global variables
+    file_map(curr_fname) = Ifname;
+    file_map(curr_pname) = Ipname;
+    
+    %Open file
+    openfile_analysesolns(handles);
+    
+end
 
 % --- Executes on button press in pushbutton29.
 function pushbutton29_Callback(hObject, eventdata, handles)
 % hObject    handle to pushbutton29 (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-
+global curr_fname;
+global file_map;
+if(isempty(file_map(curr_fname)) == 0);
+    %Open file again
+    openfile_analysesolns(handles);
+end
 
 
 function edit14_Callback(hObject, eventdata, handles)
@@ -1512,7 +1581,7 @@ function pushbutton31_Callback(hObject, eventdata, handles)
 % hObject    handle to pushbutton31 (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-
+pushbutton1_Callback(hObject, eventdata, handles);
 
 
 function edit16_Callback(hObject, eventdata, handles)
@@ -1549,10 +1618,114 @@ function pushbutton33_Callback(hObject, eventdata, handles)
 % hObject    handle to pushbutton33 (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
+global definitions;
+global curr_fname;
+global file_map;
 
+%Ensuring something was typed in the LBC Query edit box
+query = get(handles.edit16,'String');
+
+if(isempty(query));
+    errordlg('Please insert an LBC Query, or ''example'' for examples');
+    return;
+elseif(strcmp(query,'example'));
+    %Show help dialog
+    helpdlg(sprintf('For all of time the concentration of P exceeds 0.5:\n\tG([P] > 0.5)\n\nEventually T has degraded to the inert species:\n\tF([T] = 0)\n\nEither P falls below 0.5 or T always exceeds 0.1:\n\tF([P] < 0.5) or G([T] > 0.1)\n\nP never exceeds 1 and P does not equal 0:\n\tG([P] <= 1) and G([P] != 0)\n\nFor further guidance, a GUI to create queries may be found at http://scantisani.github.io/lbc-expression-creator/.'));
+    return;
+end  
+
+%Simulating the process after getting the selected parameters
+if(isempty(file_map(curr_fname)) == 0);
+    %Getting end time
+    end_time = get(handles.edit17,'String'); 
+    
+    if (not(isstrprop(end_time, 'digit')));
+        errordlg('The end time is not a digit.','End Time Error');
+        return;
+    elseif (str2double(end_time) < 0);
+        errordlg('The end time is negative.','End Time Error'); 
+        return; 
+    elseif (isempty(end_time));
+        errordlg('The end time is blank.','End Time Error'); 
+        return;   
+    end
+    
+    %Converting time inputs to double
+    end_time_db  = str2double(end_time);
+    
+    %Updating the status string
+    set(handles.text25,'string','Status: Simulating the model...');
+    set(handles.text25,'Position',[0.8 0.5 30 1.0833333333333333]);
+    pause(0.02);
+
+    %Getting the currently selected process
+    selection=get(handles.popupmenu8,'value');
+    process_name=get(handles.popupmenu8,'string');
+    
+    %Obtaining the ODEs
+    [odes, ode_num, initial_concentrations] = create_cpi_odes(definitions, process_name{selection,:});
+
+        % Creating the plot...
+    % Setup the legend for the simulation
+    [~, process_def_options, definition_tokens, ...
+    num_definitions] = retrieve_process_definitions(definitions);
+
+    [legend_strings, species_num] = prepare_legend(process_def_options{selection}, ...
+    definition_tokens, num_definitions);
+
+    %Solve CPi ODEs and display numerical solutions in a table.
+    [t, Y] = solve_cpi_odes_gui(odes, ode_num, initial_concentrations, end_time_db, ...
+    {'ode15s'}, legend_strings, 0);
+
+    %Updating the status string
+    set(handles.text25,'string','Status: Testing the query...');
+    set(handles.text25,'Position',[-0.2 0.5 30 1.0833333333333333]);
+    pause(0.02);
+
+    % tokenise and validate the entered expression
+    tokenised_query = validate_query_gui(query, legend_strings, end_time_db);
+    
+    % if the query is valid, answer it with True or False
+    if (size(tokenised_query))
+        answer_query_gui(tokenised_query, legend_strings, t, Y);
+    end
+    
+    %Reset the status string
+    set(handles.text25,'string','Status: Ready');
+    set(handles.text25,'Position',[0.833 0.5 17.333 1.083]);
+end
 
 % --- Executes on button press in pushbutton34.
 function pushbutton34_Callback(hObject, eventdata, handles)
 % hObject    handle to pushbutton34 (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
+choice = questdlg('Are you sure you want to reset the settings?', ...
+	'Close Button Confirmation', ...
+	'Yes','Cancel','Cancel');
+% Handle response
+if(isequal(choice,'Yes'));      
+    reset_analysesolns(handles)  
+end
+
+
+function edit17_Callback(hObject, eventdata, handles)
+% hObject    handle to edit17 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'String') returns contents of edit17 as text
+%        str2double(get(hObject,'String')) returns contents of edit17 as a double
+
+
+% --- Executes during object creation, after setting all properties.
+function edit17_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to edit17 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
