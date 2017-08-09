@@ -195,11 +195,11 @@ class Simulate():
             times_list = [ode_times, GLIMDA_times]
 
             tol_numlist = []
-            input_comparelist = self.species_list
+            input_comparelist = [self.species_list[loc], self.species_list[loc]]
 
             if plot_type == 'single':
                 singleplot_title = plottitle
-                singleCompare.plotdiffs(singleplot_title, tol_label, input_comparelist, tol_numlist, tol_solution,
+                singleCompare.plotdiffs(singleplot_title, tol_label, self.species_list[loc], tol_numlist, tol_solution,
                                         times_list)
             elif plot_type == 'separate':
                 separateCompare.plotdiffs(separateplot_title, input_comparelist, tol_numlist, tol_solution, times_list)
