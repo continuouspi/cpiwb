@@ -13,6 +13,7 @@ class SingleCompareSolution():
         self.tol_solution = tol_solution
         self.times_list = times_list
         self.separateplot_title = separateplot_title
+        self.process_list = []
 
     def show_common_plot(self, select_one, plot_type):
 
@@ -58,3 +59,16 @@ class SingleCompareSolution():
                                       self.times_list)
         else:
             print "Please input the correct plot type, 'single' or 'separate'."
+
+    def receive_process(self, process_list):
+
+        self.process_list = process_list
+
+    def show_solution(self, process):
+
+        try:
+            loc = self.process_list.index(process)
+            solution = self.tol_solution[loc]
+            return solution
+        except ValueError:
+            print 'Cannot find this process in the selected CPi model, please input the correct one.'

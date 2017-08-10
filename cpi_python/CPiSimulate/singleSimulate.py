@@ -8,6 +8,8 @@ import inputtimes
 import latexEqu
 import singleCompare
 import separateCompare
+import comparecpi
+import compareSolution
 from IPython.display import display, Math
 from ctypes import *
 
@@ -209,3 +211,40 @@ class Simulate():
         except ValueError:
             print 'Cannot find this process in the selected CPi model, please input the correct one.'
 
+    def simulate_all_processes(self, solver, t_start, t_final, t_divide):
+        if self.process_num == 1:
+            self.simulate_process(self.process_list[0], solver, t_start, t_final, t_divide)
+        elif self.process_num > 4:
+            print "There are too many processes in this models, you need to select at most four of them. "
+            return 0
+        else:
+            times = []
+            solution = []
+            for process_num in range(0, self.process_num):
+                temp_times, temp_sol = self.simulate(self.process_list[process_num], solver, t_start, t_final, t_divide)
+                times.append(temp_times)
+                solution.append(temp_sol)
+
+            same_list = comparecpi.compare_species(self.species_list)
+
+            if same_list != 0:  # if there are common species
+                #self.same_list = same_list
+                print 'Common species in these processes are: ' + ', '.join(same_list)
+            else:
+                print 'There is no common species in selected processes.'
+
+            tol_label = []
+            separateplot_title = []
+            tol_title = [self.filename]
+
+            for num in range(0, self.process_num):
+                model_tran = [i + '(' + self.process_list[num] + ', ' + self.filename + ')'
+                              for i in self.species_list[num]]
+                tol_label += model_tran
+                separateplot_title.append(self.filename + ' process ' + self.process_list[num])
+
+            solution_object = compareSolution.SingleCompareSolution(same_list, separateplot_title, tol_title, tol_label,
+                                                                    self.species_list, solution, times)
+            solution_object.process_list = self.process_list
+
+            return solution_object

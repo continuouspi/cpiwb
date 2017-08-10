@@ -2,7 +2,6 @@ __author__ = 's1648321'
 
 import matplotlib.pyplot as plt
 
-
 def plotdiffs(filetitle, label_list, input_comparelist, num_list, solution, times_list):
 
     plt.style.use('ggplot')
@@ -61,4 +60,7 @@ def plotdiffs(filetitle, label_list, input_comparelist, num_list, solution, time
         fig.canvas.draw()
 
     fig.canvas.mpl_connect('pick_event', on_pick)
+
+
+
 

@@ -89,4 +89,4 @@ class PlotOdes():
         plt.show()
 
     def show_solution(self):
-        print self.solution
+        return self.solution
