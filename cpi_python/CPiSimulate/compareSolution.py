@@ -69,6 +69,6 @@ class SingleCompareSolution():
         try:
             loc = self.process_list.index(process)
             solution = self.tol_solution[loc]
-            return solution
+            return solution.T
         except ValueError:
             print 'Cannot find this process in the selected CPi model, please input the correct one.'
