@@ -22,7 +22,7 @@ function varargout = gui(varargin)
 
 % Edit the above text to modify the response to help gui
 
-% Last Modified by GUIDE v2.5 04-Aug-2017 11:09:25
+% Last Modified by GUIDE v2.5 16-Aug-2017 14:13:34
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -1729,3 +1729,11 @@ function edit17_CreateFcn(hObject, eventdata, handles)
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor','white');
 end
+
+
+% --- Executes on button press in pushbutton35.
+function pushbutton35_Callback(hObject, eventdata, handles)
+% hObject    handle to pushbutton35 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+msgbox('Please refer to the gui_help.pdf file for Support Documentation.','Support Documentation');
