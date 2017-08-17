@@ -1736,4 +1736,4 @@ function pushbutton35_Callback(hObject, eventdata, handles)
 % hObject    handle to pushbutton35 (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-msgbox('Please refer to the gui_help.pdf file for Support Documentation.','Support Documentation');
+msgbox('Please refer to the help.pdf file for Support Documentation.','Support Documentation');
